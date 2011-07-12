@@ -1,5 +1,6 @@
 package gruppe16;
 
+import gruppe16.exceptions.InvalidInstruction;
 import gruppe16.exceptions.InvalidLevelException;
 
 import java.io.ByteArrayInputStream;
@@ -12,7 +13,10 @@ import java.util.regex.Pattern;
 
 public class Level {
 	
-	static final String pat = "[" + Pattern.quote("lrtbvhLRTBVH-*") + "]";
+	static final String unharmedShip = "lrtbvh";
+	static final String   harmedShip = "LRTBVH";
+	
+	static final String pat = "[" + Pattern.quote(unharmedShip + harmedShip + "-*") + "]";
 	
 	List<List<List<Character>>> boards;
 	
@@ -83,7 +87,7 @@ public class Level {
 	private void checkBoards(int counter) throws InvalidLevelException {
 		for (int i : new int[2]) {
 			if (boards.get(i).get(counter-1).size() != boards.get(i).get(counter-2).size()) {
-				throw new InvalidLevelException("Player 1 line " + counter + " length is not equal to previous length");
+				throw new InvalidLevelException("Player 1 line " + counter + " length is not equal to previous length", boards.get(i));
 			}
 		}
 	}
@@ -109,6 +113,18 @@ public class Level {
         }
             
         return sb.toString();
+	}
+	
+	public void attack(int player, int x, int y) throws InvalidInstruction {
+		List<Character> line = boards.get(player).get(x);
+		char c = line.get(y);
+		
+		if (!Pattern.matches("[" + Pattern.quote(unharmedShip + "-") + "]", new String(new char[] {c}))) {
+			throw new InvalidInstruction();
+		}
+		
+		line.remove(y);
+		line.add(y, Character.toUpperCase(c));
 	}
 
 	private static char[] unboxedArray(Character[] array) {

@@ -25,21 +25,11 @@ public class SchiffeVersenken {
 		Character[][] p1lvlarr = lp.getPlayerBoard(0);
 
 		Map2DHelper<Character> helper = new Map2DHelper<Character>();
-		helper.print(p1lvlarr);
+		System.out.println(helper.getBoardString(p1lvlarr));
 		
 		System.out.println(lp.toString());
 	}
 	
-	static class Map2DHelper<T> {
-	    public void print(T[][] a) {
-	          for (int i = 0; i < a.length; i++) {
-	                  for (int j = 0; j < a[i].length; j++) {
-	                          System.out.format("%1$3s", a[i][j]);
-	                  }
-	                  System.out.print("\n");
-	          }
-	          System.out.print("\n");
-	    }
-	}
+
 }
 
