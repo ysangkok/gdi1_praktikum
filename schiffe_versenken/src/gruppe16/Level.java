@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -31,8 +32,8 @@ public class Level {
 		
 		int counter = 0;
 		
-		List<List<Character>> Player1Board = new ArrayList<List<Character>>();
-		List<List<Character>> Player2Board = new ArrayList<List<Character>>();
+		LinkedList<List<Character>> Player1Board = new LinkedList<List<Character>>();
+		LinkedList<List<Character>> Player2Board = new LinkedList<List<Character>>();
 		boards = new ArrayList<List<List<Character>>>();
 		boards.add(Player1Board);
 		boards.add(Player2Board);
@@ -82,6 +83,10 @@ public class Level {
 				throw new InvalidLevelException("Invalid character: " + c);
 			}
 		}
+		if (p1line.size() == 0 && p2line.size() == 0) {
+			Player1Board.removeLast();
+			Player2Board.removeLast();
+		}
 	}
 
 	private void checkBoards(int counter) throws InvalidLevelException {
@@ -116,7 +121,12 @@ public class Level {
 	}
 	
 	public void attack(int player, int x, int y) throws InvalidInstruction {
-		List<Character> line = boards.get(player).get(x);
+		List<Character> line;
+		try {
+			line = boards.get(player).get(x);
+		} catch (IndexOutOfBoundsException e) {
+			throw new InvalidInstruction();
+		}
 		char c = line.get(y);
 		
 		if (!Pattern.matches("[" + Pattern.quote(unharmedShip + "-") + "]", new String(new char[] {c}))) {

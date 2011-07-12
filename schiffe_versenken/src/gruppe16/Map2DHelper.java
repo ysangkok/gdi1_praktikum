@@ -9,7 +9,7 @@ public class Map2DHelper<T> {
 		Formatter f = new Formatter();
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
-				sb.append(f.format("%1$3s", a[i][j]));
+				sb.append(f.format("%1$1s", a[i][j]));
 			}
 			sb.append("\n");
 		}
@@ -22,7 +22,8 @@ public class Map2DHelper<T> {
 		Formatter f = new Formatter();
 		for (int i = 0; i < a.size(); i++) {
 			for (int j = 0; j < a.get(i).size(); j++) {
-				sb.append(f.format("%1$3s", a.get(i).get(j)));
+				sb.append(Integer.toString(i) + "," + Integer.toString(j));
+				sb.append(f.format("%1$1s", a.get(i).get(j)));
 			}
 			sb.append("\n");
 		}
