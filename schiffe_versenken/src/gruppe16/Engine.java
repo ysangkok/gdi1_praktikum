@@ -57,8 +57,8 @@ public class Engine {
 		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
 	}
 	
-	public boolean attack(int player, int x, int y) throws InvalidInstruction {
-		boolean hit;
+	public char attack(int player, int x, int y) throws InvalidInstruction {
+		char hit;
 		
 		State newState = state.clone();
 		undoLog.add(newState); 

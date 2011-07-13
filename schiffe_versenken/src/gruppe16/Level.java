@@ -120,7 +120,7 @@ public class Level {
         return sb.toString();
 	}
 	
-	public boolean attack(int player, int x, int y) throws InvalidInstruction {
+	public char attack(int player, int x, int y) throws InvalidInstruction {
 		if		(player == 1)	player = 0;
 		else if (player == 0)	player = 1;
 		else 					assert true;
@@ -138,15 +138,13 @@ public class Level {
 		}
 		
 		line.remove(y);
-				
-		boolean hit;
 		
-		if (c == '-')	{ c = '*'; hit = false; }
-		else			{ c = Character.toUpperCase(c); hit = true; }
+		if (c == '-')	{ c = '*'; }
+		else			{ c = Character.toUpperCase(c); }
 				
 		line.add(y, c);
 		
-		return hit;
+		return c;
 	}
 	
 	public boolean isPlayerLoser(int p) {
