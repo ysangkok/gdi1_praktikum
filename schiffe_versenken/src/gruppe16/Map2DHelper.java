@@ -4,7 +4,7 @@ import java.util.Formatter;
 import java.util.List;
 
 public class Map2DHelper<T> {
-	public String getBoardString(T[][] a) {
+	/*public String getBoardString(char[][] a) {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter();
 		for (int i = 0; i < a.length; i++) {
@@ -15,15 +15,30 @@ public class Map2DHelper<T> {
 		}
 		sb.append("\n");
 		return sb.toString();
+	}*/
+	
+	public String getBoardString(T[][] a) {
+		StringBuilder sb = new StringBuilder();
+		Formatter f = new Formatter(sb);
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				//System.err.println(a[i][j]);
+				f.format("%1$1s", a[i][j]);
+			}
+			sb.append("\n");
+		}
+		sb.append("\n");
+		//System.err.println(sb.toString());
+		return sb.toString();
 	}
 
 	public String getBoardString(List<List<T>> a) {
 		StringBuilder sb = new StringBuilder();
-		Formatter f = new Formatter();
+		Formatter f = new Formatter(sb);
 		for (int i = 0; i < a.size(); i++) {
 			for (int j = 0; j < a.get(i).size(); j++) {
 				//sb.append(Integer.toString(i) + "," + Integer.toString(j));
-				sb.append(f.format("%1$1s", a.get(i).get(j)));
+				f.format("%1$1s", a.get(i).get(j));
 			}
 			sb.append("\n");
 		}

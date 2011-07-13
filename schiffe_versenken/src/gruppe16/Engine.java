@@ -61,7 +61,7 @@ public class Engine {
 		boolean hit;
 		
 		State newState = state.clone();
-		undoLog.add(newState);
+		undoLog.add(newState); 
 		
 		hit = newState.getLevel().attack(player, x, y);
 		
@@ -69,6 +69,9 @@ public class Engine {
 		//System.err.println(getLevel().toString());
 		
 		checkWin();
+		
+		boolean[][] fog = state.getFog(player);
+		fog[x][y] = false;
 		
 		return hit;
 	}
@@ -97,12 +100,23 @@ public class Engine {
 	}
 
 	public String getLevelStringForPlayer(int i) {
-		/*char[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(	i));
-		char[][] our		= state.getLevel().getPlayerBoard(				i));
+		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
+		Character[][] our		= state.getLevel().getPlayerBoard(i					);
 		
-		ourFog*/
+		boolean[][] ourFog = state.getFog(i);
 		
-		return state.getLevel().toString();
+		for (int j = 0; j < ourFog.length; j++) {
+			for (int k = 0; k < ourFog[j].length; k++) {
+				if (ourFog[j][k])
+					opponent[j][k] = '#';
+			}
+		}
+		
+		Map2DHelper<Character> helper = new Map2DHelper<Character>();
+		//return helper.getBoardString(new Character[][] {{'-'}, {'-'}});
+		return "Your board:\n" + helper.getBoardString(our) + "Their board:\n" + helper.getBoardString(opponent);
+		
+		//return state.getLevel().toString();
 	}
 
 }

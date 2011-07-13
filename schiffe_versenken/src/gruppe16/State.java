@@ -16,6 +16,14 @@ public class State implements Cloneable {
 
 	State(Level level) {
 		this.level = level;
+		fog = new boolean[2][level.getPlayerBoard(0).length][level.getPlayerBoard(0)[0].length];
+		for (int i : new int[] {0, 1}) {
+			for (int j = 0; j < fog[i].length; j++) {
+				for (int k = 0; k < fog[i][j].length; k++) {
+					fog[i][j][k] = true;
+				}
+			}
+		}
 	}
 	
 	public Level getLevel() {
@@ -35,7 +43,16 @@ public class State implements Cloneable {
 			return null;
 		}
 		
-		//TODO auch fog clonen
+		boolean[][][] newFog = new boolean[2][fog[0].length][fog[0][0].length];
+		for (int i : new int[] {0, 1}) {
+			for (int j = 0; j < fog[i].length; j++) {
+				for (int k = 0; k < fog[i][j].length; k++) {
+					newFog[i][j][k] = fog[i][j][k];
+				}
+			}
+		}
+		
+		newState.setFog(newFog);
 		return newState;
 	}
 	
@@ -56,6 +73,6 @@ public class State implements Cloneable {
 			level = new Level(text);
 		} catch (Exception e) { return; }
 		State st1 = new State(level);
-		State st2 = st1.clone();
+		st1.clone();
 	}
 }
