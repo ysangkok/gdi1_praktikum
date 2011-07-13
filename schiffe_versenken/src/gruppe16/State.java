@@ -4,7 +4,16 @@ import gruppe16.exceptions.InvalidLevelException;
 
 public class State implements Cloneable {
 	private Level level;
+	private boolean[][][] fog;
 	
+	public boolean[][] getFog(int player) {
+		return fog[player];
+	}
+
+	public void setFog(boolean[][][] fog) {
+		this.fog = fog;
+	}
+
 	State(Level level) {
 		this.level = level;
 	}
@@ -25,6 +34,8 @@ public class State implements Cloneable {
 			e.printBoard();
 			return null;
 		}
+		
+		//TODO auch fog clonen
 		return newState;
 	}
 	

@@ -13,8 +13,8 @@ public class BadAI extends AI {
 	
 	BadAI(Engine engine) {
 		gen = new Random();
-		xwidth = engine.getLevel().getPlayerBoard(0).length;
-		ywidth = engine.getLevel().getPlayerBoard(0)[0].length;
+		xwidth = engine.getxWidth();
+		ywidth = engine.getyWidth();
 		this.engine = engine;
 	}
 	

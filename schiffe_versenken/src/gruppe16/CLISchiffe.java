@@ -19,7 +19,7 @@ public class CLISchiffe extends ConsoleProgram {
 		AI computer = new BadAI(engine);
 		boolean humanPlays = true;
 		while (!engine.isFinished()) {
-			print(engine.getLevel().toString());
+			print(engine.getLevelStringForPlayer((humanPlays ? 0 : 1)));
 			//if (false) {
 			if (humanPlays) {
 				println("Your turn!");

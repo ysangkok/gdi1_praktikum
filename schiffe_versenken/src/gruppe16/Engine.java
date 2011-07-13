@@ -12,6 +12,16 @@ public class Engine {
 	private State state;
 	
 	private boolean finished = false;
+	private int xWidth;
+	private int yWidth;
+
+	public int getxWidth() {
+		return xWidth;
+	}
+
+	public int getyWidth() {
+		return yWidth;
+	}
 
 	public Engine() {
 		undoLog = new LinkedList<State>();
@@ -43,18 +53,24 @@ public class Engine {
 		undoLog.add(initialState);
 		
 		this.state = initialState;
+		this.xWidth = initialLevel.getPlayerBoard(0).length;
+		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
 	}
 	
-	public void attack(int player, int x, int y) throws InvalidInstruction {
+	public boolean attack(int player, int x, int y) throws InvalidInstruction {
+		boolean hit;
+		
 		State newState = state.clone();
 		undoLog.add(newState);
 		
-		newState.getLevel().attack(player, x, y);
+		hit = newState.getLevel().attack(player, x, y);
 		
 		this.state = newState;
 		//System.err.println(getLevel().toString());
 		
 		checkWin();
+		
+		return hit;
 	}
 	
 	public int checkWin() {
@@ -80,7 +96,13 @@ public class Engine {
 		return this.finished;
 	}
 
-	public Level getLevel() {
-		return state.getLevel();
+	public String getLevelStringForPlayer(int i) {
+		/*char[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(	i));
+		char[][] our		= state.getLevel().getPlayerBoard(				i));
+		
+		ourFog*/
+		
+		return state.getLevel().toString();
 	}
+
 }
