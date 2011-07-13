@@ -1,5 +1,12 @@
 package adapters;
 
+import gruppe16.AI;
+import gruppe16.BadAI;
+import gruppe16.Engine;
+import gruppe16.Level;
+import gruppe16.exceptions.InvalidInstruction;
+import gruppe16.exceptions.InvalidLevelException;
+
 
 /**
  * This is the test adapter for the minimal stage of completion. You <b>must</b> implement the method stubs and match
@@ -27,13 +34,16 @@ package adapters;
  */
 public class BattleshipTestAdapterMinimal {
 	
-
+	String levelString;
+	Level level;
+	Engine engine;
+	AI ai;
 
 	/**
 	 * Use this constructor to initialize everything you need.
 	 */
 	public BattleshipTestAdapterMinimal() {
-		//TODO implement this stub
+
 	}
 	
 	
@@ -49,7 +59,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #isValidLevel()
 	 */
 	public void createGameUsingLevelString(String levelstring) {
-		//TODO implement this stub
+		this.levelString = levelstring;
 	}
 	
 	/** 
@@ -70,8 +80,9 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #isValidLevel()
 	 */
 	public String getCurrentLevelStringRepresentation() {
-		//TODO implement this stub
-		return null;
+		String str = engine.getState().getLevel().toString();
+		System.out.println("STRREPR: \n" + str);
+		return str;
 	}
 	
 	/** 
@@ -85,8 +96,14 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #createGameUsingLevelString(String)
 	 */
 	public boolean isValidLevel() {
-		//TODO implement this stub
-		return false;
+		try {
+			level = new Level(levelString);
+			engine = new Engine(level);
+			ai = new BadAI(engine);
+		} catch (InvalidLevelException e) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -95,8 +112,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true, if in the current level no further move can be done
 	 */
 	public boolean isFinished() {
-		//TODO implement this stub
-		return false;
+		return engine.isFinished();
 	}
 	
 	/**
@@ -105,8 +121,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true, if the player won the current level.
 	 */
 	public boolean isWon() {
-		//TODO implement this stub
-		return false;
+		return engine.checkWin() == 0;
 	}
 	
 	/**
@@ -115,8 +130,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true, if the player lost the current level.
 	 */
 	public boolean isLost() {
-		//TODO implement this stub
-		return false;
+		return engine.checkWin() == 1;
 	}
 	
 	/**
@@ -146,8 +160,20 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #doAIShot()        
 	 */
 	public boolean selectCell(int x, int y) {
-		//TODO implement this stub
-		return false;
+		System.out.println(engine.getState().getLevel().toString());
+		boolean catched = false;
+		char c = '\0';
+		try {
+			c = engine.attack(-1, y, x);
+		} catch (InvalidInstruction e) {
+			System.err.println(e.getMessage());
+			catched = true;
+		} finally {
+			System.out.println(engine.getState().getLevel().toString());
+			if (catched) return false;
+		}
+		System.out.println("Char: " + c);
+		return true;
 	}
 	
 	
@@ -209,7 +235,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #selectCell(int, int)     
 	 */
 	public void doAIShot() {
-		//TODO implement this stub
+		ai.playAs(1);
 	}
 
 }

@@ -18,7 +18,7 @@ public class BadAI extends AI {
 	 * constructor takes the game engine to play in
 	 * @param engine game engine to manipulate
 	 */
-	BadAI(Engine engine) {
+	public BadAI(Engine engine) {
 		gen = new Random();
 		xwidth = engine.getxWidth();
 		ywidth = engine.getyWidth();

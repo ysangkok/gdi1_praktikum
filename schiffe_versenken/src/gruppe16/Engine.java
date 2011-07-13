@@ -26,6 +26,19 @@ public class Engine {
 		return yWidth;
 	}
 
+	public Engine(Level level) {
+		state = new State(level);
+		xWidth = level.getPlayerBoard(0).length;
+		yWidth = level.getPlayerBoard(0)[0].length;
+		
+		undoLog = new LinkedList<State>(); // list for storing all states since last new game
+		undoLog.add(state);
+	}
+	
+	public State getState() {
+		return state;
+	}
+
 	public Engine() {
 		Level initialLevel;
 		initialLevel = new LevelGenerator(8,8).getLevel();
@@ -50,6 +63,11 @@ public class Engine {
 	 */
 	public char attack(int player, int x, int y) throws InvalidInstruction {
 		char hit;
+		
+		if (player == -1) {
+			player = ((y > yWidth-1) ? 0 : 1);
+			y = y - yWidth - 1;
+		}
 		
 		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 

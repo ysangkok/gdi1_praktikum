@@ -37,7 +37,7 @@ public class Level {
 	 * @param text level string
 	 * @throws InvalidLevelException
 	 */
-	Level(String text) throws InvalidLevelException  {
+	public Level(String text) throws InvalidLevelException  {
 		InputStream stream;
 		try {
 			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
@@ -71,7 +71,7 @@ public class Level {
 				return;
 			}
 			if (c == -1 || c == 65535) { // end of file
-				if (prevChar == '\n') { // we can only check the boards if the last two lines aren't empty. if the previous character was a newline, they are empty.
+				if (prevChar == '\n' | prevChar == '|') { // we can only check the boards if the last two lines aren't empty. if the previous character was a newline, they are empty.
 					checkBoards(counter);
 				}
 				break;
@@ -103,6 +103,11 @@ public class Level {
 			Player1Board.removeLast();
 			Player2Board.removeLast();
 		}
+		for ( int i : new int[] {0, 1})
+			for ( int j=0; j<boards.size(); j++)
+				for ( int k=0; k<boards.get(j).size(); k++)
+					if (boards.get(j).size() != boards.get(i).get(k).size())
+						throw new InvalidLevelException("different width and height");
 	}
 
 	/**
@@ -164,15 +169,16 @@ public class Level {
 		else 					assert true;
 		
 		List<Character> line;
+		char c;
 		try {
 			line = boards.get(player).get(x);
+			c = line.get(y);
 		} catch (IndexOutOfBoundsException e) {
-			throw new InvalidInstruction();
+			throw new InvalidInstruction(x,y,'\0');
 		}
-		char c = line.get(y);
 		
 		if (!Pattern.matches("[" + Pattern.quote(unharmedShip + "-") + "]", new String(new char[] {c}))) {
-			throw new InvalidInstruction();
+			throw new InvalidInstruction(x,y,c);
 		}
 		
 		line.remove(y);
@@ -214,6 +220,18 @@ public class Level {
         for (int i = 0; i < array.length; i++)
                 result[i] = array[i];
         return result;
+	}
+	
+	public static void main(String[] args) {
+		Level level;
+		try {
+			level = new Level("----------|----------\n--lr------|-lhr------\n-t-----lhr|----------\n-v-lr-----|--lhr----t\n-b---lhhr-|-------t-b\n----------|-lhhhr-v--\n---lhhr-lr|-------v-t\n-lr-------|-lhr---b-b\n------lhr-|----lr----\n-lhhhr-----lr---lhhr");
+		} catch (InvalidLevelException e) {
+			System.err.println("Invalid");
+			return;
+		}
+		System.out.println(level.toString());
+
 	}
 	
 }

@@ -46,6 +46,10 @@ public class State implements Cloneable { // implements Cloneable so that we can
 		return this.level;
 	}
 	
+	public void setLevel(Level level) {
+		this.level = level;
+	}
+
 	/**
 	 * returns an independent State containing all the current values
 	 */
