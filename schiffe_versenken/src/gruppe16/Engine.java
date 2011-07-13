@@ -9,24 +9,24 @@ import java.util.List;
 public class Engine {
 
 	private List<State> undoLog;
-	State state;
+	private State state;
 	
-	public boolean finished = false;
+	private boolean finished = false;
 
 	public Engine() {
 		undoLog = new LinkedList<State>();
 		
 		String text = 
-			"lr--t---lr|lr-------t\n"+
-			"----b-----|---lhr---b\n"+
+			"lr--t---lr|lr--------\n"+
+			"----b-----|----------\n"+
 			"----------|----------\n"+
-			"--t--lhhr-|------lhr-\n"+
-			"--v-------|--lhr-----\n"+
-			"--v-lhhr--|t---------\n"+
-			"--v------t|v-t--lhhr-\n"+
-			"--b-lhr--b|v-v-------\n"+
-			"----------|v-v--t----\n"+
-			"lhr----lhr|b-b--b--lr\n";
+			"--t--lhhr-|----------\n"+
+			"--v-------|----------\n"+
+			"--v-lhhr--|----------\n"+
+			"--v------t|----------\n"+
+			"--b-lhr--b|----------\n"+
+			"----------|----------\n"+
+			"lhr----lhr|----------\n";
 		
 		Level initialLevel;
 		
@@ -49,10 +49,38 @@ public class Engine {
 		State newState = state.clone();
 		undoLog.add(newState);
 		
-		newState.level.attack(player, x, y);
+		newState.getLevel().attack(player, x, y);
+		
+		this.state = newState;
+		//System.err.println(getLevel().toString());
+		
+		checkWin();
+	}
+	
+	public int checkWin() {
+		for (int i : new int[] {0, 1}) {
+			//System.err.println("Checking player " + i);
+			if (state.getLevel().isPlayerLoser(i)) {
+				this.finished = true;
+				return otherPlayer(i);
+			}
+		}
+		return -1;
+	}
+	
+	private int otherPlayer(int i) {
+		if (i == 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+		
+	public boolean isFinished() {
+		return this.finished;
 	}
 
 	public Level getLevel() {
-		return state.level;
+		return state.getLevel();
 	}
 }

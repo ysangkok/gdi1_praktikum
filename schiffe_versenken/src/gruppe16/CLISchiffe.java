@@ -15,17 +15,37 @@ public class CLISchiffe extends ConsoleProgram {
 	}
 	
 	public void run() {
-		while (!engine.finished) {
+		int winner = -1;
+		AI computer = new BadAI(engine);
+		boolean humanPlays = true;
+		while (!engine.isFinished()) {
 			print(engine.getLevel().toString());
-			int x = readInt("X Koordinate:");
-			int y = readInt("Y Koordinate:");
-			
-			try {
-				engine.attack(0, x, y);
-			} catch (InvalidInstruction e) {
-				showErrorMessage(e.getMessage());
-				continue;
+			//if (false) {
+			if (humanPlays) {
+				println("Your turn!");
+				int y = readInt("X Koordinate:");
+				int x = readInt("Y Koordinate:");
+
+				try {
+					engine.attack(0, x, y);
+				} catch (InvalidInstruction e) {
+					showErrorMessage(e.getMessage());
+					continue;
+				}
+			} else {
+				println("Computer plays!");
+				pause(1000);
+				computer.playAs(1);
 			}
+			
+			winner = engine.checkWin();
+			humanPlays = !humanPlays;
+		}
+		println("Game over");
+		if (winner == -1) {
+			println("Draw");
+		} else {
+			println("Player " + (winner+1) + " won!");
 		}
 
 	}

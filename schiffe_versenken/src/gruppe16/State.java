@@ -3,10 +3,14 @@ package gruppe16;
 import gruppe16.exceptions.InvalidLevelException;
 
 public class State implements Cloneable {
-	public Level level;
+	private Level level;
 	
 	State(Level level) {
 		this.level = level;
+	}
+	
+	public Level getLevel() {
+		return this.level;
 	}
 	
 	@Override public State clone() {

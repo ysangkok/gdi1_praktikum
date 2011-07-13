@@ -90,7 +90,7 @@ public class Level {
 	}
 
 	private void checkBoards(int counter) throws InvalidLevelException {
-		for (int i : new int[2]) {
+		for (int i : new int[] {0, 1}) {
 			if (boards.get(i).get(counter-1).size() != boards.get(i).get(counter-2).size()) {
 				throw new InvalidLevelException("Player 1 line " + counter + " length is not equal to previous length", boards.get(i));
 			}
@@ -113,7 +113,7 @@ public class Level {
         for (int i = 0; i < boards.get(0).size(); i++) {
         	sb.append(new String( unboxedArray(boards.get(0).get(i).toArray(new Character[0]) ) ) );
         	sb.append("|");
-        	sb.append(new String( unboxedArray(boards.get(0).get(i).toArray(new Character[0]) ) ) );
+        	sb.append(new String( unboxedArray(boards.get(1).get(i).toArray(new Character[0]) ) ) );
         	sb.append("\n");
         }
             
@@ -121,6 +121,10 @@ public class Level {
 	}
 	
 	public void attack(int player, int x, int y) throws InvalidInstruction {
+		if		(player == 1)	player = 0;
+		else if (player == 0)	player = 1;
+		else 					assert true;
+		
 		List<Character> line;
 		try {
 			line = boards.get(player).get(x);
@@ -134,7 +138,25 @@ public class Level {
 		}
 		
 		line.remove(y);
-		line.add(y, Character.toUpperCase(c));
+				
+		if (c == '-')	c = '*';
+		else			c = Character.toUpperCase(c);
+				
+		line.add(y, c);
+	}
+	
+	public boolean isPlayerLoser(int p) {
+		Character[][] board = getPlayerBoard(p);
+		
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				if (Pattern.matches("[" + Pattern.quote(unharmedShip) + "]", new String(new char[] {board[i][j]}))) {
+					//System.err.println("matched on " + i + ","+ j + "," + board[i][j]);
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private static char[] unboxedArray(Character[] array) {
