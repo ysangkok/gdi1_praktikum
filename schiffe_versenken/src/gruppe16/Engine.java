@@ -6,6 +6,9 @@ import gruppe16.exceptions.InvalidLevelException;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * class for game core logic
+ */
 public class Engine {
 
 	private List<State> undoLog;
@@ -24,9 +27,9 @@ public class Engine {
 	}
 
 	public Engine() {
-		undoLog = new LinkedList<State>();
+		undoLog = new LinkedList<State>(); // list for storing all states since last new game
 		
-		String text = 
+		String text =  //TODO should probably just pass on a filename given from UI to a new Level constructor
 			"lr--t---lr|lr--------\n"+
 			"----b-----|----------\n"+
 			"----------|----------\n"+
@@ -57,10 +60,18 @@ public class Engine {
 		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
 	}
 	
+	/**
+	 * tries to attack at the given coordinates. throws exception 
+	 * @param player the player who is shooting
+	 * @param x first array index (actually the line number)
+	 * @param y second array index (actually the character at N pos in line)
+	 * @return the character at the given position after shooting. '*' or one of the uppercase letters
+	 * @throws InvalidInstruction if you shoot at field that was already hit. also throws when out of range.
+	 */
 	public char attack(int player, int x, int y) throws InvalidInstruction {
 		char hit;
 		
-		State newState = state.clone();
+		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 
 		
 		hit = newState.getLevel().attack(player, x, y);
@@ -68,14 +79,18 @@ public class Engine {
 		this.state = newState;
 		//System.err.println(getLevel().toString());
 		
-		checkWin();
+		checkWin(); // update isFinished, just in case we dont explicitly check from GUI or CLI
 		
 		boolean[][] fog = state.getFog(player);
-		fog[x][y] = false;
+		fog[x][y] = false; // this field is not visible
 		
 		return hit;
 	}
 	
+	/**
+	 * check if someone won
+	 * @return -1 if no one won so far. returns the winning player if somebody lost
+	 */
 	public int checkWin() {
 		for (int i : new int[] {0, 1}) {
 			//System.err.println("Checking player " + i);
@@ -87,6 +102,11 @@ public class Engine {
 		return -1;
 	}
 	
+	/**
+	 * gets the number of the other player
+	 * @param i the player number NOT to return
+	 * @return the other player number
+	 */
 	private int otherPlayer(int i) {
 		if (i == 0) {
 			return 1;
@@ -94,11 +114,20 @@ public class Engine {
 			return 0;
 		}
 	}
-		
+	
+	/**
+	 * is game over?
+	 * @return true when game over, false when not
+	 */
 	public boolean isFinished() {
 		return this.finished;
 	}
 
+	/**
+	 * generates string that only shows our board and the visible fields in opponents board
+	 * @param i player number playing
+	 * @return String which is mostly usable in CLI interface
+	 */
 	public String getLevelStringForPlayer(int i) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);

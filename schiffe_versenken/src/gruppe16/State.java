@@ -2,18 +2,34 @@ package gruppe16;
 
 import gruppe16.exceptions.InvalidLevelException;
 
-public class State implements Cloneable {
+/**
+ * class for storing game state, including level and fog.
+ */
+public class State implements Cloneable { // implements Cloneable so that we can clone states for undoing 
 	private Level level;
 	private boolean[][][] fog;
 	
+	/**
+	 * gets 2d fog array for given player
+	 * @param player player number
+	 * @return boolean[][] with true where it's foggy and false where it's not
+	 */
 	public boolean[][] getFog(int player) {
 		return fog[player];
 	}
 
+	/**
+	 * update fog table
+	 * @param fog 1st index: player number, 2nd index: line number, 3rd index: field in line number
+	 */
 	public void setFog(boolean[][][] fog) {
 		this.fog = fog;
 	}
 
+	/**
+	 * constructor takes a current level. also initializes fog map to all foggy.
+	 * @param level current level progress
+	 */
 	State(Level level) {
 		this.level = level;
 		fog = new boolean[2][level.getPlayerBoard(0).length][level.getPlayerBoard(0)[0].length];
@@ -30,6 +46,9 @@ public class State implements Cloneable {
 		return this.level;
 	}
 	
+	/**
+	 * returns an independent State containing all the current values
+	 */
 	@Override public State clone() {
 		State newState;
 		try {
@@ -44,7 +63,7 @@ public class State implements Cloneable {
 		}
 		
 		boolean[][][] newFog = new boolean[2][fog[0].length][fog[0][0].length];
-		for (int i : new int[] {0, 1}) {
+		for (int i : new int[] {0, 1}) { // both players
 			for (int j = 0; j < fog[i].length; j++) {
 				for (int k = 0; k < fog[i][j].length; k++) {
 					newFog[i][j][k] = fog[i][j][k];
@@ -56,6 +75,10 @@ public class State implements Cloneable {
 		return newState;
 	}
 	
+	/**
+	 * main procedure for testing
+	 * @param args not used
+	 */
 	public static void main(String[] args) {
 		String text = 
 			"lr--t---lr|lr-------t\n"+
