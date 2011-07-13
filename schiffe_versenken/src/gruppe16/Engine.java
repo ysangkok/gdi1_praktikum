@@ -27,32 +27,12 @@ public class Engine {
 	}
 
 	public Engine() {
-		undoLog = new LinkedList<State>(); // list for storing all states since last new game
-		
-		String text =  //TODO should probably just pass on a filename given from UI to a new Level constructor
-			"lr--t---lr|lr--------\n"+
-			"----b-----|----------\n"+
-			"----------|----------\n"+
-			"--t--lhhr-|----------\n"+
-			"--v-------|----------\n"+
-			"--v-lhhr--|----------\n"+
-			"--v------t|----------\n"+
-			"--b-lhr--b|----------\n"+
-			"----------|----------\n"+
-			"lhr----lhr|----------\n";
-		
 		Level initialLevel;
-		
-		try {
-			initialLevel = new Level(text);
-		} catch (InvalidLevelException e) {
-			System.err.println(e.getMessage());
-			finished = true; 
-			return;
-		}
+		initialLevel = new LevelGenerator(8,8).getLevel();
 		
 		State initialState = new State(initialLevel);
 		
+		undoLog = new LinkedList<State>(); // list for storing all states since last new game
 		undoLog.add(initialState);
 		
 		this.state = initialState;

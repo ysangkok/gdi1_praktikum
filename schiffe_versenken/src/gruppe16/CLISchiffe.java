@@ -43,7 +43,7 @@ public class CLISchiffe extends ConsoleProgram {
 				}
 			} else {
 				println("Computer plays!");
-				pause(1000);
+				//pause(1000);
 				computer.playAs(1); // play as player 2 (players are 0 and 1)
 			}
 			
