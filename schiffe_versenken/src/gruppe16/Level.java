@@ -25,6 +25,14 @@ public class Level {
 	List<List<List<Character>>> boards; // for storing the board of each player
 	
 	/**
+	 * constructor that takes a all-ready List data structure
+	 * @param newBoards 3D List. 1st dimension: players, 2nd dimension: lines, 3rd dimension: columns
+	 */
+	Level(List<List<List<Character>>> newBoards) {
+		boards = newBoards;
+	}
+	
+	/**
 	 * constructor that takes the level as a string
 	 * @param text level string
 	 * @throws InvalidLevelException
