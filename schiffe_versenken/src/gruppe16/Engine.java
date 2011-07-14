@@ -1,6 +1,7 @@
 package gruppe16;
 
 import gruppe16.exceptions.InvalidInstruction;
+import gruppe16.exceptions.InvalidLevelException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * class for game core logic
  */
 public class Engine {
+	private boolean allowMultipleShotsPerTurn = Rules.defaultAllowMultipleShotsPerTurn;
 
 	private List<State> undoLog;
 	private State state;
@@ -84,7 +86,11 @@ public class Engine {
 		this.state = newState;
 		//System.err.println(getLevel().toString());
 		
-		if (!Level.isShip(hit)) state.changeTurn();
+		if (allowMultipleShotsPerTurn) {
+			if (!Level.isShip(hit)) state.changeTurn();
+		} else {
+			state.changeTurn();
+		}
 		
 		checkWin(); // update isFinished, just in case we dont explicitly check from GUI or CLI
 		
@@ -179,6 +185,23 @@ public class Engine {
 	public void setState(State state2) {
 		state = state2;
 		updateWidth(state.getLevel());
+	}
+
+	public char attack(int i, int y, int x, boolean force) throws InvalidInstruction {
+		if (force) {
+			try {
+				return attack(i, y, x);
+			} catch (InvalidInstruction e) {
+				if (e.getReason() == InvalidInstruction.Reason.NOTYOURTURN) {
+					state.changeTurn();
+					return attack(i, y, x);
+				} else {
+					throw e;
+				}
+			}
+		} else {
+			return attack(i, y, x);
+		}
 	}
 
 }

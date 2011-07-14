@@ -167,8 +167,9 @@ public class BattleshipTestAdapterMinimal {
 		char c = '\0';
 		try {
 			c = engine.attack(-1, y, x);
+			System.out.println("Shot result: "+c);
 		} catch (InvalidInstruction e) {
-			//System.err.println(e.getMessage());
+			System.err.println(e.getMessage());
 			catched = true;
 		} finally {
 			//System.out.println(engine.getState().getLevel().toString());
@@ -236,7 +237,11 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #selectCell(int, int)     
 	 */
 	public void doAIShot() {
+		if (engine.getState().isPlayerTurn()) { engine.getState().changeTurn(); }
+		//System.err.println(engine.getLevelStringForPlayer(0));
 		ai.playAs(1);
+		//System.err.println(engine.getLevelStringForPlayer(0));
+		if (!engine.getState().isPlayerTurn()) { engine.getState().changeTurn(); }
 	}
 
 }
