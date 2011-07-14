@@ -2,6 +2,7 @@ package gruppe16.gui;
 
 import gruppe16.AI;
 import gruppe16.Engine;
+import gruppe16.GUISchiffe;
 import gruppe16.exceptions.InvalidInstruction;
 
 import java.awt.GridLayout;
@@ -40,15 +41,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	JButton[][] buttons;
 	
-	JFrame parentWindow;
+	GUISchiffe app;
 	
 	int player;
 	
 	AI ai;
 
-	public BoardPanel(JFrame theParentWindow, Engine engine, int player, AI ai) {
+	public BoardPanel(GUISchiffe app, Engine engine, int player, AI ai) {
 		super();
-		parentWindow = theParentWindow;
+		this.app = app;
 		this.engine = engine;
 		this.ai = ai;
 		this.player = player;
@@ -130,28 +131,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 	private HashMap<String, ImageIcon> images = null;
-	
+
 	boolean registerImage(String identifier, String fileName) {
-		try
-		{
-			File f = new File (fileName);
-
-			StringBuilder builder = new StringBuilder ();
-			builder.append("file://");
-			builder.append(f.getCanonicalPath ());
-			return registerImage(identifier, new URL (builder.toString ()));
-		}
-		catch (MalformedURLException ex)
-		{
-			throw new RuntimeException("Malformed URL");
-		}
-		catch (IOException ex)
-		{
-			throw new RuntimeException("IO Exception: " + ex.getMessage());
-		}
-	}
-
-	boolean registerImage(String identifier, URL fileName) {
 		return images.put(identifier, new ImageIcon(fileName)) != null;
 	}
 
@@ -227,7 +208,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 			}
 			otherBoard.refresh();
 		} catch (InvalidInstruction e) {
-			e.printStackTrace();
+			//app.getFrame()
+			System.err.println(e.getMessage());
 		}
 		refresh();
 	}
