@@ -8,20 +8,72 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
+
+enum Orientation {
+	VERTICAL, HORIZONTAL
+}
+
+enum Direction {
+	DOWN, RIGHT
+}
+
+class Ship {
+	public int x;
+	public int y;
+	public int len;
+	public Orientation o;
+	
+	Ship(int x, int y, int length, Orientation o) {
+		this.x = x;
+		this.y = y;
+		this.len = length;
+		this.o = o;
+	}
+	
+	public String toString() {
+		return len + "-ship at (" + x + "," + y + "), orientation " + o;
+	}
+	
+	public List<Integer[]> getAllOccupiedCoords() {
+		//int[][] coords = new int[len][2];
+		List<Integer[]> coords = new ArrayList<Integer[]>();
+		
+		for (int i=0; i<len; i++) {
+			if (o == Orientation.HORIZONTAL) {
+				coords.add(new Integer[] { x, y+i });
+			} else if (o == Orientation.VERTICAL) {
+				coords.add(new Integer[] { x+i, y });					
+			} else {
+				assert false;
+			}
+		}
+		
+		return coords;
+	}
+}
+
 
 /**
  * class for parsing, storing, manipulating and outputting levels
  */
 public class Level {
 	
+	private static boolean DEBUG = false;
+	private static void debug(String str) {
+		if (DEBUG)
+			System.out.println(str);
+	}
+	
 	static final String unharmedShip = "lrtbvh";
 	static final String   harmedShip = "LRTBVH";
-	
-	static final String pat = "[" + Pattern.quote(unharmedShip + harmedShip + "-*") + "]"; // all valid level file characters, except the seperator ('|') and newlines
-	
+		
 	List<List<List<Character>>> boards; // for storing the board of each player
 	
 	/**
@@ -76,15 +128,15 @@ public class Level {
 				}
 				break;
 			}
-			if (Pattern.matches(pat, new String(new char[] {c}))) {
+			if (matchChar(unharmedShip + harmedShip + "-*", c)) {
 				if (IsP1) {
 					p1line.add(c);
 				} else {
 					p2line.add(c);
 				}
-			} else if (c == '|') { // seperator means that the next character belongs to other player board
+			} else if (c == '|') { // Separator means that the next character belongs to other player board
 				IsP1 = !IsP1;
-			} else if (c == '\n') { // newline means that the same as seperator, but we'll also shift focus to next line in our lists
+			} else if (c == '\n') { // newline means that the same as separator, but we'll also shift focus to next line in our lists
 				if (counter >= 2) {
 					checkBoards(counter);
 				}
@@ -108,6 +160,137 @@ public class Level {
 				for ( int k=0; k<boards.get(j).size(); k++)
 					if (boards.get(j).size() != boards.get(i).get(k).size())
 						throw new InvalidLevelException("different width and height");
+		
+		checkShips(0, getPlayerBoard(0), true);
+		checkShips(1, getPlayerBoard(1), true);
+	}
+	
+	public static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
+		debug("Checking player " + player);
+		
+		List<Ship> ships = new ArrayList<Ship>();
+		
+		for (int i=0; i<b.length; i++) {
+			for (int j=0; j<b[i].length; j++) {
+				char c = b[i][j];
+				switch (c) {
+				
+				case 't':
+				case 'T':
+					ships.add(new Ship(i, j, countShipLength(i, j, Direction.DOWN, b, 0), Orientation.VERTICAL));
+					break;
+				case 'L':
+				case 'l':
+					ships.add(new Ship(i, j, countShipLength(i, j, Direction.RIGHT, b, 0), Orientation.HORIZONTAL));
+					break;
+					
+				}
+			}
+		}
+		
+		Map<Integer, Integer[]> reference;
+		reference = new TreeMap<Integer, Integer[]>();
+		reference.put(2, new Integer[] {0, 4}); // 4 schnellbote
+		reference.put(3, new Integer[] {0, 3});
+		reference.put(4, new Integer[] {0, 2});
+		reference.put(5, new Integer[] {0, 1});
+		
+		for (Ship s : ships) { // count boats
+			Integer[] counts = reference.remove(s.len);
+			if (counts == null) throw new InvalidLevelException(s.len + "-boats are not allowed! Player: " + player + ", Coord: (" + s.x + "," + s.y + "), Orientation: " + s.o);
+			counts[0]++;
+			reference.put(s.len, counts);
+		}
+		
+		if (countShips) {
+			Iterator it = reference.entrySet().iterator();
+			while (it.hasNext()) { // check counts
+				Map.Entry<Integer, Integer[]> pairs = (Map.Entry<Integer, Integer[]>)it.next();
+				if (pairs.getValue()[0] != pairs.getValue()[1]) throw new InvalidLevelException("Incorrect " + pairs.getKey() + "-ship count: " + pairs.getValue()[0] + ". Should be " + pairs.getValue()[1]);
+			}
+		}
+	    
+	    //Check ship proximity
+	    for (Ship s : ships) {
+	    	debug(s.toString());
+	    	
+	    	if (s.o == Orientation.HORIZONTAL) { // !alongxaxis
+				debug(String.format("west: trying to check %d,%d",s.x,s.y-1));
+				if (s.y-1 >= 0 && staticIsShip(s.x,s.y-1,b)) {
+					throw new InvalidLevelException(String.format("ship north of %d,%d",s.x,s.y-1));
+				}
+	    	} else if (s.o == Orientation.VERTICAL) {
+				debug(String.format("north: trying to check %d,%d",s.x-1,s.y));
+				if (s.x-1 >= 0 && staticIsShip(s.x-1,s.y,b)) {
+					throw new InvalidLevelException(String.format("ship north of %d,%d",s.x-1,s.y));
+				}	    		
+	    	}
+	    	
+	    	{
+	    	
+	    		int i = -1;
+	    		int j = -1;
+
+	    		for (Integer[] arr : s.getAllOccupiedCoords()) {
+	    			debug(Arrays.toString(arr));
+	    			i = arr[0];
+	    			j = arr[1];
+	    			if (s.o == Orientation.HORIZONTAL) {
+	    				if (i>=1			&&	staticIsShip(i-1, j, b)) throw new InvalidLevelException(String.format("There is a ship at (%d,%d) too close north of this ship: %s",i-1, j, s.toString())); 
+	    				if (i<b.length-1	&&	staticIsShip(i+1, j, b)) throw new InvalidLevelException(String.format("There is a ship at (%d,%d) too close south of this ship: %s",i+1, j, s.toString()));
+	    			} else if (s.o == Orientation.VERTICAL) {
+	    				if (j<b[0].length-1	&&	staticIsShip(i, j+1, b)) throw new InvalidLevelException(String.format("There is a ship at (%d,%d) too close east of this ship: %s", i, j+1, s.toString())); 
+	    				if (j>=1			&&	staticIsShip(i, j-1, b)) throw new InvalidLevelException(String.format("There is a ship at (%d,%d) too close west of this ship: %s", i, j-1, s.toString()));
+	    			}
+	    		}
+	    		
+	    		i++;
+	    		j++;
+	    		debug(i + "," + j);
+
+	    		if (s.o == Orientation.HORIZONTAL) {
+	    			debug(String.format("east: trying to check %d,%d",s.x,j));
+	    			if (j < b[s.x].length && staticIsShip(s.x,j,b)) {
+	    				throw new InvalidLevelException(String.format("ship east of %d,%d",s.x,j));
+	    			}
+
+	    		} else if (s.o == Orientation.VERTICAL) {
+	    			debug(String.format("south: trying to check %d,%d",i,s.y));
+	    			if (i < b.length && staticIsShip(i,s.y,b)) {
+	    				throw new InvalidLevelException(String.format("ship south of %d,%d",i,s.y));
+	    			}
+	    		}
+	    	}
+	    }
+	}
+
+	private static int countShipLength(int x, int y, Direction d, Character[][] b, int akku) throws InvalidLevelException {
+		if (d == Direction.DOWN) {
+			if (matchChar("bB", b[x][y])) return akku + 1;
+			if (!matchChar("tTvV", b[x][y])) throw new InvalidLevelException(String.format("Expected ship at (%d,%d) direction %s",x,y,d));
+			try {
+				return countShipLength(x+1, y, d, b, akku + 1);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return akku;
+			}
+		} else if (d == Direction.RIGHT) {
+			if (matchChar("rR", b[x][y])) return akku + 1;
+			if (!matchChar("lLhH", b[x][y])) throw new InvalidLevelException(String.format("Expected ship at (%d,%d) direction %s",x,y,d));
+			try {
+				return countShipLength(x, y+1, d, b, akku + 1);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return akku;
+			}
+		}
+		assert false;
+		return -1;
+	}
+
+	public Level() {
+		boards = new LevelGenerator(10, 10).getLevel().getBoards();
+	}
+	public List<List<List<Character>>> getBoards() {
+		return boards;
 	}
 
 	/**
@@ -155,6 +338,10 @@ public class Level {
         return sb.toString();
 	}
 	
+	private static boolean matchChar(String chars, char c) {
+		return Pattern.matches("[" + Pattern.quote(chars) + "]", new String(new char[] {c}));
+	}
+	
 	/**
 	 * shoot at given coordinates
 	 * @param player the shooting player
@@ -177,7 +364,7 @@ public class Level {
 			throw new InvalidInstruction(x,y,'\0');
 		}
 		
-		if (!Pattern.matches("[" + Pattern.quote(unharmedShip + "-") + "]", new String(new char[] {c}))) {
+		if (!matchChar(unharmedShip + "-", c)) {
 			throw new InvalidInstruction(x,y,c);
 		}
 		
@@ -201,7 +388,7 @@ public class Level {
 		
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board.length; j++) {
-				if (Pattern.matches("[" + Pattern.quote(unharmedShip) + "]", new String(new char[] {board[i][j]}))) {
+				if (matchChar(unharmedShip, board[i][j])) {
 					//System.err.println("matched on " + i + ","+ j + "," + board[i][j]);
 					return false; // if we have just one field of unharmed ship, we didn't lose yet
 				}
@@ -225,13 +412,48 @@ public class Level {
 	public static void main(String[] args) {
 		Level level;
 		try {
-			level = new Level("----------|----------\n--lr------|-lhr------\n-t-----lhr|----------\n-v-lr-----|--lhr----t\n-b---lhhr-|-------t-b\n----------|-lhhhr-v--\n---lhhr-lr|-------v-t\n-lr-------|-lhr---b-b\n------lhr-|----lr----\n-lhhhr-----lr---lhhr");
+			String text = "-lr-t-lr--|-lr-----t-\n"+
+			"----b-----|---lhr--b-\n"+
+			"----------|----------\n"+
+			"--t--lhhr-|------lhr-\n"+
+			"--v-------|--lhr-----\n"+
+			"--v-lhhr--|t---------\n"+
+			"--v------t|v-t--lhhr-\n"+
+			"--b-lhr--b|v-v-------\n"+
+			"----------|v-v--t-lr-\n"+
+			"lhr-lhr---|b-b--b----";
+			level = new Level(text);
 		} catch (InvalidLevelException e) {
-			System.err.println("Invalid");
+			System.err.println("Invalid: " + e.getMessage());
 			return;
 		}
 		System.out.println(level.toString());
 
+	}
+
+	public boolean isShip(int i, int j) {
+		int[] coords = parseTestInterfaceCoords(i,j,boards.get(0).get(0).size());
+		return matchChar(unharmedShip + harmedShip, boards.get(coords[0]).get(coords[1]).get(coords[2]));
+	}
+	public boolean isShip(int p, int i, int j) {
+		return matchChar(unharmedShip + harmedShip, boards.get(p).get(i).get(j));
+	}
+	public static boolean staticIsShip(int i, int j, Character[][] boards) {
+		return matchChar(unharmedShip + harmedShip, boards[i][j]);
+	}
+
+	public static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
+		int newplayer, newx, newy;
+		if (y > yWidth-1) {
+			newplayer = 1;
+			newy = y - yWidth - 1;
+			newx = x;
+		} else {
+			newplayer = 0;
+			newy = y;
+			newx = x;
+		}
+		return new int[] {newplayer, newx, newy};
 	}
 	
 }

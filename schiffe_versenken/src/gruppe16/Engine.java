@@ -1,7 +1,6 @@
 package gruppe16;
 
 import gruppe16.exceptions.InvalidInstruction;
-import gruppe16.exceptions.InvalidLevelException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +16,8 @@ public class Engine {
 	private boolean finished = false;
 	private int xWidth;
 	private int yWidth;
+	
+	private boolean playerTurn = true;
 
 	public int getxWidth() {
 		return xWidth;
@@ -41,7 +42,7 @@ public class Engine {
 
 	public Engine() {
 		Level initialLevel;
-		initialLevel = new LevelGenerator(8,8).getLevel();
+		initialLevel = new LevelGenerator(10,10).getLevel();
 		
 		State initialState = new State(initialLevel);
 		
@@ -62,12 +63,16 @@ public class Engine {
 	 * @throws InvalidInstruction if you shoot at field that was already hit. also throws when out of range.
 	 */
 	public char attack(int player, int x, int y) throws InvalidInstruction {
-		char hit;
+		char hit = '\0';
 		
 		if (player == -1) {
-			player = ((y > yWidth-1) ? 0 : 1);
-			y = y - yWidth - 1;
+			int[] coords = Level.parseTestInterfaceCoords(y, x, yWidth);
+			player = otherPlayer(coords[0]);
+			x = coords[1];
+			y = coords[2];
 		}
+		
+		if ( (playerTurn && player != 0) || (!playerTurn && player != 1) ) throw new InvalidInstruction("Not your turn!");
 		
 		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 
@@ -81,6 +86,8 @@ public class Engine {
 		
 		boolean[][] fog = state.getFog(player);
 		fog[x][y] = false; // this field is not visible
+		
+		playerTurn = !playerTurn;
 		
 		return hit;
 	}
@@ -144,6 +151,14 @@ public class Engine {
 		return "Your board:\n" + helper.getBoardString(our) + "Their board:\n" + helper.getBoardString(opponent);
 		
 		//return state.getLevel().toString();
+	}
+
+	public void restartLevel() {
+		state = undoLog.get(0);
+	}
+
+	public void setState(State state2) {
+		state = state2;
 	}
 
 }
