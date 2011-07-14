@@ -2,12 +2,25 @@ package gruppe16;
 
 import gruppe16.exceptions.InvalidLevelException;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 public class LevelGenerator {
+	class LevelGenerationException extends Exception {
+		private static final long serialVersionUID = 1L;
+		
+		String message;
+		
+		LevelGenerationException(String message) {
+			this.message = message;
+		}
+		public String getMessage() {
+			return message;
+		}
+	}
 
 	private static boolean DEBUG = false;
 	private static void debug(String str) {
@@ -33,7 +46,7 @@ public class LevelGenerator {
 		
 		gen = new Random();
 		
-		boatCount = new TreeMap<Integer, Integer>();
+		boatCount = new TreeMap<Integer, Integer>(Collections.reverseOrder()); // launch big ships first
 		boatCount.put(2, 4); // 4 schnellbote
 		boatCount.put(3, 3);
 		boatCount.put(4, 2);
@@ -45,7 +58,13 @@ public class LevelGenerator {
 			
 			for (int i = 0; i < pairs.getValue(); i++) {
 				for (int p : new int[] {0, 1}) {
-					placeShipLoop((int) pairs.getKey(), p);
+					try {
+						placeShipLoop((int) pairs.getKey(), p);
+					} catch (LevelGenerationException e) {
+						System.err.println(e.getMessage());
+						return;
+					}
+					if (!DEBUG) continue;
 					try {
 						Level.checkShips(p, boards[p], false);
 					} catch (InvalidLevelException e) {
@@ -57,30 +76,39 @@ public class LevelGenerator {
 		}
 	}
 	
-	private void placeShipLoop(int shiplength, int p) {
+	private void placeShipLoop(int shiplength, int p) throws LevelGenerationException {
+		long tries = 0;
+		
 		for (;;) {
-			if (placeShip(shiplength, p))
+			if (tries > 100000) {
+				throw new LevelGenerationException(String.format("Created unfillable map. Couldn't launch %d-ship for player %d.", shiplength, p+1));
+			}
+
+			boolean alongXAxis = gen.nextBoolean();
+			int x;
+			int y;
+			if (alongXAxis) {
+				 x = gen.nextInt(xwidth - shiplength);
+				 y = gen.nextInt(ywidth);
+			} else {
+				 x = gen.nextInt(xwidth);
+				 y = gen.nextInt(ywidth - shiplength);			
+			}
+
+			if (placeShip(shiplength, p, x, y, alongXAxis))
 				return;
+			
+			tries++;
 		}
 	}
 	
-	private boolean placeShip(int shiplength, int p) {
-		boolean alongxaxis = gen.nextBoolean();
-		int x;
-		int y;
-		if (alongxaxis) {
-			 x = gen.nextInt(xwidth - shiplength);
-			 y = gen.nextInt(ywidth);
-		} else {
-			 x = gen.nextInt(xwidth);
-			 y = gen.nextInt(ywidth - shiplength);			
-		}
+	private boolean placeShip(int shiplength, int p, int x, int y, boolean alongXAxis) {
 		
-		debug(String.format("considering %d,%d , alongxaxis:%s",x,y,alongxaxis));
+		debug(String.format("considering %d,%d , alongxaxis:%s",x,y,alongXAxis));
 		
 		debug("check north/west");
 		
-		if (alongxaxis) { // check north or west of ship
+		if (alongXAxis) { // check north or west of ship
 			debug(String.format("north: trying to check %d,%d",x-1,y));
 			if (x-1 >= 0 && boards[p][x-1][y] != '-') {
 				debug(String.format("ship north of %d,%d",x-1,y));
@@ -100,11 +128,11 @@ public class LevelGenerator {
 			debug("check each tile");
 
 			for (i = 0; i < shiplength; i++) { // check next to each tile of ship
-				int n = (alongxaxis ? x+i : x);
-				int m = (!alongxaxis ? y+i : y);
+				int n = (alongXAxis ? x+i : x);
+				int m = (!alongXAxis ? y+i : y);
 				if (boards[p][n][m] != '-')
 					return false;
-				if (!alongxaxis) {
+				if (!alongXAxis) {
 					if (n-1 >= 0 && boards[p][n-1][m] != '-') return false;
 					if (n+1 < boards[p].length && boards[p][n+1][m] != '-') return false;
 				} else {
@@ -115,7 +143,7 @@ public class LevelGenerator {
 
 			debug("check south/east");
 
-			if (alongxaxis) { // check south or east of ship
+			if (alongXAxis) { // check south or east of ship
 				debug(String.format("south: trying to check %d,%d",x+i,y));
 				if (x+i < boards[p].length && boards[p][x+i][y] != '-') {
 					debug(String.format("ship south of %d,%d",x+i,y));
@@ -134,14 +162,14 @@ public class LevelGenerator {
 		debug(String.format("drawing ship %d,%d len %d",x,y,shiplength));
 		
 		for (int i = 0; i < shiplength; i++) {
-			int n = (alongxaxis ? x+i : x);
-			int m = (!alongxaxis ? y+i : y);
+			int n = (alongXAxis ? x+i : x);
+			int m = (!alongXAxis ? y+i : y);
 			if (i == 0)
-				boards[p][n][m] = (alongxaxis ? 't' : 'l');
+				boards[p][n][m] = (alongXAxis ? 't' : 'l');
 			else if (i == shiplength-1)
-				boards[p][n][m] = (alongxaxis ? 'b' : 'r');
+				boards[p][n][m] = (alongXAxis ? 'b' : 'r');
 			else
-				boards[p][n][m] = (alongxaxis ? 'v' : 'h');
+				boards[p][n][m] = (alongXAxis ? 'v' : 'h');
 		}
 		return true;
 	}

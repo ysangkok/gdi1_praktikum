@@ -29,13 +29,17 @@ public class Engine {
 
 	public Engine(Level level) {
 		state = new State(level);
-		xWidth = level.getPlayerBoard(0).length;
-		yWidth = level.getPlayerBoard(0)[0].length;
+		updateWidth(level);
 		
 		undoLog = new LinkedList<State>(); // list for storing all states since last new game
 		undoLog.add(state);
 	}
 	
+	private void updateWidth(Level level) {
+		xWidth = level.getPlayerBoard(0).length;
+		yWidth = level.getPlayerBoard(0)[0].length;
+	}
+
 	public State getState() {
 		return state;
 	}
@@ -159,6 +163,7 @@ public class Engine {
 
 	public void setState(State state2) {
 		state = state2;
+		updateWidth(state.getLevel());
 	}
 
 }

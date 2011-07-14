@@ -287,7 +287,7 @@ public class Level {
 	}
 
 	public Level() {
-		boards = new LevelGenerator(10, 10).getLevel().getBoards();
+		boards = new LevelGenerator(12, 12).getLevel().getBoards();
 	}
 	public List<List<List<Character>>> getBoards() {
 		return boards;
