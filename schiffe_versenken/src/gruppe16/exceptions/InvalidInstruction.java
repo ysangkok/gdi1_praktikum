@@ -1,17 +1,18 @@
 package gruppe16.exceptions;
 
 public class InvalidInstruction extends Exception {
-	int x;
-	int y;
-	char c;
+	private static final long serialVersionUID = 1L;
+	
+	String message;
 	public InvalidInstruction(int x, int y, char c) {
-		this.x = x;
-		this.y = y;
-		this.c = c;
+		message = "Char: " + c + ", X: " + x + ", Y: " + y;
+	}
+	public InvalidInstruction(String message) {
+		this.message = message;
 	}
 	
 	@Override public String getMessage() {
-		return "Input invalid! Try again. Char: " + c + ", X: " + x + ", Y: " + y;
+		return "Input invalid! Try again. " + message;
 	}
 
 }

@@ -4,6 +4,7 @@ import gruppe16.AI;
 import gruppe16.BadAI;
 import gruppe16.Engine;
 import gruppe16.Level;
+import gruppe16.State;
 import gruppe16.exceptions.InvalidInstruction;
 import gruppe16.exceptions.InvalidLevelException;
 
@@ -34,16 +35,18 @@ import gruppe16.exceptions.InvalidLevelException;
  */
 public class BattleshipTestAdapterMinimal {
 	
-	String levelString;
 	Level level;
 	Engine engine;
 	AI ai;
+	boolean catchedException;
 
 	/**
 	 * Use this constructor to initialize everything you need.
 	 */
 	public BattleshipTestAdapterMinimal() {
-
+		level = new Level();
+		engine = new Engine(level);
+		ai = new BadAI(engine);
 	}
 	
 	
@@ -59,7 +62,13 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #isValidLevel()
 	 */
 	public void createGameUsingLevelString(String levelstring) {
-		this.levelString = levelstring;
+		try {
+			engine.setState(new State(new Level(levelstring)));
+		} catch (InvalidLevelException e) {
+			catchedException = true;
+			return;
+		}
+		catchedException = false;
 	}
 	
 	/** 
@@ -81,7 +90,7 @@ public class BattleshipTestAdapterMinimal {
 	 */
 	public String getCurrentLevelStringRepresentation() {
 		String str = engine.getState().getLevel().toString();
-		System.out.println("STRREPR: \n" + str);
+		//System.out.println("STRREPR: \n" + str);
 		return str;
 	}
 	
@@ -96,14 +105,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #createGameUsingLevelString(String)
 	 */
 	public boolean isValidLevel() {
-		try {
-			level = new Level(levelString);
-			engine = new Engine(level);
-			ai = new BadAI(engine);
-		} catch (InvalidLevelException e) {
-			return false;
-		}
-		return true;
+		return !catchedException;
 	}
 	
 	/**
@@ -160,19 +162,19 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #doAIShot()        
 	 */
 	public boolean selectCell(int x, int y) {
-		System.out.println(engine.getState().getLevel().toString());
+		//System.out.println(engine.getState().getLevel().toString());
 		boolean catched = false;
 		char c = '\0';
 		try {
 			c = engine.attack(-1, y, x);
 		} catch (InvalidInstruction e) {
-			System.err.println(e.getMessage());
+			//System.err.println(e.getMessage());
 			catched = true;
 		} finally {
-			System.out.println(engine.getState().getLevel().toString());
+			//System.out.println(engine.getState().getLevel().toString());
 			if (catched) return false;
 		}
-		System.out.println("Char: " + c);
+		//System.out.println("Char: " + c);
 		return true;
 	}
 	
@@ -184,7 +186,7 @@ public class BattleshipTestAdapterMinimal {
 	 * Remember also that your game must work without this TestAdapter.
 	 */
 	public void handleKeyPressedNew() {
-		//TODO implement this stub
+		engine.restartLevel();
 	}
 	
 	
@@ -197,8 +199,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true if there is a ship, false in any other cases (e.g. water, invalid coordinate, ...)
 	 */
 	public boolean isShipAt(int x, int y) {
-		//TODO implement this stub
-		return false;
+		return engine.getState().getLevel().isShip(x, y);
 	}
 	
 	/**

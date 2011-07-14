@@ -1,6 +1,7 @@
 package adapters;
 
-
+import gruppe16.State;
+import gruppe16.LevelGenerator;
 
 
 /**
@@ -29,7 +30,7 @@ public class BattleshipTestAdapterExtended1 extends BattleshipTestAdapterMinimal
 	 * @see BattleshipTestAdapterMinimal#getCurrentLevelStringRepresentation()
 	 */
 	public void generateCompleteLevel() {
-		//TODO implement this stub
+		engine.setState(new State(new LevelGenerator(10, 10).getLevel()));
 	}
 
 }

@@ -30,7 +30,7 @@ public class State implements Cloneable { // implements Cloneable so that we can
 	 * constructor takes a current level. also initializes fog map to all foggy.
 	 * @param level current level progress
 	 */
-	State(Level level) {
+	public State(Level level) {
 		this.level = level;
 		fog = new boolean[2][level.getPlayerBoard(0).length][level.getPlayerBoard(0)[0].length];
 		for (int i : new int[] {0, 1}) {
