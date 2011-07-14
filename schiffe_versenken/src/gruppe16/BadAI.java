@@ -34,6 +34,7 @@ public class BadAI extends AI {
 		try {
 			engine.attack(player, gen.nextInt(xwidth), gen.nextInt(ywidth));
 		} catch (InvalidInstruction e) {
+			if (e.getReason() == InvalidInstruction.Reason.NOTYOURTURN) return;
 			playAs(player);
 		}
 		

@@ -74,7 +74,7 @@ public class Engine {
 			y = coords[2];
 		}
 		
-		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction("Not your turn!");
+		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction(InvalidInstruction.Reason.NOTYOURTURN);
 		
 		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 
