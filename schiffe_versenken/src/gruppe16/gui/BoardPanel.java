@@ -201,12 +201,16 @@ public class BoardPanel extends JPanel implements MouseListener {
 		try {
 			engine.attack(Engine.otherPlayer(player), y, x);
 			
+			if (engine.isFinished()) { app.GameOver(); return; }
+			
 			int i = 0;
 			while (!engine.getState().isPlayerTurn()) {
 				System.out.println(i++ + " AI plays as " + Engine.otherPlayer(player));
 				ai.playAs(player);
 			}
 			otherBoard.refresh();
+			
+			if (engine.isFinished()) { app.GameOver(); return; }
 		} catch (InvalidInstruction e) {
 			//app.getFrame()
 			System.err.println(e.getMessage());

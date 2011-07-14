@@ -11,16 +11,27 @@ import javax.swing.JPanel;
 
 public class GUISchiffe /*implements KeyListener*/ {
 	JFrame frame;
+	Engine engine;
 	
 	public void GameOver() {
+		int winner = engine.checkWin();
+		
+		String winnerstr;
+		
+		if (winner == -1) {
+			winnerstr = "Draw";
+		} else {
+			winnerstr = "Player " + (winner+1) + " won!";
+		}
+		
 		JOptionPane.showMessageDialog(frame,
-			    "Eggs are not supposed to be green.", 
-			    "Message", 0);
+			    "Game over. " + winnerstr, 
+			    "Game over", 0);
 		frame.dispose();
 	}
 	
 	GUISchiffe() {
-		Engine engine = new Engine();
+		engine = new Engine();
 		System.out.println(engine.getLevelStringForPlayer(0));
 		
 		AI ai = new GoodAI(engine);

@@ -47,10 +47,9 @@ public class LevelGenerator {
 		gen = new Random();
 		
 		boatCount = new TreeMap<Integer, Integer>(Collections.reverseOrder()); // launch big ships first
-		boatCount.put(2, 4); // 4 schnellbote
-		boatCount.put(3, 3);
-		boatCount.put(4, 2);
-		boatCount.put(5, 1);
+		for (int i = 0; i < Rules.ships.length; i++) {
+			boatCount.put(Rules.ships[i][0], Rules.ships[i][1]);
+		}
 		
 	    Iterator it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {

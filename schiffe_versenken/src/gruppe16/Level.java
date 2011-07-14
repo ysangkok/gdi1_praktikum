@@ -190,10 +190,9 @@ public class Level {
 		
 		Map<Integer, Integer[]> reference;
 		reference = new TreeMap<Integer, Integer[]>();
-		reference.put(2, new Integer[] {0, 4}); // 4 schnellbote
-		reference.put(3, new Integer[] {0, 3});
-		reference.put(4, new Integer[] {0, 2});
-		reference.put(5, new Integer[] {0, 1});
+		for (int i = 0; i < Rules.ships.length; i++) {
+			reference.put(Rules.ships[i][0], new Integer[] {0, Rules.ships[i][1]});
+		}
 		
 		for (Ship s : ships) { // count boats
 			Integer[] counts = reference.remove(s.len);

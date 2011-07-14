@@ -44,7 +44,7 @@ public class Engine {
 
 	public Engine() {
 		Level initialLevel;
-		initialLevel = new LevelGenerator(10,10).getLevel();
+		initialLevel = new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel();
 		
 		State initialState = new State(initialLevel);
 		
