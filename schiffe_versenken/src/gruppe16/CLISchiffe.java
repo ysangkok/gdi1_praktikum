@@ -26,21 +26,23 @@ public class CLISchiffe extends ConsoleProgram {
 	public void run() {
 		int winner = -1;
 		AI computer = new BadAI(engine);
-		boolean humanPlays = true; // human plays as player 1 and therefore plays first turn
 		while (!engine.isFinished()) {
-			print(engine.getLevelStringForPlayer((humanPlays ? 0 : 1)));
-			//if (false) {
-			if (humanPlays) {
+			if (engine.getState().isPlayerTurn()) {
+				print(engine.getLevelStringForPlayer(0));
 				println("Your turn!");
-				int y = readInt("X Koordinate:"); //coordinates are exchanged cause it's confusing
-				int x = readInt("Y Koordinate:"); //if X is downwards and Y is towards right
+				boolean tryAgain;
+				do {
+					tryAgain = false;
+					int y = readInt("X Koordinate:"); //coordinates are exchanged cause it's confusing
+					int x = readInt("Y Koordinate:"); //if X is downwards and Y is towards right
 
-				try {
-					engine.attack(0, x, y);
-				} catch (InvalidInstruction e) {
-					showErrorMessage(e.getMessage());
-					continue; // player gets another try
-				}
+					try {
+						engine.attack(0, x, y);
+					} catch (InvalidInstruction e) {
+						showErrorMessage(e.getMessage());
+						tryAgain = true; // player gets another try
+					}
+				} while (tryAgain);
 			} else {
 				println("Computer plays!");
 				//pause(1000);
@@ -48,7 +50,6 @@ public class CLISchiffe extends ConsoleProgram {
 			}
 			
 			winner = engine.checkWin(); // updates also isFinished()
-			humanPlays = !humanPlays; // other player plays
 		}
 		println("Game over");
 		if (winner == -1) {

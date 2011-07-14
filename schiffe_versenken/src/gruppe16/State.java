@@ -8,6 +8,7 @@ import gruppe16.exceptions.InvalidLevelException;
 public class State implements Cloneable { // implements Cloneable so that we can clone states for undoing 
 	private Level level;
 	private boolean[][][] fog;
+	private int turn;
 	
 	/**
 	 * gets 2d fog array for given player
@@ -31,6 +32,7 @@ public class State implements Cloneable { // implements Cloneable so that we can
 	 * @param level current level progress
 	 */
 	public State(Level level) {
+		this.turn = 0; // player starts
 		this.level = level;
 		fog = new boolean[2][level.getPlayerBoard(0).length][level.getPlayerBoard(0)[0].length];
 		for (int i : new int[] {0, 1}) {
@@ -76,9 +78,18 @@ public class State implements Cloneable { // implements Cloneable so that we can
 		}
 		
 		newState.setFog(newFog);
+		newState.setTurn(turn);
 		return newState;
 	}
 	
+	private int getTurn() {
+		return turn;
+	}
+
+	private void setTurn(int turn) {
+		this.turn = turn;
+	}
+
 	/**
 	 * main procedure for testing
 	 * @param args not used
@@ -101,5 +112,13 @@ public class State implements Cloneable { // implements Cloneable so that we can
 		} catch (Exception e) { return; }
 		State st1 = new State(level);
 		st1.clone();
+	}
+
+	public boolean isPlayerTurn() {
+		return turn == 0;
+	}
+
+	public void changeTurn() {
+		turn = Engine.otherPlayer(turn);
 	}
 }

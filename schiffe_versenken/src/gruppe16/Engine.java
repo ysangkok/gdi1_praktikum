@@ -17,8 +17,6 @@ public class Engine {
 	private int xWidth;
 	private int yWidth;
 	
-	private boolean playerTurn = true;
-
 	public int getxWidth() {
 		return xWidth;
 	}
@@ -76,7 +74,7 @@ public class Engine {
 			y = coords[2];
 		}
 		
-		if ( (playerTurn && player != 0) || (!playerTurn && player != 1) ) throw new InvalidInstruction("Not your turn!");
+		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction("Not your turn!");
 		
 		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 
@@ -86,12 +84,12 @@ public class Engine {
 		this.state = newState;
 		//System.err.println(getLevel().toString());
 		
+		if (!Level.isShip(hit)) state.changeTurn();
+		
 		checkWin(); // update isFinished, just in case we dont explicitly check from GUI or CLI
 		
 		boolean[][] fog = state.getFog(player);
 		fog[x][y] = false; // this field is not visible
-		
-		playerTurn = !playerTurn;
 		
 		return hit;
 	}
@@ -116,7 +114,7 @@ public class Engine {
 	 * @param i the player number NOT to return
 	 * @return the other player number
 	 */
-	private int otherPlayer(int i) {
+	public static int otherPlayer(int i) {
 		if (i == 0) {
 			return 1;
 		} else {
@@ -138,6 +136,25 @@ public class Engine {
 	 * @return String which is mostly usable in CLI interface
 	 */
 	public String getLevelStringForPlayer(int i) {
+		Character[][][] boards = getCurrentBoards(i);
+		
+		Map2DHelper<Character> helper = new Map2DHelper<Character>();
+		//return helper.getBoardString(new Character[][] {{'-'}, {'-'}});
+		return "Your board:\n" + helper.getBoardString(boards[0]) + "Their board:\n" + helper.getBoardString(boards[1]);
+		
+		//return state.getLevel().toString();
+	}
+
+
+	public Character[][] getPlayerArray() {
+		return getCurrentBoards(0)[0];
+	}
+
+	public Character[][] getVisibleOpponentArray() {
+		return getCurrentBoards(0)[1];
+	}
+	
+	private Character[][][] getCurrentBoards(int i) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);
 		
@@ -150,13 +167,11 @@ public class Engine {
 			}
 		}
 		
-		Map2DHelper<Character> helper = new Map2DHelper<Character>();
-		//return helper.getBoardString(new Character[][] {{'-'}, {'-'}});
-		return "Your board:\n" + helper.getBoardString(our) + "Their board:\n" + helper.getBoardString(opponent);
-		
-		//return state.getLevel().toString();
+		return new Character[][][] {our, opponent};
+
 	}
 
+	
 	public void restartLevel() {
 		state = undoLog.get(0);
 	}

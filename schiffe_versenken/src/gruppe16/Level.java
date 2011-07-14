@@ -433,13 +433,16 @@ public class Level {
 
 	public boolean isShip(int i, int j) {
 		int[] coords = parseTestInterfaceCoords(i,j,boards.get(0).get(0).size());
-		return matchChar(unharmedShip + harmedShip, boards.get(coords[0]).get(coords[1]).get(coords[2]));
+		return isShip(boards.get(coords[0]).get(coords[1]).get(coords[2]));
 	}
 	public boolean isShip(int p, int i, int j) {
-		return matchChar(unharmedShip + harmedShip, boards.get(p).get(i).get(j));
+		return isShip(boards.get(p).get(i).get(j));
 	}
 	public static boolean staticIsShip(int i, int j, Character[][] boards) {
-		return matchChar(unharmedShip + harmedShip, boards[i][j]);
+		return isShip(boards[i][j]);
+	}
+	public static boolean isShip(char c) {
+		return matchChar(unharmedShip + harmedShip, c);
 	}
 
 	public static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
