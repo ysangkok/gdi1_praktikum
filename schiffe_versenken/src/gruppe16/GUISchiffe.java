@@ -1,11 +1,11 @@
 package gruppe16;
 
-//import java.awt.event.KeyListener;
-
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,14 +13,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import gruppe16.exceptions.InvalidLevelException;
 import gruppe16.gui.BoardPanel;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -28,15 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-class actions {
-	enum actionnames {
-		quicknewgame, save, load
-	}
-	
-	public static String quicknewgame = actionnames.quicknewgame.name();
-	public static String save = actionnames.save.name();
-	public static String load = actionnames.load.name();
-}
+
 
 public class GUISchiffe implements ActionListener {
 	JFrame frame;
@@ -66,6 +64,77 @@ public class GUISchiffe implements ActionListener {
 		initAIandShowFrame();
 	}
 	
+	class placeOwnShipsDialog extends JDialog implements ActionListener {
+		List<Ship> chosencoords;
+		Map<JButton, JPanel> buttopan; 
+		private int build(Container cp) {
+			chosencoords = new ArrayList<Ship>();
+			
+			int k = 0;
+			for (int i = 0; i < Rules.ships.length; i++) {
+				int[] shiprules = Rules.ships[i];
+				for (int j = 0; j < shiprules[1]; j++) {
+					k++;
+					JPanel g = new JPanel();
+					JLabel lab = new JLabel(String.format("%d-ship: ", shiprules[0]));
+					JButton but = new JButton("Place");
+					//buttopan.put(but,g);
+					g.add(lab);
+					g.add(but);
+					cp.add(g);
+					but.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							((placeOwnShipsDialog) ((JComponent) e.getSource()).getTopLevelAncestor()).chosencoords.add(new Ship(j, j, j, null));
+							
+							((JButton) e.getSource()).setEnabled(false);
+							
+						}
+					});
+				}
+			}
+			return k;
+		}
+		public placeOwnShipsDialog(JFrame parent) {
+			super(parent, "Place your ships", true);
+			Container cp = getContentPane();
+			int k = build(cp);
+			cp.setLayout(new FlowLayout());
+			//cp.add(new JLabel("Here is my dialog"));
+			JButton ok = new JButton("OK");
+			ok.addActionListener(this);
+			JButton cancel = new JButton("Cancel");
+			cancel.addActionListener(this);
+			
+			cp.add(ok);
+			cp.add(cancel);
+			setSize(250, 500);
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.err.println(e.getActionCommand());		
+		}
+	}
+	
+	private void placeOwnShipsWizard() {
+		new placeOwnShipsDialog(frame).setVisible(true);
+		
+/*		for (int i = 0; i < Rules.ships.length; i++) {
+			
+		}*/
+	}
+
+	static class actions {
+		static enum actionnames {
+			quicknewgame, save, load, newplaceownships
+		}
+		
+		public static String quicknewgame = actionnames.quicknewgame.name();
+		public static String save = actionnames.save.name();
+		public static String load = actionnames.load.name();
+		public static String newplaceownships = actionnames.newplaceownships.name();
+	}
+	
 	public void actionPerformed(ActionEvent actionEvent) {
 		//System.err.println(actionEvent);
 		String a = actionEvent.getActionCommand();
@@ -75,6 +144,8 @@ public class GUISchiffe implements ActionListener {
 			save();
 		} else if (a.equals(actions.load)) {
 			load();
+		} else if (a.equals(actions.newplaceownships)) {
+			placeOwnShipsWizard();
 		} else {
 			userError("Unknown action!");
 		}
@@ -107,19 +178,27 @@ public class GUISchiffe implements ActionListener {
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
 	    menuBar.add(fileMenu);
 
+	    JMenu newMenu = new JMenu("New");
+	    fileMenu.add(newMenu);
+	    
 	    JMenuItem quickNewItem = new JMenuItem("Quick New", KeyEvent.VK_N);
 	    quickNewItem.addActionListener(menuListener);
 	    quickNewItem.setAccelerator(KeyStroke.getKeyStroke("N"));
 	    quickNewItem.setActionCommand(actions.quicknewgame);
-	    fileMenu.add(quickNewItem);
+	    newMenu.add(quickNewItem);
 	    
-	    JMenuItem saveItem = new JMenuItem("Save");
+	    JMenuItem place = new JMenuItem("Place own ships...", KeyEvent.VK_P);
+	    place.addActionListener(menuListener);
+	    place.setActionCommand(actions.newplaceownships);
+	    newMenu.add(place);
+	    
+	    JMenuItem saveItem = new JMenuItem("Save as...", KeyEvent.VK_S);
 	    saveItem.addActionListener(menuListener);
 	    saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
 	    saveItem.setActionCommand(actions.save);
 	    fileMenu.add(saveItem);
 	    
-	    JMenuItem loadItem = new JMenuItem("Load");
+	    JMenuItem loadItem = new JMenuItem("Load from...", KeyEvent.VK_L);
 	    loadItem.addActionListener(menuListener);
 	    loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
 	    loadItem.setActionCommand(actions.load);
@@ -141,8 +220,6 @@ public class GUISchiffe implements ActionListener {
 	}
 	
 	private void quickNewGame() {
-		frame.dispose();
-		
 		String levelDir = "./template/resources/levels/defaultlevels/";
 		
 		File dir = new File(levelDir);
@@ -177,6 +254,8 @@ public class GUISchiffe implements ActionListener {
 		}
 		
 		engine = new Engine(level);
+		
+		frame.dispose();
 		initAIandShowFrame();
 	}
 	
@@ -230,8 +309,9 @@ public class GUISchiffe implements ActionListener {
 			c.printStackTrace();
 			return;
 		}
-		frame.dispose();
 		engine.setState(e);
+		
+		frame.dispose();
 		initAIandShowFrame();
 	}
 	
