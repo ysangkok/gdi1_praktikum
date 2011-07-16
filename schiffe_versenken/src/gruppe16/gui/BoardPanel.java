@@ -159,7 +159,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			entities.add(btn);
 		}
 
-		//btn.addKeyListener(parentWindow);
+		//btn.addKeyListener(app);
 		btn.addMouseListener(this);
 		btn.setIcon(icon);
 
@@ -213,7 +213,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			if (engine.isFinished()) { app.GameOver(); return; }
 		} catch (InvalidInstruction e) {
 			//app.getFrame()
-			System.err.println(e.getMessage());
+			app.userError(e.getMessage());
 		}
 		refresh();
 	}
