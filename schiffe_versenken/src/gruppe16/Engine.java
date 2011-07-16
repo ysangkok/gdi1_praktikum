@@ -1,7 +1,6 @@
 package gruppe16;
 
 import gruppe16.exceptions.InvalidInstruction;
-import gruppe16.exceptions.InvalidLevelException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +14,6 @@ public class Engine {
 	private List<State> undoLog;
 	private State state;
 	
-	private boolean finished = false;
 	private int xWidth;
 	private int yWidth;
 	
@@ -108,7 +106,7 @@ public class Engine {
 		for (int i : new int[] {0, 1}) {
 			//System.err.println("Checking player " + i);
 			if (state.getLevel().isPlayerLoser(i)) {
-				this.finished = true;
+				this.state.setFinished(true);
 				return otherPlayer(i);
 			}
 		}
@@ -133,7 +131,7 @@ public class Engine {
 	 * @return true when game over, false when not
 	 */
 	public boolean isFinished() {
-		return this.finished;
+		return this.state.getFinished();
 	}
 
 	/**
@@ -184,6 +182,7 @@ public class Engine {
 
 	public void setState(State state2) {
 		state = state2;
+		undoLog.add(state);
 		updateWidth(state.getLevel());
 	}
 

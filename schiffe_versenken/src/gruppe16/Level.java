@@ -6,6 +6,7 @@ import gruppe16.exceptions.InvalidLevelException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,16 +64,17 @@ class Ship {
 /**
  * class for parsing, storing, manipulating and outputting levels
  */
-public class Level {
+public class Level implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
-	private static boolean DEBUG = false;
+	transient private static boolean DEBUG = false;
 	private static void debug(String str) {
 		if (DEBUG)
 			System.out.println(str);
 	}
 	
-	static final String unharmedShip = "lrtbvh";
-	static final String   harmedShip = "LRTBVH";
+	transient static final String unharmedShip = "lrtbvh";
+	transient static final String   harmedShip = "LRTBVH";
 		
 	List<List<List<Character>>> boards; // for storing the board of each player
 	

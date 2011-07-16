@@ -193,7 +193,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			}
 		}
 		
-		System.out.println(String.format("%d,%d", posX, posY));
+		//System.out.println(String.format("%d,%d", posX, posY));
 		bomb (posX, posY);
 	}
 	
@@ -205,7 +205,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			
 			int i = 0;
 			while (!engine.getState().isPlayerTurn()) {
-				System.out.println(i++ + " AI plays as " + Engine.otherPlayer(player));
+				System.out.println(i++ + " AI plays as " + player);
 				ai.playAs(player);
 			}
 			otherBoard.refresh();

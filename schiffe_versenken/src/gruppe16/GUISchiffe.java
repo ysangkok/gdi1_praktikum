@@ -9,12 +9,17 @@ import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
 import java.util.Random;
 
 import gruppe16.exceptions.InvalidLevelException;
 import gruppe16.gui.BoardPanel;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,10 +29,16 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 class actions {
-	public static String quicknewgame = "0";
+	enum actionnames {
+		quicknewgame, save, load
+	}
+	
+	public static String quicknewgame = actionnames.quicknewgame.name();
+	public static String save = actionnames.save.name();
+	public static String load = actionnames.load.name();
 }
 
-public class GUISchiffe {
+public class GUISchiffe implements ActionListener {
 	JFrame frame;
 	Engine engine;
 	
@@ -55,12 +66,18 @@ public class GUISchiffe {
 		initAIandShowFrame();
 	}
 	
-	class MenuActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent actionEvent) {
-			System.err.println(actionEvent);
-			if (actionEvent.getActionCommand().equals(actions.quicknewgame)) {
-				GUISchiffe.this.quickNewGame();
-			}
+	
+	public void actionPerformed(ActionEvent actionEvent) {
+		//System.err.println(actionEvent);
+		String a = actionEvent.getActionCommand();
+		if (a.equals(actions.quicknewgame)) {
+			quickNewGame();
+		} else if (a.equals(actions.save)) {
+			save();
+		} else if (a.equals(actions.load)) {
+			load();
+		} else {
+			userError("Unknown action!");
 		}
 	}
 	
@@ -84,19 +101,30 @@ public class GUISchiffe {
 		
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
-		ActionListener menuListener = new MenuActionListener();
+		ActionListener menuListener = this;
 
 		// File Menu, F - Mnemonic
 	    JMenu fileMenu = new JMenu("File");
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
 	    menuBar.add(fileMenu);
 
-	    // File->New, N - Mnemonic
-	    JMenuItem newMenuItem = new JMenuItem("Quick New", KeyEvent.VK_N);
-	    newMenuItem.addActionListener(menuListener);
-	    newMenuItem.setAccelerator(KeyStroke.getKeyStroke("N"));
-	    newMenuItem.setActionCommand(actions.quicknewgame);
-	    fileMenu.add(newMenuItem);
+	    JMenuItem quickNewItem = new JMenuItem("Quick New", KeyEvent.VK_N);
+	    quickNewItem.addActionListener(menuListener);
+	    quickNewItem.setAccelerator(KeyStroke.getKeyStroke("N"));
+	    quickNewItem.setActionCommand(actions.quicknewgame);
+	    fileMenu.add(quickNewItem);
+	    
+	    JMenuItem saveItem = new JMenuItem("Save");
+	    saveItem.addActionListener(menuListener);
+	    saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
+	    saveItem.setActionCommand(actions.save);
+	    fileMenu.add(saveItem);
+	    
+	    JMenuItem loadItem = new JMenuItem("Load");
+	    loadItem.addActionListener(menuListener);
+	    loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
+	    loadItem.setActionCommand(actions.load);
+	    fileMenu.add(loadItem);
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
@@ -150,6 +178,61 @@ public class GUISchiffe {
 		}
 		
 		engine = new Engine(level);
+		initAIandShowFrame();
+	}
+	
+	private void save() {
+		String saveGameName;
+		
+	    JFileChooser chooser = new JFileChooser();
+
+	    int returnVal = chooser.showSaveDialog(frame);
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	saveGameName = chooser.getSelectedFile().getPath();
+	    } else {
+	    	return;
+	    }
+		
+		try {
+			FileOutputStream fileOut = new FileOutputStream(saveGameName);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(engine.getState());
+			out.close();
+			fileOut.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+	
+	private void load() {
+		String saveGameName;
+		
+	    JFileChooser chooser = new JFileChooser();
+
+	    int returnVal = chooser.showOpenDialog(frame);
+	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+	    	saveGameName = chooser.getSelectedFile().getPath();
+	    } else {
+	    	return;
+	    }
+		
+		State e = null;
+		try {
+			FileInputStream fileIn = new FileInputStream(saveGameName);
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			e = (State) in.readObject();
+			in.close();
+			fileIn.close();
+		} catch (IOException i) {
+			userError(i.getMessage());
+			return;
+		} catch (ClassNotFoundException c) {
+			userError("State class not found");
+			c.printStackTrace();
+			return;
+		}
+		frame.dispose();
+		engine.setState(e);
 		initAIandShowFrame();
 	}
 	

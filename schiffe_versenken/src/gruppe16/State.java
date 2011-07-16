@@ -1,15 +1,28 @@
 package gruppe16;
 
+import java.io.Serializable;
+
 import gruppe16.exceptions.InvalidLevelException;
 
 /**
  * class for storing game state, including level and fog.
  */
-public class State implements Cloneable { // implements Cloneable so that we can clone states for undoing 
+public class State implements Cloneable, Serializable { //  Cloneable for undoing. Serializable for saving
+	private static final long serialVersionUID = 1L;
+	
 	private Level level;
 	private boolean[][][] fog;
 	private int turn;
+	private boolean finished;
 	
+	public void setFinished(boolean finished) {
+		this.finished = finished;
+	}
+	
+	public boolean getFinished() {
+		return finished;
+	}
+
 	/**
 	 * gets 2d fog array for given player
 	 * @param player player number
@@ -78,16 +91,8 @@ public class State implements Cloneable { // implements Cloneable so that we can
 		}
 		
 		newState.setFog(newFog);
-		newState.setTurn(turn);
+		newState.turn = turn;
 		return newState;
-	}
-	
-	private int getTurn() {
-		return turn;
-	}
-
-	private void setTurn(int turn) {
-		this.turn = turn;
 	}
 
 	/**
