@@ -66,7 +66,6 @@ public class GUISchiffe implements ActionListener {
 		initAIandShowFrame();
 	}
 	
-	
 	public void actionPerformed(ActionEvent actionEvent) {
 		//System.err.println(actionEvent);
 		String a = actionEvent.getActionCommand();

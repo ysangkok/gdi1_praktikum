@@ -4,11 +4,27 @@ import gruppe16.exceptions.InvalidLevelException;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 public class LevelGenerator {
+	class PlaceShipRulesViolation extends Exception {
+		private static final long serialVersionUID = 1L;
+		
+		String message = "";
+		
+		PlaceShipRulesViolation(String message) {
+			this.message = message;
+		}
+		PlaceShipRulesViolation() {
+		}
+		public String getMessage() {
+			return "Couldn't place ship! " + message;
+		}
+	}
+	
 	class LevelGenerationException extends Exception {
 		private static final long serialVersionUID = 1L;
 		
@@ -28,13 +44,13 @@ public class LevelGenerator {
 			System.out.println(str);
 	}
 	
-	Map<Integer, Integer> boatCount;
 	private Character[][][] boards;
 	Random gen;
 	int xwidth;
 	int ywidth;
+	Map<Integer, Integer> boatCount;
 	
-	public LevelGenerator(int xwidth, int ywidth) {
+	private void initBoard(int xwidth, int ywidth) {
 		this.xwidth = xwidth;
 		this.ywidth = ywidth;
 		
@@ -51,26 +67,42 @@ public class LevelGenerator {
 			boatCount.put(Rules.ships[i][0], Rules.ships[i][1]);
 		}
 		
+	}
+	
+	public LevelGenerator(int xwidth, int ywidth) {
+		initBoard(xwidth, ywidth);
+		for (int p : new int[] {0, 1}) {
+			placeTheseShips(this, p, boatCount);
+		}
+	}
+	
+	public LevelGenerator(int xwidth, int ywidth, int player, List<Ship> ships) throws InvalidLevelException {
+		initBoard(xwidth, ywidth);
+		
+		placeTheseShips(this, Engine.otherPlayer(player), boatCount);
+
+		drawGivenShips(player, ships);
+	}
+
+	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) {
 	    Iterator it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<Integer, Integer> pairs = (Map.Entry<Integer, Integer>)it.next();
 			
 			for (int i = 0; i < pairs.getValue(); i++) {
-				for (int p : new int[] {0, 1}) {
 					try {
-						placeShipLoop((int) pairs.getKey(), p);
+						lg.placeShipLoop((int) pairs.getKey(), p);
 					} catch (LevelGenerationException e) {
 						System.err.println(e.getMessage());
 						return;
 					}
 					if (!DEBUG) continue;
 					try {
-						Level.checkShips(p, boards[p], false);
+						Level.checkShips(p, lg.boards[p], false);
 					} catch (InvalidLevelException e) {
 						e.printStackTrace();
 						return;
 					}
-				}
 			}
 		}
 	}
@@ -94,14 +126,28 @@ public class LevelGenerator {
 				 y = gen.nextInt(ywidth - shiplength);			
 			}
 
-			if (placeShip(shiplength, p, x, y, alongXAxis))
-				return;
+			try {
+				placeShip(shiplength, p, x, y, alongXAxis);
+			} catch (PlaceShipRulesViolation e) {
+				tries++;
+				continue;
+			}
+			return;
 			
-			tries++;
 		}
 	}
 	
-	private boolean placeShip(int shiplength, int p, int x, int y, boolean alongXAxis) {
+	private void drawGivenShips(int player, List<Ship> ships) throws InvalidLevelException {
+		for (Ship s : ships) {
+			try {
+				placeShip(s.len, player, s.x, s.y, s.o == Orientation.VERTICAL);
+			} catch (PlaceShipRulesViolation e) {
+				throw new InvalidLevelException(String.format("This ship couldn't be placed (reason: %s): %s", s.toString(), e.getMessage()));
+			}
+		}
+	}
+	
+	private void placeShip(int shiplength, int p, int x, int y, boolean alongXAxis) throws PlaceShipRulesViolation {
 		
 		debug(String.format("considering %d,%d , alongxaxis:%s",x,y,alongXAxis));
 		
@@ -110,14 +156,12 @@ public class LevelGenerator {
 		if (alongXAxis) { // check north or west of ship
 			debug(String.format("north: trying to check %d,%d",x-1,y));
 			if (x-1 >= 0 && boards[p][x-1][y] != '-') {
-				debug(String.format("ship north of %d,%d",x-1,y));
-				return false;
+				throw new PlaceShipRulesViolation(String.format("ship north of %d,%d",x-1,y));
 			}
 		} else {
 			debug(String.format("west: trying to check %d,%d",x,y-1));
 			if (y-1 >= 0 && boards[p][x][y-1] != '-') {
-				debug(String.format("ship west of %d,%d",x,y-1));
-				return false;
+				throw new PlaceShipRulesViolation(String.format("ship west of %d,%d",x,y-1));
 			}
 		}
 		
@@ -130,13 +174,13 @@ public class LevelGenerator {
 				int n = (alongXAxis ? x+i : x);
 				int m = (!alongXAxis ? y+i : y);
 				if (boards[p][n][m] != '-')
-					return false;
+					throw new PlaceShipRulesViolation("Ship not using unused fields");
 				if (!alongXAxis) {
-					if (n-1 >= 0 && boards[p][n-1][m] != '-') return false;
-					if (n+1 < boards[p].length && boards[p][n+1][m] != '-') return false;
+					if (n-1 >= 0 && boards[p][n-1][m] != '-') throw new PlaceShipRulesViolation();
+					if (n+1 < boards[p].length && boards[p][n+1][m] != '-') throw new PlaceShipRulesViolation();
 				} else {
-					if (m-1 >= 0 && boards[p][n][m-1] != '-') return false;
-					if (m+1 < boards[p][n].length && boards[p][n][m+1] != '-') return false;
+					if (m-1 >= 0 && boards[p][n][m-1] != '-') throw new PlaceShipRulesViolation();
+					if (m+1 < boards[p][n].length && boards[p][n][m+1] != '-') throw new PlaceShipRulesViolation();
 				}
 			}
 
@@ -145,14 +189,12 @@ public class LevelGenerator {
 			if (alongXAxis) { // check south or east of ship
 				debug(String.format("south: trying to check %d,%d",x+i,y));
 				if (x+i < boards[p].length && boards[p][x+i][y] != '-') {
-					debug(String.format("ship south of %d,%d",x+i,y));
-					return false;
+					throw new PlaceShipRulesViolation(String.format("ship south of %d,%d",x+i,y));
 				}
 			} else {
 				debug(String.format("east: trying to check %d,%d",x,y+i));
 				if (y+i < boards[p][x].length && boards[p][x][y+i] != '-') {
-					debug(String.format("ship east of %d,%d",x,y+i));
-					return false;
+					throw new PlaceShipRulesViolation(String.format("ship east of %d,%d",x,y+i));
 				}
 			}
 		
@@ -170,7 +212,6 @@ public class LevelGenerator {
 			else
 				boards[p][n][m] = (alongXAxis ? 'v' : 'h');
 		}
-		return true;
 	}
 	
 	public Character[][] getBoard(int player) {
