@@ -8,6 +8,7 @@ import gruppe16.exceptions.InvalidInstruction;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -41,17 +42,16 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	JButton[][] buttons;
 	
-	GUISchiffe app;
+	BoardUser app;
 	
 	int player;
 	
 	AI ai;
 
-	public BoardPanel(GUISchiffe app, Engine engine, int player, AI ai) {
+	public BoardPanel(BoardUser app, Engine engine, int player) {
 		super();
 		this.app = app;
 		this.engine = engine;
-		this.ai = ai;
 		this.player = player;
 
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
@@ -172,7 +172,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent evt) {
 
-		if (player == 0) { evt.consume(); return; } // you can't shoot your own map
+		//if (player == 0) { evt.consume(); return; } // you can't shoot your own map
 		
 		JButton refBtn = entities.get(0);
 		int posX = -1 , posY = -1;
@@ -194,31 +194,11 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 		
 		//System.out.println(String.format("%d,%d", posX, posY));
-		bomb (posX, posY);
+		app.bomb (player, posX, posY);
 	}
 	
-	private void bomb(int x, int y) {
-		try {
-			engine.attack(Engine.otherPlayer(player), y, x);
-			
-			if (engine.isFinished()) { app.GameOver(); return; }
-			
-			int i = 0;
-			while (!engine.getState().isPlayerTurn()) {
-				System.out.println(i++ + " AI plays as " + player);
-				ai.playAs(player);
-			}
-			otherBoard.refresh();
-			
-			if (engine.isFinished()) { app.GameOver(); return; }
-		} catch (InvalidInstruction e) {
-			//app.getFrame()
-			app.userError(e.getMessage());
-		}
-		refresh();
-	}
 	
-	private void refresh() {
+	public void refresh() {
 		removeButtons();
 		addButtons();
 	}

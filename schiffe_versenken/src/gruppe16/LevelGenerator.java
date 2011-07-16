@@ -218,7 +218,7 @@ public class LevelGenerator {
 		return boards[player];
 	}
 	
-	public Level getLevel() {
+	public String getLevelString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < boards[0].length; i++) {
 			for (int j = 0; j < boards[0][0].length; j++) {
@@ -230,8 +230,12 @@ public class LevelGenerator {
 			}
 			sb.append("\n");
 		}
+		return sb.toString();
+	}
+	
+	public Level getLevel() {
 		try {
-			return new Level(sb.toString());
+			return new Level(getLevelString());
 		} catch (InvalidLevelException e) {
 			Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			System.err.println(helper.getBoardString(getBoard(0)));

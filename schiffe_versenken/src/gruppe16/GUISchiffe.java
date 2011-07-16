@@ -1,8 +1,7 @@
 package gruppe16;
 
 import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,15 +13,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import gruppe16.exceptions.InvalidInstruction;
 import gruppe16.exceptions.InvalidLevelException;
 import gruppe16.gui.BoardPanel;
+import gruppe16.gui.BoardUser;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -33,12 +35,65 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import com.sun.xml.internal.bind.v2.runtime.Coordinator;
 
-
-
-public class GUISchiffe implements ActionListener {
+public class GUISchiffe implements ActionListener, BoardUser {
 	JFrame frame;
 	Engine engine;
+	AI ai;
+	BoardPanel[] panels;
+	
+	class WizardCoordReceiver implements ActionListener, BoardUser {
+			int x;
+			int y;
+			JDialog dialog;
+			Engine engine;
+			placeOwnShipsDialog wizard;
+			int shiplength;
+			Orientation o;
+			
+			public WizardCoordReceiver(placeOwnShipsDialog app) {
+				engine = new Engine();
+				this.wizard = app;
+			}
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton but = (JButton) e.getSource();
+				System.out.println("action: " + e.getActionCommand());
+				shiplength = wizard.buttolen.get(but);
+				
+				o = Orientation.VERTICAL;
+				
+				BoardPanel bpanel = new BoardPanel(this, engine, 0);
+				JPanel panel = new JPanel();
+				panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+				dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
+				panel.add(bpanel);
+				dialog.setContentPane(panel);
+				dialog.pack();
+				dialog.setVisible(true);
+				
+				try {
+					engine.setState(new State(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel()));
+				} catch (InvalidLevelException e1) {
+					System.err.println(e1.getMessage());
+					return;
+				}
+
+				System.out.println("action performed: " + shiplength);
+				
+				but.setEnabled(false);
+				
+			}
+
+			@Override
+			public void bomb(int p, int x, int y) {
+				System.err.println("bomb: " + shiplength);
+				wizard.chose(x, y, shiplength, o);
+				dialog.dispose();
+			}
+	}
 	
 	public void GameOver() {
 		int winner = engine.checkWin();
@@ -59,69 +114,78 @@ public class GUISchiffe implements ActionListener {
 	
 	GUISchiffe() {
 		engine = new Engine();
+		ai = new BadAI(engine);
 		//System.out.println(engine.getLevelStringForPlayer(0));
 		
 		initAIandShowFrame();
 	}
 	
 	class placeOwnShipsDialog extends JDialog implements ActionListener {
-		List<Ship> chosencoords;
-		Map<JButton, JPanel> buttopan; 
-		private int build(Container cp) {
+		private static final long serialVersionUID = 1L;
+		
+		public List<Ship> getChosencoords() {
+			return chosencoords;
+		}
+		private List<Ship> chosencoords;
+		private Map<JButton, Integer> buttolen; 
+		private void build(Container cp) {
 			chosencoords = new ArrayList<Ship>();
+			buttolen = new HashMap<JButton, Integer>();
 			
-			int k = 0;
 			for (int i = 0; i < Rules.ships.length; i++) {
 				int[] shiprules = Rules.ships[i];
 				for (int j = 0; j < shiprules[1]; j++) {
-					k++;
 					JPanel g = new JPanel();
+					
 					JLabel lab = new JLabel(String.format("%d-ship: ", shiprules[0]));
 					JButton but = new JButton("Place");
-					//buttopan.put(but,g);
+					
+					buttolen.put(but,shiprules[0]);
 					g.add(lab);
 					g.add(but);
 					cp.add(g);
-					but.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							((placeOwnShipsDialog) ((JComponent) e.getSource()).getTopLevelAncestor()).chosencoords.add(new Ship(j, j, j, null));
-							
-							((JButton) e.getSource()).setEnabled(false);
-							
-						}
-					});
+					but.addActionListener(new WizardCoordReceiver(this));
 				}
 			}
-			return k;
+		}
+		public void chose(int x, int y, int len, Orientation o) {
+			chosencoords.add(new Ship(x, y, len, o));
 		}
 		public placeOwnShipsDialog(JFrame parent) {
 			super(parent, "Place your ships", true);
 			Container cp = getContentPane();
-			int k = build(cp);
-			cp.setLayout(new FlowLayout());
-			//cp.add(new JLabel("Here is my dialog"));
+			cp.setLayout(new BoxLayout(cp, BoxLayout.PAGE_AXIS));
+			JPanel placers = new JPanel();
+			placers.setLayout(new BoxLayout(placers, BoxLayout.PAGE_AXIS));
+			build(cp);
+			cp.add(placers);
+
+			JPanel bottompanel = new JPanel();
 			JButton ok = new JButton("OK");
 			ok.addActionListener(this);
 			JButton cancel = new JButton("Cancel");
 			cancel.addActionListener(this);
 			
-			cp.add(ok);
-			cp.add(cancel);
+			bottompanel.add(ok);
+			bottompanel.add(cancel);
+			cp.add(bottompanel);
 			setSize(250, 500);
 		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.err.println(e.getActionCommand());		
+			if (e.getActionCommand() == "OK") {
+				for (Ship s : chosencoords) {
+					System.out.println(s.toString());
+				}
+			} else if (e.getActionCommand() == "Cancel") {
+
+			}
+			dispose();
 		}
 	}
 	
 	private void placeOwnShipsWizard() {
 		new placeOwnShipsDialog(frame).setVisible(true);
-		
-/*		for (int i = 0; i < Rules.ships.length; i++) {
-			
-		}*/
 	}
 
 	static class actions {
@@ -152,15 +216,15 @@ public class GUISchiffe implements ActionListener {
 	}
 	
 	void initAIandShowFrame() {
-		AI ai = new BadAI(engine);
+		ai = new BadAI(engine);
 		
 		frame = new JFrame("GUISchiffe");
 		JPanel panel = new JPanel();
-		BoardPanel panel1 = null;
-		BoardPanel panel2 = null;
-		panel1 = new BoardPanel(this, engine, 0, ai);
+		
+		BoardPanel panel1 = new BoardPanel(this, engine, 0);
 		panel.add(panel1);
-		panel2 = new BoardPanel(this, engine, 1, ai);
+		BoardPanel panel2 = new BoardPanel(this, engine, 1);
+		panels = new BoardPanel[] {panel1, panel2};
 		panel.add(panel2);
 		
 		panel1.setOtherBoard(panel2);
@@ -325,5 +389,32 @@ public class GUISchiffe implements ActionListener {
 	        if (f != null) try { f.close(); } catch (IOException ignored) { }
 	    }
 	    return new String(buffer);
+	}
+
+	@Override
+	public void bomb(int player, int x, int y) {
+			if (player == 0) return;
+			
+			try {
+				engine.attack(Engine.otherPlayer(player), y, x);
+			} catch (InvalidInstruction e) {
+				userError(e.getMessage());
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+				
+			if (engine.isFinished()) { GameOver(); return; }
+
+			int i = 0;
+			while (!engine.getState().isPlayerTurn()) {
+				System.out.println(i++ + " AI plays as " + player);
+				ai.playAs(player);
+			}
+			panels[Engine.otherPlayer(player)].refresh();
+
+			if (engine.isFinished()) { GameOver(); return; }
+			
+			panels[player].refresh();
 	}
 }

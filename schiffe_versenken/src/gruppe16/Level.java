@@ -86,12 +86,16 @@ public class Level implements Serializable {
 		boards = newBoards;
 	}
 	
+	public Level(String text) throws InvalidLevelException {
+		new Level(text, true);
+	}
+	
 	/**
 	 * constructor that takes the level as a string
 	 * @param text level string
 	 * @throws InvalidLevelException
 	 */
-	public Level(String text) throws InvalidLevelException  {
+	public Level(String text, boolean check) throws InvalidLevelException  {
 		InputStream stream;
 		try {
 			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
@@ -150,7 +154,7 @@ public class Level implements Serializable {
 				p2line = Player2Board.get(counter);
 				counter++;
 			} else {
-				throw new InvalidLevelException("Invalid character: " + c);
+				throw new InvalidLevelException("Invalid character: " + c + "\n" + text);
 			}
 		}
 		if (p1line.size() == 0 && p2line.size() == 0) { // file had trailing newline
