@@ -24,6 +24,7 @@ import gruppe16.gui.BoardPanel;
 import gruppe16.gui.BoardUser;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -34,48 +35,57 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.KeyStroke;
 
+/**
+ * class implementing Swing UI
+ */
 public class GUISchiffe implements ActionListener, BoardUser {
-	JFrame frame;
-	Engine engine;
-	AI ai;
-	BoardPanel[] panels;
+	private JFrame frame;
+	private Engine engine;
+	private AI ai;
+	private BoardPanel[] panels;
 	
-	class WizardCoordReceiver implements ActionListener, BoardUser {
-			int x;
-			int y;
-			JDialog dialog;
-			Engine engine;
-			placeOwnShipsDialog wizard;
-			int shiplength;
-			Orientation o;
+	private class WizardCoordReceiver implements ActionListener, BoardUser {
+			private JDialog dialog;
+			private Engine engine;
+			private placeOwnShipsDialog wizard;
+			private int shiplength;
+			private JRadioButton rbutton1;
+			private JRadioButton rbutton2;
 			
 			public WizardCoordReceiver(placeOwnShipsDialog app) {
-				engine = new Engine();
+				engine = app.engine;
 				this.wizard = app;
 			}
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JButton but = (JButton) e.getSource();
-				System.out.println("action: " + e.getActionCommand());
+				//System.out.println("action: " + e.getActionCommand());
 				shiplength = wizard.buttolen.get(but);
 				
-				o = Orientation.VERTICAL;
-				
-				Map2DHelper<Object> helper = new Map2DHelper<Object>();
+				//Map2DHelper<Object> helper = new Map2DHelper<Object>();
 				 
-				engine.getState().getLevel().clearPlayerBoard();
-				System.out.println(helper.getBoardString(engine.getPlayerArray()));
+				//System.out.println(helper.getBoardString(engine.getPlayerArray()));
 				
+				ButtonGroup group = new ButtonGroup();
+				rbutton1 = new JRadioButton("Horizontal", true);
+				rbutton2 = new JRadioButton("Vertical", false);
+			    group.add(rbutton1);
+			    group.add(rbutton2);
+			    
 				BoardPanel bpanel = new BoardPanel(this, engine, 0, true);
 				JPanel panel = new JPanel();
 				panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 				dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
+				panel.add(rbutton1);
+				panel.add(rbutton2);
 				panel.add(bpanel);
 				dialog.setContentPane(panel);
 				dialog.pack();
+				dialog.setResizable(false);
 				dialog.setVisible(true);
 				
 				try {
@@ -83,14 +93,16 @@ public class GUISchiffe implements ActionListener, BoardUser {
 					
 					//Map2DHelper<Object> helper = new Map2DHelper<Object>();
 					 
-					System.out.println(helper.getBoardString(engine.getPlayerArray()));
+					//System.out.println(helper.getBoardString(engine.getPlayerArray()));
 				} catch (InvalidLevelException e1) {
-					System.err.println(e1.getMessage());
+					JOptionPane.showMessageDialog(dialog,
+							e1.getMessage(),
+						    "Error", 0);
 					wizard.chosencoords.remove(wizard.chosencoords.size()-1);
 					return;
 				}
 
-				System.out.println("action performed: " + shiplength);
+				//System.out.println("action performed: " + shiplength);
 				
 				but.setEnabled(false);
 				
@@ -98,12 +110,15 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 			@Override
 			public void bomb(int p, int x, int y) {
-				System.err.println("bomb: " + shiplength + ", x=" + x + ", y=" + y);
-				wizard.chose(y, x, shiplength, o);
+				//System.err.println("bomb: " + shiplength + ", x=" + x + ", y=" + y);
+				wizard.chose(y, x, shiplength, (rbutton1.getSelectedObjects() != null ? Orientation.HORIZONTAL : Orientation.VERTICAL));
 				dialog.dispose();
 			}
 	}
 	
+	/**
+	 * call this when game is over to notify user of winning player and shut down
+	 */
 	public void GameOver() {
 		int winner = engine.checkWin();
 		
@@ -121,22 +136,26 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		frame.dispose();
 	}
 	
-	GUISchiffe() {
+	private GUISchiffe() {
 		engine = new Engine();
 		ai = new BadAI(engine);
-		//System.out.println(engine.getLevelStringForPlayer(0));
 		
 		showFrame();
 	}
 	
-	class placeOwnShipsDialog extends JDialog implements ActionListener {
+	private class placeOwnShipsDialog extends JDialog implements ActionListener {
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public List<Ship> getChosencoords() {
 			return chosencoords;
 		}
 		private List<Ship> chosencoords;
 		private Map<JButton, Integer> buttolen; 
+		public Engine engine;
+		private int shipcount = 0;
+		JButton ok;
+		public boolean finished = false;
 		private void build(Container cp) {
 			chosencoords = new ArrayList<Ship>();
 			buttolen = new HashMap<JButton, Integer>();
@@ -144,6 +163,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			for (int i = 0; i < Rules.ships.length; i++) {
 				int[] shiprules = Rules.ships[i];
 				for (int j = 0; j < shiprules[1]; j++) {
+					shipcount++;
 					JPanel g = new JPanel();
 					
 					JLabel lab = new JLabel(String.format("%d-ship: ", shiprules[0]));
@@ -159,9 +179,13 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		}
 		public void chose(int x, int y, int len, Orientation o) {
 			chosencoords.add(new Ship(x, y, len, o));
+			if (chosencoords.size() == shipcount) ok.setEnabled(true);
 		}
 		public placeOwnShipsDialog(JFrame parent) {
 			super(parent, "Place your ships", true);
+			engine = new Engine();
+			engine.getState().getLevel().clearPlayerBoard();
+			
 			Container cp = getContentPane();
 			cp.setLayout(new BoxLayout(cp, BoxLayout.PAGE_AXIS));
 			JPanel placers = new JPanel();
@@ -170,7 +194,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			cp.add(placers);
 
 			JPanel bottompanel = new JPanel();
-			JButton ok = new JButton("OK");
+			ok = new JButton("OK");
+			ok.setEnabled(false);
 			ok.addActionListener(this);
 			JButton cancel = new JButton("Cancel");
 			cancel.addActionListener(this);
@@ -183,9 +208,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand() == "OK") {
-				for (Ship s : chosencoords) {
+				finished = true;
+				/*for (Ship s : chosencoords) {
 					System.out.println(s.toString());
-				}
+				}*/
 			} else if (e.getActionCommand() == "Cancel") {
 
 			}
@@ -194,18 +220,29 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	}
 	
 	private void placeOwnShipsWizard() {
-		new placeOwnShipsDialog(frame).setVisible(true);
+		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame);
+
+		shipchooser.setVisible(true); // blocks
+
+		if (shipchooser.finished ) {
+			engine = shipchooser.engine;
+			ai = new BadAI(engine);
+			
+			frame.dispose();
+			showFrame();
+		}
 	}
 
-	static class actions {
+	private static class actions {
 		static enum actionnames {
-			quicknewgame, save, load, newplaceownships
+			quicknewgame, save, load, newplaceownships, newgenerated
 		}
 		
 		public static String quicknewgame = actionnames.quicknewgame.name();
 		public static String save = actionnames.save.name();
 		public static String load = actionnames.load.name();
 		public static String newplaceownships = actionnames.newplaceownships.name();
+		public static String newgenerated = actionnames.newgenerated.name();
 	}
 	
 	public void actionPerformed(ActionEvent actionEvent) {
@@ -219,12 +256,14 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			load();
 		} else if (a.equals(actions.newplaceownships)) {
 			placeOwnShipsWizard();
+		} else if (a.equals(actions.newgenerated)) {
+			generatedNewGame();
 		} else {
 			userError("Unknown action!");
 		}
 	}
 	
-	void showFrame() {	
+	private void showFrame() {	
 		frame = new JFrame("GUISchiffe");
 		JPanel panel = new JPanel();
 		
@@ -252,7 +291,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	    JMenu newMenu = new JMenu("New");
 	    fileMenu.add(newMenu);
 	    
-	    JMenuItem quickNewItem = new JMenuItem("Quick New", KeyEvent.VK_N);
+	    JMenuItem quickNewItem = new JMenuItem("Quick New (load random built-in level)", KeyEvent.VK_N);
 	    quickNewItem.addActionListener(menuListener);
 	    quickNewItem.setAccelerator(KeyStroke.getKeyStroke("N"));
 	    quickNewItem.setActionCommand(actions.quicknewgame);
@@ -262,6 +301,11 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	    place.addActionListener(menuListener);
 	    place.setActionCommand(actions.newplaceownships);
 	    newMenu.add(place);
+	    
+	    JMenuItem generate = new JMenuItem("New Game (using generated level)", KeyEvent.VK_G);
+	    generate.addActionListener(menuListener);
+	    generate.setActionCommand(actions.newgenerated);
+	    newMenu.add(generate);
 	    
 	    JMenuItem saveItem = new JMenuItem("Save as...", KeyEvent.VK_S);
 	    saveItem.addActionListener(menuListener);
@@ -280,11 +324,15 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		frame.setVisible(true);
 	}
 	
+	/**
+	 * entry point
+	 * @param args not used
+	 */
 	public static void main(String[] args) {
 		new GUISchiffe();
 	}
 
-	public void userError(String message) {
+	private void userError(String message) {
 		JOptionPane.showMessageDialog(frame,
 			    message, 
 			    "Error", 0);
@@ -325,6 +373,15 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		}
 		
 		engine = new Engine(level);
+		ai = new BadAI(engine);
+		
+		frame.dispose();
+		showFrame();
+	}
+	
+	private void generatedNewGame() {
+		engine = new Engine();
+		ai = new BadAI(engine);
 		
 		frame.dispose();
 		showFrame();

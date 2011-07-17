@@ -11,12 +11,12 @@ public class CLISchiffe extends ConsoleProgram {
 
 	private static final long serialVersionUID = 1L;
 
-	Engine engine; 
+	private Engine engine; 
 	
 	/**
 	 * constructor initializes game engine, which constructs game boards and so on
 	 */
-	CLISchiffe() {
+	public CLISchiffe() {
 		engine = new Engine();
 	}
 	

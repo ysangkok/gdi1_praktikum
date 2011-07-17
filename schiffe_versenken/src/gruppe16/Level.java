@@ -32,7 +32,7 @@ class Ship {
 	public int len;
 	public Orientation o;
 	
-	Ship(int x, int y, int length, Orientation o) {
+	public Ship(int x, int y, int length, Orientation o) {
 		this.x = x;
 		this.y = y;
 		this.len = length;
@@ -74,19 +74,15 @@ public class Level implements Serializable {
 			System.out.println(str);
 	}
 	
-	transient static final String unharmedShip = "lrtbvh";
-	transient static final String   harmedShip = "LRTBVH";
+	private transient static final String unharmedShip = "lrtbvh";
+	private transient static final String   harmedShip = "LRTBVH";
 		
-	List<List<List<Character>>> boards; // for storing the board of each player
-	
+	private List<List<List<Character>>> boards; // for storing the board of each player
 	/**
-	 * constructor that takes a all-ready List data structure
-	 * @param newBoards 3D List. 1st dimension: players, 2nd dimension: lines, 3rd dimension: columns
-	 */
-	Level(List<List<List<Character>>> newBoards) {
-		boards = newBoards;
-	}
-	
+	 * constructor that takes the level as a string
+	 * @param text level string
+	 * @throws InvalidLevelException
+	 */	
 	public Level(String text) throws InvalidLevelException {
 		build(text, true);
 	}
@@ -94,12 +90,19 @@ public class Level implements Serializable {
 	/**
 	 * constructor that takes the level as a string
 	 * @param text level string
+	 * @param check check for missing ships
 	 * @throws InvalidLevelException
 	 */
 	public Level(String text, boolean check) throws InvalidLevelException {
 		build(text, check);
 	}
 	
+	/**
+	 * build level from string, used by constructors
+	 * @param text level string
+	 * @param check check for missing ships
+	 * @throws InvalidLevelException
+	 */
 	public void build(String text, boolean check) throws InvalidLevelException  {
 		InputStream stream;
 		try {
@@ -176,6 +179,12 @@ public class Level implements Serializable {
 		checkShips(1, getPlayerBoard(1), check);
 	}
 	
+	/**
+	 * @param player check ships for this player
+	 * @param b board to check
+	 * @param countShips count ships when checking
+	 * @throws InvalidLevelException
+	 */
 	public static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
 		debug("Checking player " + player);
 		
@@ -296,9 +305,15 @@ public class Level implements Serializable {
 		return -1;
 	}
 
+	/**
+	 * this constructor generates a level
+	 */
 	public Level() {
 		boards = new LevelGenerator(12, 12).getLevel().getBoards();
 	}
+	/**
+	 * @return internal board representation (lists)
+	 */
 	public List<List<List<Character>>> getBoards() {
 		return boards;
 	}
@@ -419,6 +434,10 @@ public class Level implements Serializable {
         return result;
 	}
 	
+	/**
+	 * entry point (just for testing)
+	 * @param args not used
+	 */
 	public static void main(String[] args) {
 		Level level;
 		try {
@@ -441,20 +460,48 @@ public class Level implements Serializable {
 
 	}
 
+	/**
+	 * @param i x coordinate 
+	 * @param j y coordinate 
+	 * @return is char at coord in players board a ship?
+	 */
 	public boolean isShip(int i, int j) {
 		int[] coords = parseTestInterfaceCoords(i,j,boards.get(0).get(0).size());
 		return isShip(boards.get(coords[0]).get(coords[1]).get(coords[2]));
 	}
+	/**
+	 * @param p player board index to use
+	 * @param i x coordinate 
+	 * @param j y coordinate 
+	 * @return is char at coord a ship?
+	 */
 	public boolean isShip(int p, int i, int j) {
 		return isShip(boards.get(p).get(i).get(j));
 	}
+	/**
+	 * @param i x coordinate 
+	 * @param j y coordinate 
+	 * @param boards board array to check (only 2d, i.e. represents only 1 player)
+	 * @return is char at coord a ship?
+	 */
 	public static boolean staticIsShip(int i, int j, Character[][] boards) {
 		return isShip(boards[i][j]);
 	}
+	/**
+	 * @param c char to control
+	 * @return true if char is a ship char
+	 */
 	public static boolean isShip(char c) {
 		return matchChar(unharmedShip + harmedShip, c);
 	}
 
+	/**
+	 * parse test interface (minimal) coordinate format and convert to our format
+	 * @param y x coordinate (in test interface) is actually our y coordinate since we swapped them
+	 * @param x y coordinate (see above) 
+	 * @param yWidth height of every players board
+	 * @return array with three entries: 1. player the coordinate belongs to 2. our x representation 3. our y representation
+	 */
 	public static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
 		int newplayer, newx, newy;
 		if (y > yWidth-1) {
@@ -469,6 +516,9 @@ public class Level implements Serializable {
 		return new int[] {newplayer, newx, newy};
 	}
 
+	/**
+	 * clear player's board. used when placing own ships
+	 */
 	public void clearPlayerBoard() {
 		for (List<Character> row : boards.get(0)) {
 			for (int i = 0; i < row.size(); i++) {

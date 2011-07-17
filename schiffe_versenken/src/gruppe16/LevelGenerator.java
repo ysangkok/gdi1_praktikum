@@ -14,12 +14,12 @@ public class LevelGenerator {
 	class PlaceShipRulesViolation extends Exception {
 		private static final long serialVersionUID = 1L;
 		
-		String message = "";
+		private String message = "";
 		
-		PlaceShipRulesViolation(String message) {
+		public PlaceShipRulesViolation(String message) {
 			this.message = message;
 		}
-		PlaceShipRulesViolation() {
+		public PlaceShipRulesViolation() {
 		}
 		public String getMessage() {
 			return "Couldn't place ship! " + message;
@@ -46,10 +46,10 @@ public class LevelGenerator {
 	}
 	
 	private Character[][][] boards;
-	Random gen;
-	int xwidth;
-	int ywidth;
-	Map<Integer, Integer> boatCount;
+	private Random gen;
+	private int xwidth;
+	private int ywidth;
+	private Map<Integer, Integer> boatCount;
 	
 	private void initBoard(int xwidth, int ywidth) {
 		this.xwidth = xwidth;

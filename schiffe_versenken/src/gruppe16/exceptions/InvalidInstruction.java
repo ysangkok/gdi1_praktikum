@@ -9,8 +9,8 @@ public class InvalidInstruction extends Exception {
 	
 	private static final long serialVersionUID = 1L;
 	
-	String message = "";
-	Reason reason = null;
+	private String message = "";
+	private Reason reason = null;
 	public InvalidInstruction(int x, int y, char c) {
 		message = "Char: " + c + ", X: " + x + ", Y: " + y;
 	}

@@ -19,8 +19,13 @@ import javax.swing.JPanel;
 
 public class BoardPanel extends JPanel implements MouseListener {
 	private static final long serialVersionUID = 1L;
-
-	BoardPanel otherBoard;
+	private BoardPanel otherBoard;
+	private Engine engine;
+	private JButton[][] buttons;
+	private BoardUser app;
+	private int player;
+	private boolean dontfog;
+	private Vector<JButton> entities;
 	
 	public BoardPanel getOtherBoard() {
 		return otherBoard;
@@ -29,18 +34,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 	public void setOtherBoard(BoardPanel otherBoard) {
 		this.otherBoard = otherBoard;
 	}
-
-	Engine engine;
-
-	JButton[][] buttons;
-	
-	BoardUser app;
-	
-	int player;
-	
-	AI ai;
-	
-	boolean dontfog;
 
 	public BoardPanel(BoardUser app, Engine engine, int player, boolean dontfog) {
 		super();
@@ -133,21 +126,17 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	private HashMap<String, ImageIcon> images = null;
 
-	boolean registerImage(String identifier, String fileName) {
+	private boolean registerImage(String identifier, String fileName) {
 		return images.put(identifier, new ImageIcon(fileName)) != null;
 	}
 
 
-	JButton placeEntity(String imageIdentifier) {
+	private JButton placeEntity(String imageIdentifier) {
 		return placeEntity(images.get(imageIdentifier)	);
 	}
-	JButton placeEntity(Image image){
-		return placeEntity(new ImageIcon(image));
-	}
 	
-	Vector<JButton> entities;
-	
-	JButton placeEntity(Icon icon){
+
+	private JButton placeEntity(Icon icon){
 		JButton btn = new JButton();
 
 		btn.setMargin(
@@ -197,7 +186,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 		//System.out.println(String.format("%d,%d", posX, posY));
 		app.bomb (player, posX, posY);
 	}
-	
 	
 	public void refresh() {
 		removeButtons();

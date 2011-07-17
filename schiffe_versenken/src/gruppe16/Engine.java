@@ -17,14 +17,23 @@ public class Engine {
 	private int xWidth;
 	private int yWidth;
 	
+	/**
+	 * @return height of map, since x (i.e. first coordinates) are actually lines
+	 */
 	public int getxWidth() {
 		return xWidth;
 	}
 
+	/**
+	 * @return width of map, since y (i.e. second coordinates) are actually character in line
+	 */
 	public int getyWidth() {
 		return yWidth;
 	}
 
+	/**
+	 * @param level level to use when constructing engine
+	 */
 	public Engine(Level level) {
 		state = new State(level);
 		updateWidth(level);
@@ -38,10 +47,16 @@ public class Engine {
 		yWidth = level.getPlayerBoard(0)[0].length;
 	}
 
+	/**
+	 * @return the current state
+	 */
 	public State getState() {
 		return state;
 	}
 
+	/**
+	 * constructor that automatically generates a level
+	 */
 	public Engine() {
 		Level initialLevel;
 		initialLevel = new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel();
@@ -150,14 +165,23 @@ public class Engine {
 	}
 
 
+	/**
+	 * @return get array for players board
+	 */
 	public Character[][] getPlayerArray() {
 		return getCurrentBoards(0,true)[0];
 	}
 
+	/**
+	 * @return get opponents board, with fog
+	 */
 	public Character[][] getVisibleOpponentArray() {
 		return getCurrentBoards(0,true)[1];
 	}
 	
+	/**
+	 * @return get opponents board, without fog
+	 */
 	public Character[][] getOpponentArrayWithoutFog() {
 		return getCurrentBoards(0,false)[1];
 	}
@@ -182,16 +206,30 @@ public class Engine {
 	}
 
 	
+	/**
+	 * restart level by reverting to first undo position
+	 */
 	public void restartLevel() {
 		state = undoLog.get(0);
 	}
 
+	/**
+	 * set state to new state. dangerous since the undo log could now have states with levels of different widths
+	 */
 	public void setState(State state2) {
 		state = state2;
 		undoLog.add(state);
 		updateWidth(state.getLevel());
 	}
 
+	/**
+	 * @param i shooting player
+	 * @param y y coord shot destination
+	 * @param x x coord shot destination
+	 * @param force if true, change turn if that was the thing preventing us from shooting
+	 * @return new char at shot destination
+	 * @throws InvalidInstruction if the instruction was illegal for another reason than NOTYOURTURN
+	 */
 	public char attack(int i, int y, int x, boolean force) throws InvalidInstruction {
 		if (force) {
 			try {
