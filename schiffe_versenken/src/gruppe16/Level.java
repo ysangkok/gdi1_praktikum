@@ -87,7 +87,7 @@ public class Level implements Serializable {
 	}
 	
 	public Level(String text) throws InvalidLevelException {
-		new Level(text, true);
+		build(text, true);
 	}
 	
 	/**
@@ -95,7 +95,11 @@ public class Level implements Serializable {
 	 * @param text level string
 	 * @throws InvalidLevelException
 	 */
-	public Level(String text, boolean check) throws InvalidLevelException  {
+	public Level(String text, boolean check) throws InvalidLevelException {
+		build(text, check);
+	}
+	
+	public void build(String text, boolean check) throws InvalidLevelException  {
 		InputStream stream;
 		try {
 			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
@@ -167,8 +171,8 @@ public class Level implements Serializable {
 					if (boards.get(j).size() != boards.get(i).get(k).size())
 						throw new InvalidLevelException("different width and height");
 		
-		checkShips(0, getPlayerBoard(0), true);
-		checkShips(1, getPlayerBoard(1), true);
+		checkShips(0, getPlayerBoard(0), check);
+		checkShips(1, getPlayerBoard(1), check);
 	}
 	
 	public static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
@@ -462,6 +466,14 @@ public class Level implements Serializable {
 			newx = x;
 		}
 		return new int[] {newplayer, newx, newy};
+	}
+
+	public void clearPlayerBoard() {
+		for (List<Character> row : boards.get(0)) {
+			for (int i = 0; i < row.size(); i++) {
+				row.set(i, '-');
+			}
+		}
 	}
 	
 }

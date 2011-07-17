@@ -47,12 +47,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 	int player;
 	
 	AI ai;
+	
+	boolean dontfog;
 
-	public BoardPanel(BoardUser app, Engine engine, int player) {
+	public BoardPanel(BoardUser app, Engine engine, int player, boolean dontfog) {
 		super();
 		this.app = app;
 		this.engine = engine;
 		this.player = player;
+		this.dontfog = dontfog;
 
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
 		
@@ -76,7 +79,13 @@ public class BoardPanel extends JPanel implements MouseListener {
 		Character[][] b = null;
 		
 		if (player == 0) b = engine.getPlayerArray();
-		if (player == 1) b = engine.getVisibleOpponentArray();
+		if (player == 1) {
+			if (dontfog) {
+				b = engine.getOpponentArrayWithoutFog();
+			} else {
+				b = engine.getVisibleOpponentArray();
+			}
+		}
 		for (int i=0; i<engine.getxWidth(); i++) {
 			for (int j=0; j<engine.getyWidth(); j++) {
 				String iconname = fieldToIcon(b[i][j]);

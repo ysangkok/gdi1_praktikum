@@ -65,7 +65,12 @@ public class GUISchiffe implements ActionListener, BoardUser {
 				
 				o = Orientation.VERTICAL;
 				
-				BoardPanel bpanel = new BoardPanel(this, engine, 0);
+				Map2DHelper<Object> helper = new Map2DHelper<Object>();
+				 
+				engine.getState().getLevel().clearPlayerBoard();
+				System.out.println(helper.getBoardString(engine.getPlayerArray()));
+				
+				BoardPanel bpanel = new BoardPanel(this, engine, 0, true);
 				JPanel panel = new JPanel();
 				panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 				dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
@@ -75,9 +80,14 @@ public class GUISchiffe implements ActionListener, BoardUser {
 				dialog.setVisible(true);
 				
 				try {
-					engine.setState(new State(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel()));
+					engine.setState(new State(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel(false)));
+					
+					//Map2DHelper<Object> helper = new Map2DHelper<Object>();
+					 
+					System.out.println(helper.getBoardString(engine.getPlayerArray()));
 				} catch (InvalidLevelException e1) {
 					System.err.println(e1.getMessage());
+					wizard.chosencoords.remove(wizard.chosencoords.size()-1);
 					return;
 				}
 
@@ -89,8 +99,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 			@Override
 			public void bomb(int p, int x, int y) {
-				System.err.println("bomb: " + shiplength);
-				wizard.chose(x, y, shiplength, o);
+				System.err.println("bomb: " + shiplength + ", x=" + x + ", y=" + y);
+				wizard.chose(y, x, shiplength, o);
 				dialog.dispose();
 			}
 	}
@@ -117,7 +127,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		ai = new BadAI(engine);
 		//System.out.println(engine.getLevelStringForPlayer(0));
 		
-		initAIandShowFrame();
+		showFrame();
 	}
 	
 	class placeOwnShipsDialog extends JDialog implements ActionListener {
@@ -215,15 +225,13 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		}
 	}
 	
-	void initAIandShowFrame() {
-		ai = new BadAI(engine);
-		
+	void showFrame() {	
 		frame = new JFrame("GUISchiffe");
 		JPanel panel = new JPanel();
 		
-		BoardPanel panel1 = new BoardPanel(this, engine, 0);
+		BoardPanel panel1 = new BoardPanel(this, engine, 0, false);
 		panel.add(panel1);
-		BoardPanel panel2 = new BoardPanel(this, engine, 1);
+		BoardPanel panel2 = new BoardPanel(this, engine, 1, false);
 		panels = new BoardPanel[] {panel1, panel2};
 		panel.add(panel2);
 		
@@ -320,7 +328,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		engine = new Engine(level);
 		
 		frame.dispose();
-		initAIandShowFrame();
+		showFrame();
 	}
 	
 	private void save() {
@@ -376,7 +384,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		engine.setState(e);
 		
 		frame.dispose();
-		initAIandShowFrame();
+		showFrame();
 	}
 	
 	private static String readFileAsString(String filePath) throws IOException{

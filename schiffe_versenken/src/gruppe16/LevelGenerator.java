@@ -173,14 +173,18 @@ public class LevelGenerator {
 			for (i = 0; i < shiplength; i++) { // check next to each tile of ship
 				int n = (alongXAxis ? x+i : x);
 				int m = (!alongXAxis ? y+i : y);
-				if (boards[p][n][m] != '-')
-					throw new PlaceShipRulesViolation("Ship not using unused fields");
-				if (!alongXAxis) {
-					if (n-1 >= 0 && boards[p][n-1][m] != '-') throw new PlaceShipRulesViolation();
-					if (n+1 < boards[p].length && boards[p][n+1][m] != '-') throw new PlaceShipRulesViolation();
-				} else {
-					if (m-1 >= 0 && boards[p][n][m-1] != '-') throw new PlaceShipRulesViolation();
-					if (m+1 < boards[p][n].length && boards[p][n][m+1] != '-') throw new PlaceShipRulesViolation();
+				try {
+					if (boards[p][n][m] != '-')
+						throw new PlaceShipRulesViolation("Ship not using unused fields");
+					if (!alongXAxis) {
+						if (n-1 >= 0 && boards[p][n-1][m] != '-') throw new PlaceShipRulesViolation();
+						if (n+1 < boards[p].length && boards[p][n+1][m] != '-') throw new PlaceShipRulesViolation();
+					} else {
+						if (m-1 >= 0 && boards[p][n][m-1] != '-') throw new PlaceShipRulesViolation();
+						if (m+1 < boards[p][n].length && boards[p][n][m+1] != '-') throw new PlaceShipRulesViolation();
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					throw new PlaceShipRulesViolation("Ship exceeding map boundries");
 				}
 			}
 
@@ -232,10 +236,13 @@ public class LevelGenerator {
 		}
 		return sb.toString();
 	}
-	
 	public Level getLevel() {
+		return getLevel(true);
+	}
+	
+	public Level getLevel(boolean check) {
 		try {
-			return new Level(getLevelString());
+			return new Level(getLevelString(), check);
 		} catch (InvalidLevelException e) {
 			Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			System.err.println(helper.getBoardString(getBoard(0)));

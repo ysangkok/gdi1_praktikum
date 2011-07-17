@@ -140,7 +140,7 @@ public class Engine {
 	 * @return String which is mostly usable in CLI interface
 	 */
 	public String getLevelStringForPlayer(int i) {
-		Character[][][] boards = getCurrentBoards(i);
+		Character[][][] boards = getCurrentBoards(i, true);
 		
 		Map2DHelper<Character> helper = new Map2DHelper<Character>();
 		//return helper.getBoardString(new Character[][] {{'-'}, {'-'}});
@@ -151,23 +151,29 @@ public class Engine {
 
 
 	public Character[][] getPlayerArray() {
-		return getCurrentBoards(0)[0];
+		return getCurrentBoards(0,true)[0];
 	}
 
 	public Character[][] getVisibleOpponentArray() {
-		return getCurrentBoards(0)[1];
+		return getCurrentBoards(0,true)[1];
 	}
 	
-	private Character[][][] getCurrentBoards(int i) {
+	public Character[][] getOpponentArrayWithoutFog() {
+		return getCurrentBoards(0,false)[1];
+	}
+	
+	private Character[][][] getCurrentBoards(int i, boolean fogboard) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);
 		
-		boolean[][] ourFog = state.getFog(i);
+		if (fogboard) {
+			boolean[][] ourFog = state.getFog(i);
 		
-		for (int j = 0; j < ourFog.length; j++) {
-			for (int k = 0; k < ourFog[j].length; k++) {
-				if (ourFog[j][k])
-					opponent[j][k] = '#';
+			for (int j = 0; j < ourFog.length; j++) {
+				for (int k = 0; k < ourFog[j].length; k++) {
+					if (ourFog[j][k])
+						opponent[j][k] = '#';
+				}
 			}
 		}
 		
