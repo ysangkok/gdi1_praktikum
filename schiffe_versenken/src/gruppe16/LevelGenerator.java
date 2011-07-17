@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -85,7 +86,7 @@ public class LevelGenerator {
 	}
 
 	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) {
-	    Iterator it = boatCount.entrySet().iterator();
+	    Iterator<Entry<Integer, Integer>> it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<Integer, Integer> pairs = (Map.Entry<Integer, Integer>)it.next();
 			

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -212,7 +213,7 @@ public class Level implements Serializable {
 		}
 		
 		if (countShips) {
-			Iterator it = reference.entrySet().iterator();
+			Iterator<Entry<Integer, Integer[]>> it = reference.entrySet().iterator();
 			while (it.hasNext()) { // check counts
 				Map.Entry<Integer, Integer[]> pairs = (Map.Entry<Integer, Integer[]>)it.next();
 				if (pairs.getValue()[0] != pairs.getValue()[1]) throw new InvalidLevelException("Incorrect " + pairs.getKey() + "-ship count: " + pairs.getValue()[0] + ". Should be " + pairs.getValue()[1]);

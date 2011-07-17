@@ -2,19 +2,12 @@ package gruppe16.gui;
 
 import gruppe16.AI;
 import gruppe16.Engine;
-import gruppe16.GUISchiffe;
-import gruppe16.exceptions.InvalidInstruction;
 
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -22,7 +15,6 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class BoardPanel extends JPanel implements MouseListener {
@@ -97,8 +89,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 	
 	private void removeButtons() {
-		for (int i = 0; i < entities.size(); i++) {
-			JButton btn = entities.get(i);
+			if (entities.size() == 0) return;
+			JButton btn = entities.get(0);
+
 			btn.setVisible(false);
 			remove(btn);
 			synchronized (entities)
@@ -107,7 +100,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 			}
 			removeButtons();
 			return;
-		}
 	}
 
 	private static String[] icons = { "border", "fogofwar", "ship_bottom",

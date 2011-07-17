@@ -35,7 +35,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import com.sun.xml.internal.bind.v2.runtime.Coordinator;
 
 public class GUISchiffe implements ActionListener, BoardUser {
 	JFrame frame;
