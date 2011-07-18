@@ -32,15 +32,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-class TextClock1 extends JPanel { // http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
+class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
 	
     private JTextField _timeField;  // set by timer listener
-    private long starttime;
     private long endtime;
     private GUISchiffe app;
     javax.swing.Timer t;
 
-    public TextClock1(GUISchiffe app) {
+    public CountdownTimerPanel(GUISchiffe app) {
     	this.app = app;
     	
         _timeField = new JTextField(5);
@@ -54,24 +53,30 @@ class TextClock1 extends JPanel { // http://leepoint.net/notes-java/examples/ani
         
         //    Use full package qualification for javax.swing.Timer
         //    to avoid potential conflicts with java.util.Timer.
-        t = new javax.swing.Timer(90, new ClockListener());
-        //t.setRepeats(false);
+        t = new javax.swing.Timer(50, new ClockListener());
         t.start();
 
     }
     
     void resetCountdown() {
-        starttime = System.currentTimeMillis();
-        endtime = starttime + 5000;
+    	endtime = System.currentTimeMillis() + 5000;
+    }
+    
+    void pause() {
+    	t.stop();
+    	resetCountdown();
+    }
+    
+    void resume() {
+    	t.start();
     }
     
     class ClockListener implements ActionListener {
-    	public void actionPerformed(ActionEvent e) {	
-            //Calendar now = Calendar.getInstance();
+    	public void actionPerformed(ActionEvent e) {
 
        		long nowtime = System.currentTimeMillis();
-    		
-            _timeField.setText(String.format("%.1f", ((double) (endtime-nowtime))/1000));
+
+            _timeField.setText(String.format("%.1f", Math.abs((double) (endtime-nowtime))/1000)); // abs to prevent short minus interval when timer goes below 0
  
     		if (nowtime >= endtime) {
     			if (!app.engine.getState().isPlayerTurn()) return;
@@ -93,12 +98,14 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	private AI ai;
 	private BoardPanel[] panels;
 	private boolean speerfeuer = true;
-	private TextClock1 clock;
+	private CountdownTimerPanel clock;
 	
 	/**
 	 * call this when game is over to notify user of winning player and shut down
 	 */
 	public void GameOver() {
+		if (speerfeuer) clock.pause();
+		
 		int winner = engine.checkWin();
 		
 		String winnerstr;
@@ -121,7 +128,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		showFrame();
 	}
 	
-	private void placeOwnShipsWizard() {
+	private boolean placeOwnShipsWizard() {
 		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame);
 
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
@@ -132,7 +139,9 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			
 			frame.dispose();
 			showFrame();
+			return true;
 		}
+		return false;
 	}
 
 	private static class actions {
@@ -151,19 +160,25 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	public void actionPerformed(ActionEvent actionEvent) {
 		//System.err.println(actionEvent);
 		String a = actionEvent.getActionCommand();
+		clock.pause();
 		if (a.equals(actions.quicknewgame)) { // would be nice with the Java 7 string switch
 			quickNewGame();
+			clock.resetCountdown();
 		} else if (a.equals(actions.save)) {
 			save();
 		} else if (a.equals(actions.load)) {
 			load();
+			clock.resetCountdown();
 		} else if (a.equals(actions.newplaceownships)) {
-			placeOwnShipsWizard();
+			if (placeOwnShipsWizard())
+				clock.resetCountdown();
 		} else if (a.equals(actions.newgenerated)) {
 			generatedNewGame();
+			clock.resetCountdown();
 		} else {
 			userError("Unknown action!");
 		}
+		clock.resume();
 	}
 	
 	/**
@@ -189,7 +204,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		panel2.setOtherBoard(panel1);
 		
 		if (speerfeuer) {
-			clock = new TextClock1(this);
+			clock = new CountdownTimerPanel(this);
 			panel.add(clock);
 		}
 		
@@ -403,8 +418,6 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			if (engine.isFinished()) { GameOver(); return; }
 
 			aiAttackAs(player);
-
-			if (engine.isFinished()) { GameOver(); return; }
 			
 			panels[player].refresh();
 	}
@@ -416,6 +429,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			ai.playAs(player);
 		}
 		panels[Engine.otherPlayer(player)].refresh();
+		
+		if (engine.isFinished()) { GameOver(); return; }
 		
 		if (speerfeuer) clock.resetCountdown();
 	}
