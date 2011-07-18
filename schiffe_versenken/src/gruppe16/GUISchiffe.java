@@ -116,8 +116,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	}
 	
 	private GUISchiffe() {
-		engine = new Engine();
-		ai = new BadAI(engine);
+		initNewEngineAndAI();
 		
 		showFrame();
 	}
@@ -129,7 +128,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 		if (shipchooser.finished ) {
 			engine = shipchooser.engine;
-			ai = new BadAI(engine);
+			ai = new GoodAI(engine);
 			
 			frame.dispose();
 			showFrame();
@@ -296,16 +295,19 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			return;
 		}
 		
-		engine = new Engine(level);
-		ai = new BadAI(engine);
+		initNewEngineAndAI();
 		
 		frame.dispose();
 		showFrame();
 	}
 	
-	private void generatedNewGame() {
+	private void initNewEngineAndAI() {
 		engine = new Engine();
-		ai = new BadAI(engine);
+		ai = new GoodAI(engine);
+	}
+	
+	private void generatedNewGame() {
+		initNewEngineAndAI();
 		
 		frame.dispose();
 		showFrame();
