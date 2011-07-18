@@ -1,7 +1,7 @@
 package gruppe16;
 
-import java.awt.Container;
-import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,109 +12,88 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Calendar;
 import java.util.Random;
 
 import gruppe16.exceptions.InvalidInstruction;
 import gruppe16.exceptions.InvalidLevelException;
 import gruppe16.gui.BoardPanel;
 import gruppe16.gui.BoardUser;
+import gruppe16.gui.placeOwnShipsDialog;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+
+class TextClock1 extends JPanel { // http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
+	
+    private JTextField _timeField;  // set by timer listener
+    private long starttime;
+    private long endtime;
+    private GUISchiffe app;
+    javax.swing.Timer t;
+
+    public TextClock1(GUISchiffe app) {
+    	this.app = app;
+    	
+        _timeField = new JTextField(5);
+        _timeField.setEditable(false);
+        _timeField.setFont(new Font("sansserif", Font.PLAIN, 48));
+
+        this.setLayout(new FlowLayout());
+        this.add(_timeField); 
+        
+        resetCountdown();
+        
+        //    Use full package qualification for javax.swing.Timer
+        //    to avoid potential conflicts with java.util.Timer.
+        t = new javax.swing.Timer(90, new ClockListener());
+        //t.setRepeats(false);
+        t.start();
+
+    }
+    
+    void resetCountdown() {
+        starttime = System.currentTimeMillis();
+        endtime = starttime + 5000;
+    }
+    
+    class ClockListener implements ActionListener {
+    	public void actionPerformed(ActionEvent e) {	
+            //Calendar now = Calendar.getInstance();
+
+       		long nowtime = System.currentTimeMillis();
+    		
+            _timeField.setText(String.format("%.1f", ((double) (endtime-nowtime))/1000));
+ 
+    		if (nowtime >= endtime) {
+    			if (!app.engine.getState().isPlayerTurn()) return;
+    			app.engine.getState().changeTurn();
+    			app.aiAttackAs(1);
+    			//app.userError("Time's up!");
+    			//t.stop();
+    		}
+    	}
+    }
+}
 
 /**
  * class implementing Swing UI
  */
 public class GUISchiffe implements ActionListener, BoardUser {
 	private JFrame frame;
-	private Engine engine;
+	Engine engine;
 	private AI ai;
 	private BoardPanel[] panels;
-	
-	private class WizardCoordReceiver implements ActionListener, BoardUser {
-			private JDialog dialog;
-			private Engine engine;
-			private placeOwnShipsDialog wizard;
-			private int shiplength;
-			private JRadioButton rbutton1;
-			private JRadioButton rbutton2;
-			
-			public WizardCoordReceiver(placeOwnShipsDialog app) {
-				engine = app.engine;
-				this.wizard = app;
-			}
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JButton but = (JButton) e.getSource();
-				//System.out.println("action: " + e.getActionCommand());
-				shiplength = wizard.buttolen.get(but);
-				
-				//Map2DHelper<Object> helper = new Map2DHelper<Object>();
-				 
-				//System.out.println(helper.getBoardString(engine.getPlayerArray()));
-				
-				ButtonGroup group = new ButtonGroup();
-				rbutton1 = new JRadioButton("Horizontal", true);
-				rbutton2 = new JRadioButton("Vertical", false);
-			    group.add(rbutton1);
-			    group.add(rbutton2);
-			    
-				BoardPanel bpanel = new BoardPanel(this, engine, 0, true);
-				JPanel panel = new JPanel();
-				panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-				dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
-				panel.add(rbutton1);
-				panel.add(rbutton2);
-				panel.add(bpanel);
-				dialog.setContentPane(panel);
-				dialog.pack();
-				dialog.setResizable(false);
-				dialog.setVisible(true);
-				
-				try {
-					engine.setState(new State(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel(false)));
-					
-					//Map2DHelper<Object> helper = new Map2DHelper<Object>();
-					 
-					//System.out.println(helper.getBoardString(engine.getPlayerArray()));
-				} catch (InvalidLevelException e1) {
-					JOptionPane.showMessageDialog(dialog,
-							e1.getMessage(),
-						    "Error", 0);
-					wizard.chosencoords.remove(wizard.chosencoords.size()-1);
-					return;
-				}
-
-				//System.out.println("action performed: " + shiplength);
-				
-				but.setEnabled(false);
-				
-			}
-
-			@Override
-			public void bomb(int p, int x, int y) {
-				//System.err.println("bomb: " + shiplength + ", x=" + x + ", y=" + y);
-				wizard.chose(y, x, shiplength, (rbutton1.getSelectedObjects() != null ? Orientation.HORIZONTAL : Orientation.VERTICAL));
-				dialog.dispose();
-			}
-	}
+	private boolean speerfeuer = true;
+	private TextClock1 clock;
 	
 	/**
 	 * call this when game is over to notify user of winning player and shut down
@@ -143,86 +122,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		showFrame();
 	}
 	
-	private class placeOwnShipsDialog extends JDialog implements ActionListener {
-
-		private static final long serialVersionUID = 1L;
-
-		public List<Ship> getChosencoords() {
-			return chosencoords;
-		}
-		private List<Ship> chosencoords;
-		private Map<JButton, Integer> buttolen; 
-		public Engine engine;
-		private int shipcount = 0;
-		JButton ok;
-		public boolean finished = false;
-		private void build(Container cp) {
-			chosencoords = new ArrayList<Ship>();
-			buttolen = new HashMap<JButton, Integer>();
-			
-			for (int i = 0; i < Rules.ships.length; i++) {
-				int[] shiprules = Rules.ships[i];
-				for (int j = 0; j < shiprules[1]; j++) {
-					shipcount++;
-					JPanel g = new JPanel();
-					
-					JLabel lab = new JLabel(String.format("%d-ship: ", shiprules[0]));
-					JButton but = new JButton("Place");
-					
-					buttolen.put(but,shiprules[0]);
-					g.add(lab);
-					g.add(but);
-					cp.add(g);
-					but.addActionListener(new WizardCoordReceiver(this));
-				}
-			}
-		}
-		public void chose(int x, int y, int len, Orientation o) {
-			chosencoords.add(new Ship(x, y, len, o));
-			if (chosencoords.size() == shipcount) ok.setEnabled(true);
-		}
-		public placeOwnShipsDialog(JFrame parent) {
-			super(parent, "Place your ships", true);
-			engine = new Engine();
-			engine.getState().getLevel().clearPlayerBoard();
-			
-			Container cp = getContentPane();
-			cp.setLayout(new BoxLayout(cp, BoxLayout.PAGE_AXIS));
-			JPanel placers = new JPanel();
-			placers.setLayout(new BoxLayout(placers, BoxLayout.PAGE_AXIS));
-			build(cp);
-			cp.add(placers);
-
-			JPanel bottompanel = new JPanel();
-			ok = new JButton("OK");
-			ok.setEnabled(false);
-			ok.addActionListener(this);
-			JButton cancel = new JButton("Cancel");
-			cancel.addActionListener(this);
-			
-			bottompanel.add(ok);
-			bottompanel.add(cancel);
-			cp.add(bottompanel);
-			setSize(250, 500);
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getActionCommand() == "OK") {
-				finished = true;
-				/*for (Ship s : chosencoords) {
-					System.out.println(s.toString());
-				}*/
-			} else if (e.getActionCommand() == "Cancel") {
-
-			}
-			dispose();
-		}
-	}
-	
 	private void placeOwnShipsWizard() {
 		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame);
 
-		shipchooser.setVisible(true); // blocks
+		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
 
 		if (shipchooser.finished ) {
 			engine = shipchooser.engine;
@@ -245,10 +148,11 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		public static String newgenerated = actionnames.newgenerated.name();
 	}
 	
+	@Override
 	public void actionPerformed(ActionEvent actionEvent) {
 		//System.err.println(actionEvent);
 		String a = actionEvent.getActionCommand();
-		if (a.equals(actions.quicknewgame)) {
+		if (a.equals(actions.quicknewgame)) { // would be nice with the Java 7 string switch
 			quickNewGame();
 		} else if (a.equals(actions.save)) {
 			save();
@@ -263,21 +167,34 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		}
 	}
 	
+	/**
+	 * initialize and show main game window
+	 */
 	private void showFrame() {	
 		frame = new JFrame("GUISchiffe");
+		frame.setResizable(false);
+		
 		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		JPanel boardpanel = new JPanel();
 		
 		BoardPanel panel1 = new BoardPanel(this, engine, 0, false);
-		panel.add(panel1);
+		boardpanel.add(panel1);
 		BoardPanel panel2 = new BoardPanel(this, engine, 1, false);
 		panels = new BoardPanel[] {panel1, panel2};
-		panel.add(panel2);
+		boardpanel.add(panel2);
+		
+		panel.add(boardpanel);
 		
 		panel1.setOtherBoard(panel2);
 		panel2.setOtherBoard(panel1);
 		
-		frame.getContentPane().add(panel);
+		if (speerfeuer) {
+			clock = new TextClock1(this);
+			panel.add(clock);
+		}
 		
+		frame.getContentPane().add(panel);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -332,12 +249,19 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		new GUISchiffe();
 	}
 
-	private void userError(String message) {
+	/**
+	 * show error message to user
+	 * @param message message to show
+	 */
+	void userError(String message) {
 		JOptionPane.showMessageDialog(frame,
 			    message, 
 			    "Error", 0);
 	}
 	
+	/**
+	 * randomly loads level from built-in collection. this functionality is required by minimal assignment level
+	 */
 	private void quickNewGame() {
 		String levelDir = "./template/resources/levels/defaultlevels/";
 		
@@ -443,6 +367,12 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		showFrame();
 	}
 	
+	/**
+	 * reads file into string. from here: http://snippets.dzone.com/posts/show/1335
+	 * @param filePath file to load
+	 * @return string with file contents
+	 * @throws IOException
+	 */
 	private static String readFileAsString(String filePath) throws IOException{
 	    byte[] buffer = new byte[(int) new File(filePath).length()];
 	    BufferedInputStream f = null;
@@ -450,7 +380,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	        f = new BufferedInputStream(new FileInputStream(filePath));
 	        f.read(buffer);
 	    } finally {
-	        if (f != null) try { f.close(); } catch (IOException ignored) { }
+	        if (f != null) try { f.close(); } catch (IOException ignored) { } // doesn't matter if we get error while closing, since we're just doing it to be nice
 	    }
 	    return new String(buffer);
 	}
@@ -470,15 +400,21 @@ public class GUISchiffe implements ActionListener, BoardUser {
 				
 			if (engine.isFinished()) { GameOver(); return; }
 
-			int i = 0;
-			while (!engine.getState().isPlayerTurn()) {
-				System.out.println(i++ + " AI plays as " + player);
-				ai.playAs(player);
-			}
-			panels[Engine.otherPlayer(player)].refresh();
+			aiAttackAs(player);
 
 			if (engine.isFinished()) { GameOver(); return; }
 			
 			panels[player].refresh();
+	}
+	
+	void aiAttackAs(int player) {
+		int i = 0;
+		while (!engine.getState().isPlayerTurn()) {
+			System.out.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
+			ai.playAs(player);
+		}
+		panels[Engine.otherPlayer(player)].refresh();
+		
+		if (speerfeuer) clock.resetCountdown();
 	}
 }

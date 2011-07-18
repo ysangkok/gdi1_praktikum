@@ -4,7 +4,7 @@ import gruppe16.exceptions.InvalidInstruction.Reason;
 
 public class InvalidInstruction extends Exception {
 	public static enum Reason {
-		UNKNOWN, NOTYOURTURN, OUTOFBOUNDS
+		NOTYOURTURN
 	}
 	
 	private static final long serialVersionUID = 1L;
@@ -13,9 +13,6 @@ public class InvalidInstruction extends Exception {
 	private Reason reason = null;
 	public InvalidInstruction(int x, int y, char c) {
 		message = "Char: " + c + ", X: " + x + ", Y: " + y;
-	}
-	public InvalidInstruction(String message) {
-		this.message = message;
 	}
 	public InvalidInstruction(Reason r) {
 		this.reason = r;

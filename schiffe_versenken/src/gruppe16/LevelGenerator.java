@@ -1,5 +1,6 @@
 package gruppe16;
 
+import gruppe16.Ship.Orientation;
 import gruppe16.exceptions.InvalidLevelException;
 
 import java.util.Collections;
@@ -10,13 +11,16 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 
+/**
+ * class for generating levels
+ */
 public class LevelGenerator {
-	class PlaceShipRulesViolation extends Exception {
+	private class PlaceShipRulesViolation extends Exception {
 		private static final long serialVersionUID = 1L;
 		
 		private String message = "";
 		
-		public PlaceShipRulesViolation(String message) {
+		private PlaceShipRulesViolation(String message) {
 			this.message = message;
 		}
 		public PlaceShipRulesViolation() {
@@ -26,12 +30,12 @@ public class LevelGenerator {
 		}
 	}
 	
-	class LevelGenerationException extends Exception {
+	private class LevelGenerationException extends Exception {
 		private static final long serialVersionUID = 1L;
 		
-		String message;
+		private String message;
 		
-		LevelGenerationException(String message) {
+		private LevelGenerationException(String message) {
 			this.message = message;
 		}
 		public String getMessage() {
@@ -70,6 +74,11 @@ public class LevelGenerator {
 		
 	}
 	
+	/**
+	 * generates new level on map with specified dimensions
+	 * @param xwidth x coord. when using getLevel this will be height 
+	 * @param ywidth y coord. see xwidth
+	 */
 	public LevelGenerator(int xwidth, int ywidth) {
 		initBoard(xwidth, ywidth);
 		for (int p : new int[] {0, 1}) {
@@ -77,6 +86,14 @@ public class LevelGenerator {
 		}
 	}
 	
+	/**
+	 * this constructor is used when manually placing ships. only generates opponents board
+	 * @param xwidth
+	 * @param ywidth
+	 * @param player player who is placing his own ships
+	 * @param ships list of ships to draw for other player
+	 * @throws InvalidLevelException
+	 */
 	public LevelGenerator(int xwidth, int ywidth, int player, List<Ship> ships) throws InvalidLevelException {
 		initBoard(xwidth, ywidth);
 		
@@ -85,25 +102,31 @@ public class LevelGenerator {
 		drawGivenShips(player, ships);
 	}
 
+	/**
+	 * places all ships for one player
+	 * @param lg level generator instance
+	 * @param p player which should have ships drawn for him
+	 * @param boatCount rules to abide by
+	 */
 	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) {
 	    Iterator<Entry<Integer, Integer>> it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<Integer, Integer> pairs = (Map.Entry<Integer, Integer>)it.next();
 			
 			for (int i = 0; i < pairs.getValue(); i++) {
-					try {
-						lg.placeShipLoop((int) pairs.getKey(), p);
-					} catch (LevelGenerationException e) {
-						System.err.println(e.getMessage());
-						return;
-					}
-					if (!DEBUG) continue;
-					try {
-						Level.checkShips(p, lg.boards[p], false);
-					} catch (InvalidLevelException e) {
-						e.printStackTrace();
-						return;
-					}
+				try {
+					lg.placeShipLoop((int) pairs.getKey(), p);
+				} catch (LevelGenerationException e) {
+					System.err.println(e.getMessage());
+					return;
+				}
+				if (!DEBUG) continue;
+				try {
+					Level.checkShips(p, lg.boards[p], false);
+				} catch (InvalidLevelException e) {
+					e.printStackTrace();
+					return;
+				}
 			}
 		}
 	}
@@ -138,6 +161,12 @@ public class LevelGenerator {
 		}
 	}
 	
+	/**
+	 * draw given ships from gui ship placer on board
+	 * @param player who is choosing his own placements
+	 * @param ships list of ships
+	 * @throws InvalidLevelException
+	 */
 	private void drawGivenShips(int player, List<Ship> ships) throws InvalidLevelException {
 		for (Ship s : ships) {
 			try {
@@ -219,10 +248,14 @@ public class LevelGenerator {
 		}
 	}
 	
-	public Character[][] getBoard(int player) {
+	private Character[][] getBoard(int player) {
 		return boards[player];
 	}
 	
+	/**
+	 * the format specified by assignment
+	 * @return string representing level
+	 */
 	public String getLevelString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < boards[0].length; i++) {
@@ -237,10 +270,19 @@ public class LevelGenerator {
 		}
 		return sb.toString();
 	}
+	/**
+	 * default level getter will check integrity
+	 * @return generated Level
+	 */
 	public Level getLevel() {
 		return getLevel(true);
 	}
 	
+	/**
+	 * get Level constructed from this generated level.
+	 * @param check whether to check ship counts. obviously disabled when manually placing ships since we need to gradually show the level before it's completed
+	 * @return Level instance 
+	 */
 	public Level getLevel(boolean check) {
 		try {
 			return new Level(getLevelString(), check);
@@ -254,6 +296,10 @@ public class LevelGenerator {
 		return null;
 	}
 	
+	/**
+	 * test entry point. generates 500 levels
+	 * @param args not used
+	 */
 	public static void main(String[] args) {
 		for (int i=0; i<500; i++) {
 			System.out.println("==" + i +"==");

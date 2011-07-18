@@ -3,8 +3,18 @@ package gruppe16;
 import java.util.Formatter;
 import java.util.List;
 
+/**
+ * helper for printing the board (debugging)
+ *
+ * @param <T> type of each element in board
+ */
 public class Map2DHelper<T> {
-	public String getBoardString(char[][] a) {
+	/**
+	 * formats board for output. currently unused.
+	 * @param a board to view
+	 * @return string for output
+	 */
+	String getBoardString(char[][] a) {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
 		for (int i = 0; i < a.length; i++) {
@@ -17,7 +27,12 @@ public class Map2DHelper<T> {
 		return sb.toString();
 	}
 	
-	public String getBoardString(T[][] a) {
+	/**
+	 * formats board for output
+	 * @param a board to view
+	 * @return string for output
+	 */
+	String getBoardString(T[][] a) {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);
 		for (int i = 0; i < a.length; i++) {
@@ -32,6 +47,11 @@ public class Map2DHelper<T> {
 		return sb.toString();
 	}
 
+	/**
+	 * formats board for output
+	 * @param a board to view
+	 * @return string for output
+	 */
 	public String getBoardString(List<List<T>> a) {
 		StringBuilder sb = new StringBuilder();
 		Formatter f = new Formatter(sb);

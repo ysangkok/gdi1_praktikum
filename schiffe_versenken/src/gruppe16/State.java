@@ -15,10 +15,17 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	private int turn;
 	private boolean finished;
 	
+	/**
+	 * used by engine to mark state as finished
+	 * @param finished true for finished, false for not finished
+	 */
 	public void setFinished(boolean finished) {
 		this.finished = finished;
 	}
 	
+	/**
+	 * @return true if finished
+	 */
 	public boolean getFinished() {
 		return finished;
 	}
@@ -28,7 +35,7 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	 * @param player player number
 	 * @return boolean[][] with true where it's foggy and false where it's not
 	 */
-	public boolean[][] getFog(int player) {
+	boolean[][] getFog(int player) {
 		return fog[player];
 	}
 
@@ -57,12 +64,11 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 		}
 	}
 	
+	/**
+	 * @return current level
+	 */
 	public Level getLevel() {
 		return this.level;
-	}
-	
-	public void setLevel(Level level) {
-		this.level = level;
 	}
 
 	/**
@@ -119,10 +125,16 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 		st1.clone();
 	}
 
+	/**
+	 * @return true if it is the players turn to play
+	 */
 	public boolean isPlayerTurn() {
 		return turn == 0;
 	}
 
+	/**
+	 * turn change. of course used by attack
+	 */
 	public void changeTurn() {
 		turn = Engine.otherPlayer(turn);
 	}

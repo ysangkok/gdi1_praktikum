@@ -1,5 +1,7 @@
 package gruppe16;
 
+import gruppe16.Ship.Direction;
+import gruppe16.Ship.Orientation;
 import gruppe16.exceptions.InvalidInstruction;
 import gruppe16.exceptions.InvalidLevelException;
 
@@ -17,50 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-
-enum Orientation {
-	VERTICAL, HORIZONTAL
-}
-
-enum Direction {
-	DOWN, RIGHT
-}
-
-class Ship {
-	public int x;
-	public int y;
-	public int len;
-	public Orientation o;
-	
-	public Ship(int x, int y, int length, Orientation o) {
-		this.x = x;
-		this.y = y;
-		this.len = length;
-		this.o = o;
-	}
-	
-	public String toString() {
-		return len + "-ship at (" + x + "," + y + "), orientation " + o;
-	}
-	
-	public List<Integer[]> getAllOccupiedCoords() {
-		//int[][] coords = new int[len][2];
-		List<Integer[]> coords = new ArrayList<Integer[]>();
-		
-		for (int i=0; i<len; i++) {
-			if (o == Orientation.HORIZONTAL) {
-				coords.add(new Integer[] { x, y+i });
-			} else if (o == Orientation.VERTICAL) {
-				coords.add(new Integer[] { x+i, y });					
-			} else {
-				assert false;
-			}
-		}
-		
-		return coords;
-	}
-}
-
 
 /**
  * class for parsing, storing, manipulating and outputting levels
@@ -93,7 +51,7 @@ public class Level implements Serializable {
 	 * @param check check for missing ships
 	 * @throws InvalidLevelException
 	 */
-	public Level(String text, boolean check) throws InvalidLevelException {
+	Level(String text, boolean check) throws InvalidLevelException {
 		build(text, check);
 	}
 	
@@ -103,7 +61,7 @@ public class Level implements Serializable {
 	 * @param check check for missing ships
 	 * @throws InvalidLevelException
 	 */
-	public void build(String text, boolean check) throws InvalidLevelException  {
+	private void build(String text, boolean check) throws InvalidLevelException  {
 		InputStream stream;
 		try {
 			stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
@@ -185,7 +143,7 @@ public class Level implements Serializable {
 	 * @param countShips count ships when checking
 	 * @throws InvalidLevelException
 	 */
-	public static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
+	static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
 		debug("Checking player " + player);
 		
 		List<Ship> ships = new ArrayList<Ship>();
@@ -336,7 +294,7 @@ public class Level implements Serializable {
 	 * @param player player number
 	 * @return 2D array
 	 */
-	public Character[][] getPlayerBoard(int player) {
+	Character[][] getPlayerBoard(int player) {
 		Character[][] res = new Character[boards.get(player).size()][boards.get(player).get(0).size()];
 		int i = 0;
 		for (List<Character> l: boards.get(player)) {
@@ -375,7 +333,7 @@ public class Level implements Serializable {
 	 * @return new character after shooting
 	 * @throws InvalidInstruction given coordinates were invalid
 	 */
-	public char attack(int player, int x, int y) throws InvalidInstruction {
+	char attack(int player, int x, int y) throws InvalidInstruction {
 		if		(player == 1)	player = 0;
 		else if (player == 0)	player = 1;
 		else 					assert true;
@@ -408,7 +366,7 @@ public class Level implements Serializable {
 	 * @param p player to consider
 	 * @return true if lost, false if not
 	 */
-	public boolean isPlayerLoser(int p) {
+	boolean isPlayerLoser(int p) {
 		Character[][] board = getPlayerBoard(p);
 		
 		for (int i = 0; i < board.length; i++) {
@@ -470,28 +428,19 @@ public class Level implements Serializable {
 		return isShip(boards.get(coords[0]).get(coords[1]).get(coords[2]));
 	}
 	/**
-	 * @param p player board index to use
-	 * @param i x coordinate 
-	 * @param j y coordinate 
-	 * @return is char at coord a ship?
-	 */
-	public boolean isShip(int p, int i, int j) {
-		return isShip(boards.get(p).get(i).get(j));
-	}
-	/**
 	 * @param i x coordinate 
 	 * @param j y coordinate 
 	 * @param boards board array to check (only 2d, i.e. represents only 1 player)
 	 * @return is char at coord a ship?
 	 */
-	public static boolean staticIsShip(int i, int j, Character[][] boards) {
+	private static boolean staticIsShip(int i, int j, Character[][] boards) {
 		return isShip(boards[i][j]);
 	}
 	/**
 	 * @param c char to control
 	 * @return true if char is a ship char
 	 */
-	public static boolean isShip(char c) {
+	static boolean isShip(char c) {
 		return matchChar(unharmedShip + harmedShip, c);
 	}
 
@@ -502,7 +451,7 @@ public class Level implements Serializable {
 	 * @param yWidth height of every players board
 	 * @return array with three entries: 1. player the coordinate belongs to 2. our x representation 3. our y representation
 	 */
-	public static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
+	static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
 		int newplayer, newx, newy;
 		if (y > yWidth-1) {
 			newplayer = 1;

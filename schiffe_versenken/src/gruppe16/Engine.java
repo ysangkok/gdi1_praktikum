@@ -133,7 +133,7 @@ public class Engine {
 	 * @param i the player number NOT to return
 	 * @return the other player number
 	 */
-	public static int otherPlayer(int i) {
+	static int otherPlayer(int i) {
 		if (i == 0) {
 			return 1;
 		} else {
@@ -154,7 +154,7 @@ public class Engine {
 	 * @param i player number playing
 	 * @return String which is mostly usable in CLI interface
 	 */
-	public String getLevelStringForPlayer(int i) {
+	String getLevelStringForPlayer(int i) {
 		Character[][][] boards = getCurrentBoards(i, true);
 		
 		Map2DHelper<Character> helper = new Map2DHelper<Character>();
@@ -215,6 +215,7 @@ public class Engine {
 
 	/**
 	 * set state to new state. dangerous since the undo log could now have states with levels of different widths
+	 * @param state2 new state
 	 */
 	public void setState(State state2) {
 		state = state2;

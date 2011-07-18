@@ -9,10 +9,22 @@ import java.util.Random;
  */
 public class BadAI extends AI {
 
-	Random gen;
-	int xwidth;
-	int ywidth;
-	Engine engine;
+	/**
+	 * random generator used for finding coordinates to shoot at
+	 */
+	private Random gen;
+	/**
+	 * x width of map
+	 */
+	private int xwidth;
+	/**
+	 * y width of map
+	 */
+	private int ywidth;
+	/**
+	 * engine we're working with
+	 */
+	private Engine engine;
 	
 	/**
 	 * constructor takes the game engine to play in

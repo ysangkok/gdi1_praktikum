@@ -5,8 +5,8 @@ import gruppe16.Map2DHelper;
 import java.util.List;
 
 public class InvalidLevelException extends Exception {
-	String message; 
-	List<List<Character>> list;
+	private String message; 
+	private List<List<Character>> list;
 	
 	public InvalidLevelException(String string) {
 		this.message = string;
