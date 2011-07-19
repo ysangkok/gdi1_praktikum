@@ -38,6 +38,7 @@ class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/exa
     private long endtime;
     private GUISchiffe app;
     javax.swing.Timer t;
+    long timeleft;
 
     public CountdownTimerPanel(GUISchiffe app) {
     	this.app = app;
@@ -63,15 +64,26 @@ class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/exa
     }
     
     void pause() {
+    	saveTimeLeft();
     	t.stop();
-    	resetCountdown();
     }
     
-    void resume() {
+    private void saveTimeLeft() {
+    	long nowtime = System.currentTimeMillis();
+		timeleft = endtime - nowtime;
+	}
+
+	void resume() {
+    	restoreTimeLeft();
     	t.start();
     }
     
-    class ClockListener implements ActionListener {
+    private void restoreTimeLeft() {
+		long nowtime = System.currentTimeMillis();
+		endtime = nowtime + timeleft;
+	}
+
+	class ClockListener implements ActionListener {
     	public void actionPerformed(ActionEvent e) {
 
        		long nowtime = System.currentTimeMillis();
