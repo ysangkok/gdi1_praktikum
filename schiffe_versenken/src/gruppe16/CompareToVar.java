@@ -8,18 +8,26 @@ import java.util.Comparator;
 public abstract class CompareToVar extends HighScore {
 
 	super(name, score, startTime, endTime, neededTime, endOfGame);
-	int  p1;
-int  p2;
+  	int  parm1;
+    int  parm2;
 	
+    
+  /**
+   * 
+   * Constructor defualt 
+   */
 
-	 
+	 public CompareToVar(){
+		 
+		
+	 }
 	
  
  
  
  
 	  @Override
-	  public int compareTo( p1,  p2) {
+	  public int compareTo(parm1 p1, parm2 p2) {
 	    if (p1.getName() == null && p2.getName() == null) {
 	      return 0;
 	    }
