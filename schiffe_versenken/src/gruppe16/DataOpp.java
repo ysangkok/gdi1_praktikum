@@ -3,9 +3,12 @@ package gruppe16;
 
 import java.io.*;
 
+
+
+
 public class DataOpp extends HighScore {
 	 public static void main (String[] args) throws IOException{
-		    
+	 	    
 		
 		
 				
