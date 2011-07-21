@@ -10,6 +10,13 @@ import gruppe16.exceptions.InvalidLevelException;
 public class State implements Cloneable, Serializable { //  Cloneable for undoing. Serializable for saving
 	private static final long serialVersionUID = 1L;
 	
+	boolean shotspershipenabled = false;
+	Integer[][][] remainingshots;
+	int chosenFiringX[] = new int[] {-1, -1};
+	int chosenFiringY[] = new int[] {-1, -1};
+	
+	int hits[] = {0, 0};
+	
 	private Level level;
 	private boolean[][][] fog;
 	private int turn;
@@ -95,6 +102,20 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 				}
 			}
 		}
+		
+		newState.shotspershipenabled = shotspershipenabled;
+		newState.chosenFiringX = chosenFiringX.clone();
+		newState.chosenFiringY = chosenFiringY.clone();
+		if (shotspershipenabled) {
+			newState.remainingshots = new Integer[2][remainingshots[0].length][remainingshots[0][0].length];
+			for (int i : new int[] {0, 1}) { // both players
+				for (int j = 0; j < remainingshots[i].length; j++) {
+					newState.remainingshots[i][j] = remainingshots[i][j].clone();
+				}
+			}
+		}
+		
+		newState.hits = hits.clone();
 		
 		newState.setFog(newFog);
 		newState.turn = turn;

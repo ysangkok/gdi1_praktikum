@@ -18,6 +18,8 @@ public class Engine {
 	private int xWidth;
 	private int yWidth;
 	
+	private int whoMadeLastShot = -1;
+	
 	/**
 	 * @return height of map, since x (i.e. first coordinates) are actually lines
 	 */
@@ -74,37 +76,34 @@ public class Engine {
 	
 	// shots per ship
 	
-	private boolean shotspershipenabled = false;
-	private Integer[][][] remainingshots;
-	
-	int chosenFiringX[];
-	int chosenFiringY[];
-	
-	void chooseFiringXY(int player, int x, int y) {
-		chosenFiringX[player] = x;
-		chosenFiringY[player] = y;
+
+	void chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
+		if (x > xWidth || y > yWidth || x < 0 | y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
+		state.chosenFiringX[player] = x;
+		state.chosenFiringY[player] = y;
 	}
 	
 	void enableShotsPerShip() {
-		remainingshots = new Integer[2][xWidth][yWidth];
-		shotspershipenabled = true;
+		state.remainingshots = new Integer[2][xWidth][yWidth];
+		state.shotspershipenabled = true;
 		
-		chosenFiringX = new int[] {-1, -1};
-		chosenFiringY = new int[] {-1, -1};
+		//state.chosenFiringX = new int[] {-1, -1};
+		//state.chosenFiringY = new int[] {-1, -1};
 		
 		for ( int i : new int[] {0, 1})
-			for ( int j=0; j<remainingshots[0].length; j++)
-				for ( int k=0; k<remainingshots[0][0].length; k++)
+			for ( int j=0; j<state.remainingshots[0].length; j++)
+				for ( int k=0; k<state.remainingshots[0][0].length; k++)
 					if (state.getLevel().isShipAt(Engine.otherPlayer(i),j,k))
-						remainingshots[i][j][k] = Rules.shotsPerShipPart;
+						state.remainingshots[Engine.otherPlayer(i)][j][k] = Rules.shotsPerShipPart;
 					else 
-						remainingshots[i][j][k] = 0;
+						state.remainingshots[Engine.otherPlayer(i)][j][k] = 0;
 	}
 	
 	void setInfiniteAmmoFor(int player, boolean enable) {
-		for ( int j=0; j<remainingshots[0].length; j++)
-			for ( int k=0; k<remainingshots[0][0].length; k++)
-				remainingshots[player][j][k] = (enable ? 32000 : 5); // TODO rigtig disable
+		for ( int j=0; j<state.remainingshots[0].length; j++)
+			for ( int k=0; k<state.remainingshots[0][0].length; k++)
+				state.remainingshots[player][j][k] = Integer.MAX_VALUE;
+		// TODO rigtig disable
 	}
 	
 	// shots per ship ende
@@ -129,25 +128,30 @@ public class Engine {
 		
 		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction(InvalidInstruction.Reason.NOTYOURTURN);
 		
-		if (shotspershipenabled) {
+		State newState = state.clone(); // clone state so that we don't destroy previous game state
+		undoLog.add(newState); 
+		
+		this.state = newState;
+		
+		if (state.shotspershipenabled) {
 			
-			if (chosenFiringX[player] == -1 || chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
-			Integer field = remainingshots[Engine.otherPlayer(player)][chosenFiringX[player]][chosenFiringY[player]];
+			if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
+			Integer field = state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
 			if (field == 0) {
 				throw new InvalidInstruction(Reason.NOMOREAMMO);
 			}
 			field -= 1;
+			state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]] = field;
 			
-			Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
-			System.err.println(helper.getBoardString(remainingshots[player]));
+			//Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
+			//System.err.println(helper.getBoardString(remainingshots[player]));
+			
+			if (Level.isShip(hit)) state.remainingshots[Engine.otherPlayer(player)][x][y] = 0;
 		}
 		
-		State newState = state.clone(); // clone state so that we don't destroy previous game state
-		undoLog.add(newState); 
-		
 		hit = newState.getLevel().attack(player, x, y);
+		whoMadeLastShot = player;
 		
-		this.state = newState;
 		//System.err.println(getLevel().toString());
 		
 		if (allowMultipleShotsPerTurn) {
@@ -155,6 +159,8 @@ public class Engine {
 		} else {
 			state.changeTurn();
 		}
+		
+		if (Level.isShip(hit)) { state.hits[player]++; }
 		
 		checkWin(); // update isFinished, just in case we dont explicitly check from GUI or CLI
 		
@@ -171,12 +177,46 @@ public class Engine {
 	public int checkWin() {
 		for (int i : new int[] {0, 1}) {
 			//System.err.println("Checking player " + i);
+			if (state.shotspershipenabled) {
+				if (!hasRemainingShots(i) && hasRemainingShots(Engine.otherPlayer(i))) {
+					this.state.setFinished(true);
+					return otherPlayer(i);
+				}
+				if (!hasRemainingShots(i) && !hasRemainingShots(Engine.otherPlayer(i))) {
+					if (state.hits[Engine.otherPlayer(i)] > state.hits[i]) {
+						this.state.setFinished(true);
+						return otherPlayer(i);
+					} else if (state.hits[Engine.otherPlayer(i)] < state.hits[i]) {
+						this.state.setFinished(true);
+						return i;
+					} else {
+						if (whoMadeLastShot != -1) {
+							this.state.setFinished(true);
+							return whoMadeLastShot;
+						}
+					}
+				}
+			}
 			if (state.getLevel().isPlayerLoser(i)) {
 				this.state.setFinished(true);
 				return otherPlayer(i);
 			}
+					
 		}
 		return -1;
+	}
+	
+	boolean hasRemainingShots(int i) {
+		boolean hasShooter = false;
+		for (int j = 0; j < xWidth; j++) {
+			for (int k = 0; k < yWidth; k++) {
+				if (state.remainingshots[i][j][k] != 0) {
+					hasShooter = true;
+					break;
+				}
+			}
+		}
+		return hasShooter;
 	}
 	
 	/**
@@ -213,6 +253,12 @@ public class Engine {
 		return "Your board:\n" + helper.getBoardString(boards[0]) + "Their board:\n" + helper.getBoardString(boards[1]);
 		
 		//return state.getLevel().toString();
+	}
+	
+	String getAmmoStringForPlayer(int i) {
+		Integer[][] shots = state.remainingshots[i];
+		Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
+		return "Remaining ammo:\n" + helper.getBoardString(shots);
 	}
 
 

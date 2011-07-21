@@ -156,7 +156,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	private GUISchiffe(Locale targetLocale) {
 		initNewEngineAndAI();
 		
-		translator = new Translator("Battleship", targetLocale);
+		translator = new Translator("translations/Battleship", targetLocale);
 		showFrame();
 	}
 	
@@ -167,7 +167,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 		if (shipchooser.finished ) {
 			engine = shipchooser.engine;
-			ai = new GoodAI(engine);
+			ai = new BadAI(engine);
 			
 			frame.dispose();
 		    showFrame();
@@ -396,12 +396,14 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 	private void initNewEngineAndAIWithLevel(Level level) {
 		engine = new Engine(level);
-		ai = new GoodAI(engine);
+		engine.enableShotsPerShip();
+		ai = new BadAI(engine);
 	}
 	
 	private void initNewEngineAndAI() {
 		engine = new Engine();
-		ai = new GoodAI(engine);
+		engine.enableShotsPerShip();
+		ai = new BadAI(engine);
 	}
 	
 	private void generatedNewGame() {
@@ -498,12 +500,24 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 	@Override
 	public void bomb(int player, int x, int y) {
-			if (player == 0) return;
+			if (player == 0) {
+				System.err.format("lol %d %d",x,y);
+				if (engine.getState().shotspershipenabled) {
+					try {
+						engine.chooseFiringXY(player, y, x);
+					} catch (InvalidInstruction e) {
+						userError(e.getMessage());
+					}
+				}
+				return;
+			}
 			
 			try {
 				engine.attack(Engine.otherPlayer(player), y, x);
 			} catch (InvalidInstruction e) {
+				if (speerfeuer) clock.pause();
 				userError(e.getMessage());
+				if (speerfeuer) clock.resume();
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();

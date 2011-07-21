@@ -13,33 +13,41 @@ public class CLISchiffe extends ConsoleProgram {
 
 	private Engine engine; 
 	
-	private boolean shotspership = true;
-	
 	/**
 	 * constructor initializes game engine, which constructs game boards and so on
 	 */
 	public CLISchiffe() {
 		engine = new Engine();
-		engine.enableShotsPerShip();
 	}
 	
 	/**
 	 * ACM JTF entry point
 	 */
 	public void run() {
+		boolean shotspership = readBoolean("Limit shots per ship?");
+		if (shotspership) engine.enableShotsPerShip();
+		
 		int winner = -1;
 		AI computer = new BadAI(engine);
 		while (!engine.isFinished()) {
 			if (engine.getState().isPlayerTurn()) {
 				print(engine.getLevelStringForPlayer(0));
+				if (shotspership) print(engine.getAmmoStringForPlayer(0));
 				println("Your turn!");
 				boolean tryAgain;
 				do {
 					tryAgain = false;
 					
-					int shootery = readInt("Shooter X Koordinate:");
-					int shooterx = readInt("Shooter Y Koordinate:");
-					engine.chooseFiringXY(0, shooterx, shootery);
+					if (shotspership) {
+						int shootery = readInt("Shooter X Koordinate:");
+						int shooterx = readInt("Shooter Y Koordinate:");
+						try {
+							engine.chooseFiringXY(0, shooterx, shootery);
+						} catch (InvalidInstruction e) {
+							showErrorMessage(e.getMessage());
+							continue;
+						}
+					}
 					
 					int y = readInt("X Koordinate:"); //coordinates are exchanged cause it's confusing
 					int x = readInt("Y Koordinate:"); //if X is downwards and Y is towards right

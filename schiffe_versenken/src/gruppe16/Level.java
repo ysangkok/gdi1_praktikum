@@ -3,6 +3,7 @@ package gruppe16;
 import gruppe16.Ship.Direction;
 import gruppe16.Ship.Orientation;
 import gruppe16.exceptions.InvalidInstruction;
+import gruppe16.exceptions.InvalidInstruction.Reason;
 import gruppe16.exceptions.InvalidLevelException;
 
 import java.io.ByteArrayInputStream;
@@ -345,11 +346,11 @@ public class Level implements Serializable {
 			line = boards.get(player).get(x);
 			c = line.get(y);
 		} catch (IndexOutOfBoundsException e) {
-			throw new InvalidInstruction(x,y,'\0');
+			throw new InvalidInstruction(x,y,'\0',Reason.OUTOFBOUNDS);
 		}
 		
 		if (!matchChar(unharmedShip + "-", c)) {
-			throw new InvalidInstruction(x,y,c);
+			throw new InvalidInstruction(x,y,c,Reason.NOTSHOOTABLE);
 		}
 		
 		line.remove(y);
