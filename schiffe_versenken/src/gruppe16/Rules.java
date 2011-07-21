@@ -28,4 +28,6 @@ public class Rules {
 		{5,1}
 	};
 	
+	static int shotsPerShipPart = 5;
+	
 }

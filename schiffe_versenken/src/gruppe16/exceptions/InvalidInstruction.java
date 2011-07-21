@@ -4,7 +4,7 @@ import gruppe16.exceptions.InvalidInstruction.Reason;
 
 public class InvalidInstruction extends Exception {
 	public static enum Reason {
-		NOTYOURTURN
+		NOTYOURTURN, NOMOREAMMO, NOSHOOTERDESIGNATED
 	}
 	
 	private static final long serialVersionUID = 1L;

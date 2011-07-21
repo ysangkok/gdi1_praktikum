@@ -1,6 +1,7 @@
 package gruppe16;
 
 import gruppe16.exceptions.InvalidInstruction;
+import gruppe16.exceptions.InvalidInstruction.Reason;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -71,6 +72,43 @@ public class Engine {
 		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
 	}
 	
+	// shots per ship
+	
+	private boolean shotspershipenabled = false;
+	private Integer[][][] remainingshots;
+	
+	int chosenFiringX[];
+	int chosenFiringY[];
+	
+	void chooseFiringXY(int player, int x, int y) {
+		chosenFiringX[player] = x;
+		chosenFiringY[player] = y;
+	}
+	
+	void enableShotsPerShip() {
+		remainingshots = new Integer[2][xWidth][yWidth];
+		shotspershipenabled = true;
+		
+		chosenFiringX = new int[] {-1, -1};
+		chosenFiringY = new int[] {-1, -1};
+		
+		for ( int i : new int[] {0, 1})
+			for ( int j=0; j<remainingshots[0].length; j++)
+				for ( int k=0; k<remainingshots[0][0].length; k++)
+					if (state.getLevel().isShipAt(Engine.otherPlayer(i),j,k))
+						remainingshots[i][j][k] = Rules.shotsPerShipPart;
+					else 
+						remainingshots[i][j][k] = 0;
+	}
+	
+	void setInfiniteAmmoFor(int player, boolean enable) {
+		for ( int j=0; j<remainingshots[0].length; j++)
+			for ( int k=0; k<remainingshots[0][0].length; k++)
+				remainingshots[player][j][k] = (enable ? 32000 : 5); // TODO rigtig disable
+	}
+	
+	// shots per ship ende
+	
 	/**
 	 * tries to attack at the given coordinates. throws exception 
 	 * @param player the player who is shooting
@@ -90,6 +128,19 @@ public class Engine {
 		}
 		
 		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction(InvalidInstruction.Reason.NOTYOURTURN);
+		
+		if (shotspershipenabled) {
+			
+			if (chosenFiringX[player] == -1 || chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
+			Integer field = remainingshots[Engine.otherPlayer(player)][chosenFiringX[player]][chosenFiringY[player]];
+			if (field == 0) {
+				throw new InvalidInstruction(Reason.NOMOREAMMO);
+			}
+			field -= 1;
+			
+			Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
+			System.err.println(helper.getBoardString(remainingshots[player]));
+		}
 		
 		State newState = state.clone(); // clone state so that we don't destroy previous game state
 		undoLog.add(newState); 
@@ -247,5 +298,4 @@ public class Engine {
 			return attack(i, y, x);
 		}
 	}
-
 }

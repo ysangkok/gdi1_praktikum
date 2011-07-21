@@ -36,6 +36,7 @@ public class Level implements Serializable {
 	private transient static final String   harmedShip = "LRTBVH";
 		
 	private List<List<List<Character>>> boards; // for storing the board of each player
+	
 	/**
 	 * constructor that takes the level as a string
 	 * @param text level string
@@ -444,6 +445,10 @@ public class Level implements Serializable {
 		return matchChar(unharmedShip + harmedShip, c);
 	}
 
+	boolean isShipAt(int player, int x, int y) {
+		return isShip(boards.get(player).get(x).get(y));
+	}
+	
 	/**
 	 * parse test interface (minimal) coordinate format and convert to our format
 	 * @param y x coordinate (in test interface) is actually our y coordinate since we swapped them

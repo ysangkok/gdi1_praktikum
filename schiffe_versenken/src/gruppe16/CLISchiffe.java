@@ -13,11 +13,14 @@ public class CLISchiffe extends ConsoleProgram {
 
 	private Engine engine; 
 	
+	private boolean shotspership = true;
+	
 	/**
 	 * constructor initializes game engine, which constructs game boards and so on
 	 */
 	public CLISchiffe() {
 		engine = new Engine();
+		engine.enableShotsPerShip();
 	}
 	
 	/**
@@ -33,6 +36,11 @@ public class CLISchiffe extends ConsoleProgram {
 				boolean tryAgain;
 				do {
 					tryAgain = false;
+					
+					int shootery = readInt("Shooter X Koordinate:");
+					int shooterx = readInt("Shooter Y Koordinate:");
+					engine.chooseFiringXY(0, shooterx, shootery);
+					
 					int y = readInt("X Koordinate:"); //coordinates are exchanged cause it's confusing
 					int x = readInt("Y Koordinate:"); //if X is downwards and Y is towards right
 

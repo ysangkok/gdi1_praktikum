@@ -47,6 +47,7 @@ public class BadAI extends AI {
 			engine.attack(player, gen.nextInt(xwidth), gen.nextInt(ywidth));
 		} catch (InvalidInstruction e) {
 			if (e.getReason() == InvalidInstruction.Reason.NOTYOURTURN) return;
+			if (e.getReason() == InvalidInstruction.Reason.NOSHOOTERDESIGNATED || e.getReason() == InvalidInstruction.Reason.NOMOREAMMO) engine.setInfiniteAmmoFor(player,true);
 			playAs(player);
 		}
 		
