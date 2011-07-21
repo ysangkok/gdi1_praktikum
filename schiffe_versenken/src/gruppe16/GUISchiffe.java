@@ -1,5 +1,6 @@
 package gruppe16;
 
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -12,7 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Calendar;
+import java.util.Locale;
 import java.util.Random;
 
 import gruppe16.exceptions.InvalidInstruction;
@@ -24,6 +25,7 @@ import gruppe16.gui.placeOwnShipsDialog;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -32,13 +34,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import translator.TranslatableGUIElement;
+import translator.Translator;
+
 class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
 	
     private JTextField _timeField;  // set by timer listener
     private long endtime;
     private GUISchiffe app;
     javax.swing.Timer t;
-    long timeleft;
 
     public CountdownTimerPanel(GUISchiffe app) {
     	this.app = app;
@@ -64,26 +68,15 @@ class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/exa
     }
     
     void pause() {
-    	saveTimeLeft();
     	t.stop();
+    	resetCountdown();
     }
     
-    private void saveTimeLeft() {
-    	long nowtime = System.currentTimeMillis();
-		timeleft = endtime - nowtime;
-	}
-
-	void resume() {
-    	restoreTimeLeft();
+    void resume() {
     	t.start();
     }
     
-    private void restoreTimeLeft() {
-		long nowtime = System.currentTimeMillis();
-		endtime = nowtime + timeleft;
-	}
-
-	class ClockListener implements ActionListener {
+    class ClockListener implements ActionListener {
     	public void actionPerformed(ActionEvent e) {
 
        		long nowtime = System.currentTimeMillis();
@@ -111,6 +104,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	private BoardPanel[] panels;
 	private boolean speerfeuer = true;
 	private CountdownTimerPanel clock;
+	private final Translator translator;
 	
 	/**
 	 * call this when game is over to notify user of winning player and shut down
@@ -134,9 +128,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		frame.dispose();
 	}
 	
-	private GUISchiffe() {
+	private GUISchiffe(Locale targetLocale) {
 		initNewEngineAndAI();
 		
+		translator = new Translator("Battleship", targetLocale);
 		showFrame();
 	}
 	
@@ -150,7 +145,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			ai = new GoodAI(engine);
 			
 			frame.dispose();
-			showFrame();
+		    showFrame();
 			return true;
 		}
 		return false;
@@ -158,7 +153,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 
 	private static class actions {
 		static enum actionnames {
-			quicknewgame, save, load, newplaceownships, newgenerated
+			quicknewgame, save, load, newplaceownships, newgenerated, about, skins
 		}
 		
 		public static String quicknewgame = actionnames.quicknewgame.name();
@@ -166,6 +161,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		public static String load = actionnames.load.name();
 		public static String newplaceownships = actionnames.newplaceownships.name();
 		public static String newgenerated = actionnames.newgenerated.name();
+		public static String about = actionnames.about.name();
+		public static String skins = actionnames.skins.name();
 	}
 	
 	@Override
@@ -181,6 +178,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		} else if (a.equals(actions.load)) {
 			load();
 			clock.resetCountdown();
+		} else if (a.equals(actions.about)) {
+			about();
 		} else if (a.equals(actions.newplaceownships)) {
 			if (placeOwnShipsWizard())
 				clock.resetCountdown();
@@ -197,7 +196,9 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	 * initialize and show main game window
 	 */
 	private void showFrame() {	
-		frame = new JFrame("GUISchiffe");
+		TranslatableGUIElement guiBuilder = translator.getGenerator();
+		
+		frame = guiBuilder.generateJFrame("guiFrame");
 		frame.setResizable(false);
 		
 		JPanel panel = new JPanel();
@@ -226,41 +227,81 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		frame.setJMenuBar(menuBar);
 		ActionListener menuListener = this;
 
-		// File Menu, F - Mnemonic
-	    JMenu fileMenu = new JMenu("File");
+		// File Menu
+	    JMenu fileMenu = guiBuilder.generateJMenu("fileMenu");
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
 	    menuBar.add(fileMenu);
-
-	    JMenu newMenu = new JMenu("New");
+	    
+	    // Options
+	    JMenu Options = guiBuilder.generateJMenu("Options");
+	    menuBar.add(Options);
+	    
+	    //New
+	    JMenu newMenu = guiBuilder.generateJMenu("New");
 	    fileMenu.add(newMenu);
 	    
-	    JMenuItem quickNewItem = new JMenuItem("Quick New (load random built-in level)", KeyEvent.VK_N);
+	    //About
+	    JMenuItem About = guiBuilder.generateJMenuItem("About");
+	    About.addActionListener(menuListener);
+	    About.setActionCommand(actions.about);
+	    Options.add(About);
+	    
+	    //QuickNew
+	    JMenuItem quickNewItem = guiBuilder.generateJMenuItem("QuickNew");
 	    quickNewItem.addActionListener(menuListener);
 	    quickNewItem.setAccelerator(KeyStroke.getKeyStroke("N"));
 	    quickNewItem.setActionCommand(actions.quicknewgame);
 	    newMenu.add(quickNewItem);
 	    
-	    JMenuItem place = new JMenuItem("Place own ships...", KeyEvent.VK_P);
+	    //PlaceShips
+	    JMenuItem place = guiBuilder.generateJMenuItem("PlaceShips");
 	    place.addActionListener(menuListener);
+	    place.setAccelerator(KeyStroke.getKeyStroke("G"));
 	    place.setActionCommand(actions.newplaceownships);
 	    newMenu.add(place);
 	    
-	    JMenuItem generate = new JMenuItem("New Game (using generated level)", KeyEvent.VK_G);
+	    //DefaultNewGame
+	    JMenuItem generate = guiBuilder.generateJMenuItem("DefaultNewGame");
 	    generate.addActionListener(menuListener);
 	    generate.setActionCommand(actions.newgenerated);
 	    newMenu.add(generate);
 	    
-	    JMenuItem saveItem = new JMenuItem("Save as...", KeyEvent.VK_S);
+	    //SaveGame
+	    JMenuItem saveItem = guiBuilder.generateJMenuItem("saveGame");
 	    saveItem.addActionListener(menuListener);
 	    saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
 	    saveItem.setActionCommand(actions.save);
 	    fileMenu.add(saveItem);
 	    
-	    JMenuItem loadItem = new JMenuItem("Load from...", KeyEvent.VK_L);
+	    //loadGame
+	    JMenuItem loadItem = guiBuilder.generateJMenuItem("loadGame");
 	    loadItem.addActionListener(menuListener);
 	    loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
 	    loadItem.setActionCommand(actions.load);
 	    fileMenu.add(loadItem);
+	    
+	    //Language Menu
+	    JMenu languageMenu = guiBuilder.generateJMenu("languageMenu");
+		
+	    JMenuItem germanItem = guiBuilder.generateJMenuItem("German");
+		germanItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				translator.setTranslatorLocale(Locale.GERMANY);
+			}
+		});
+		JMenuItem englishItem = guiBuilder.generateJMenuItem("English");
+		englishItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				translator.setTranslatorLocale(Locale.US);
+			}
+		});
+		
+	    Options.add(languageMenu);
+		languageMenu.add(englishItem);
+		languageMenu.add(germanItem);
+		// End Language Menu
+		
+		
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
@@ -272,7 +313,7 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	 * @param args not used
 	 */
 	public static void main(String[] args) {
-		new GUISchiffe();
+		new GUISchiffe(Locale.GERMANY);
 	}
 
 	/**
@@ -339,6 +380,17 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		frame.dispose();
 		showFrame();
 	}
+	
+	private void skins(){
+		//TODO
+	}
+	
+	private void about(){
+		JOptionPane.showMessageDialog(frame,
+			    "Gruppe 16: Dimitrios, Janus, Alymbek, Yanai", 
+			    "About", JOptionPane.PLAIN_MESSAGE);
+	}
+	
 	
 	private void save() {
 		String saveGameName;
