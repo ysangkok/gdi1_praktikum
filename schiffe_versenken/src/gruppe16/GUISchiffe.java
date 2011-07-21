@@ -1,6 +1,5 @@
 package gruppe16;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -25,7 +24,6 @@ import gruppe16.gui.placeOwnShipsDialog;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,13 +35,25 @@ import javax.swing.KeyStroke;
 import translator.TranslatableGUIElement;
 import translator.Translator;
 
-class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
+/**
+ * panel handles display AND logic
+ */
+class CountdownTimerPanel extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+// http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
 	
     private JTextField _timeField;  // set by timer listener
     private long endtime;
     private GUISchiffe app;
+    /**
+     * swing timer used measuring time. used in constructor
+     */
     javax.swing.Timer t;
 
+    /**
+     * @param app guischiffe app so that we can change turn and attack when timer expires
+     */
     public CountdownTimerPanel(GUISchiffe app) {
     	this.app = app;
     	
@@ -63,19 +73,31 @@ class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/exa
 
     }
     
+    /**
+     * called at the point of time the user should have 5 seconds from
+     */
     void resetCountdown() {
     	endtime = System.currentTimeMillis() + 5000;
     }
     
+    /**
+     * used for pausing the timer when the user opens a dialog window or similar that obstructs gameplay. would be unfair if timer was still running then.
+     */
     void pause() {
     	t.stop();
-    	resetCountdown();
     }
     
+    /**
+     * used after pausing with pause()
+     */
     void resume() {
+    	resetCountdown();
     	t.start();
     }
     
+    /**
+     * this actionlistener is used for handling the clock timeout every 50 milliseconds
+     */
     class ClockListener implements ActionListener {
     	public void actionPerformed(ActionEvent e) {
 
@@ -99,6 +121,9 @@ class CountdownTimerPanel extends JPanel { // http://leepoint.net/notes-java/exa
  */
 public class GUISchiffe implements ActionListener, BoardUser {
 	private JFrame frame;
+	/**
+	 * this is the engine used in gui game. initialized multiple places
+	 */
 	Engine engine;
 	private AI ai;
 	private BoardPanel[] panels;
@@ -363,10 +388,15 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			return;
 		}
 		
-		initNewEngineAndAI();
+		initNewEngineAndAIWithLevel(level);
 		
 		frame.dispose();
 		showFrame();
+	}
+
+	private void initNewEngineAndAIWithLevel(Level level) {
+		engine = new Engine(level);
+		ai = new GoodAI(engine);
 	}
 	
 	private void initNewEngineAndAI() {
@@ -486,6 +516,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 			panels[player].refresh();
 	}
 	
+	/**
+	 * called when 5 sec speerfeuer timer expires
+	 * @param player the player number the AI plays as
+	 */
 	void aiAttackAs(int player) {
 		int i = 0;
 		while (!engine.getState().isPlayerTurn()) {
