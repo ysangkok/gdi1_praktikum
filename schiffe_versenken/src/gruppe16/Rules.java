@@ -28,6 +28,9 @@ public class Rules {
 		{5,1}
 	};
 	
+	/**
+	 * number of shots per each part of not-sunken ship part. value necessary for test compliance
+	 */
 	static int shotsPerShipPart = 5;
 	
 }

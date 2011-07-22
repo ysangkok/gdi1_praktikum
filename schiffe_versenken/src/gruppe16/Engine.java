@@ -76,7 +76,14 @@ public class Engine {
 	
 	// shots per ship
 	
-
+	/**
+	 * choosing coordinates we are shooting from, for given player
+	 * @param player player shooting
+	 * @param x our coord format
+	 * @param y our coord format
+	 * @return remaining shots at given position
+	 * @throws InvalidInstruction coordinates out of range
+	 */
 	public int chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
 		if (x > xWidth || y > yWidth || x < 0 | y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
 		state.chosenFiringX[player] = x;
@@ -84,11 +91,20 @@ public class Engine {
 		return remainingShotsFor(player);
 	}
 	
+	/**
+	 * remaining shots at given position
+	 * @param player player number to check for
+	 * @return integer with amount of shots available
+	 * @throws InvalidInstruction when shooter wasn't designated
+	 */
 	public int remainingShotsFor(int player) throws InvalidInstruction {
 		if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
 		return state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
 	}
 	
+	/**
+	 * called to enable shots per ship game mode. only works after level initialization
+	 */
 	public void enableShotsPerShip() {
 		state.remainingshots = new Integer[2][xWidth][yWidth];
 		state.shotspershipenabled = true;
@@ -105,6 +121,11 @@ public class Engine {
 						state.remainingshots[Engine.otherPlayer(i)][j][k] = 0;
 	}
 	
+	/**
+	 * quick cheat to make it easier to code AI. shouldn't be used. YOU STILL NEED TO CHOOSE SHOOTER AFTER DOING THIS
+	 * @param player player to give infinite(-ish) ammo
+	 * @param enable not currently used, but might be used later for enabling/disabling during game
+	 */
 	void setInfiniteAmmoFor(int player, boolean enable) {
 		for ( int j=0; j<state.remainingshots[0].length; j++)
 			for ( int k=0; k<state.remainingshots[0][0].length; k++)
@@ -125,7 +146,7 @@ public class Engine {
 	public char attack(int player, int x, int y) throws InvalidInstruction {
 		char hit;
 		
-		if (player == -1) {
+		if (player == -1) { // player=-1 bedeutet: koordinaten sind in test format
 			int[] coords = Level.parseTestInterfaceCoords(y, x, yWidth);
 			player = otherPlayer(coords[0]);
 			x = coords[1];
@@ -214,6 +235,12 @@ public class Engine {
 		return -1;
 	}
 	
+	/**
+	 * Shots per ship
+	 * does given player have any available ships to fire from?
+	 * @param i player number to analyze
+	 * @return true when ships available, false when not
+	 */
 	boolean hasRemainingShots(int i) {
 		boolean hasShooter = false;
 		for (int j = 0; j < xWidth; j++) {
@@ -263,6 +290,11 @@ public class Engine {
 		//return state.getLevel().toString();
 	}
 	
+	/**
+	 * get ammo string for use in CLI interface
+	 * @param i player number
+	 * @return string for use in UI
+	 */
 	String getAmmoStringForPlayer(int i) {
 		Integer[][] shots = state.remainingshots[i];
 		Map2DHelper<Integer> helper = new Map2DHelper<Integer>();

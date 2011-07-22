@@ -10,11 +10,26 @@ import gruppe16.exceptions.InvalidLevelException;
 public class State implements Cloneable, Serializable { //  Cloneable for undoing. Serializable for saving
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * shots per ship disabled by default
+	 */
 	boolean shotspershipenabled = false;
+	/**
+	 * same dimensions as with boards
+	 */
 	Integer[][][] remainingshots;
+	/**
+	 * index designates player number
+	 */
 	int chosenFiringX[] = new int[] {-1, -1};
+	/**
+	 * index designates player number
+	 */
 	int chosenFiringY[] = new int[] {-1, -1};
 	
+	/**
+	 * hit counter for usage in deciding who won when both players don't have available ships to shoot from. see checkWin
+	 */
 	int hits[] = {0, 0};
 	
 	private Level level;

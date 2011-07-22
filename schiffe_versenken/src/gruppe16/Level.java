@@ -446,6 +446,13 @@ public class Level implements Serializable {
 		return matchChar(unharmedShip + harmedShip, c);
 	}
 
+	/**
+	 * is it a ship at given position?
+	 * @param player player to check
+	 * @param x our coord format
+	 * @param y our coord format
+	 * @return true when it is a ship, otherwise false
+	 */
 	boolean isShipAt(int player, int x, int y) {
 		return isShip(boards.get(player).get(x).get(y));
 	}
