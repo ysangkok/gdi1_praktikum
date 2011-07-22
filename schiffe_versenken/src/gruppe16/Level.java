@@ -457,7 +457,7 @@ public class Level implements Serializable {
 	 * @param yWidth height of every players board
 	 * @return array with three entries: 1. player the coordinate belongs to 2. our x representation 3. our y representation
 	 */
-	static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
+	public static int[] parseTestInterfaceCoords(int y, int x, int yWidth) {
 		int newplayer, newx, newy;
 		if (y > yWidth-1) {
 			newplayer = 1;

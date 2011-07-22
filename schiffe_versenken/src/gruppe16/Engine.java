@@ -77,19 +77,19 @@ public class Engine {
 	// shots per ship
 	
 
-	int chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
+	public int chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
 		if (x > xWidth || y > yWidth || x < 0 | y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
 		state.chosenFiringX[player] = x;
 		state.chosenFiringY[player] = y;
 		return remainingShotsFor(player);
 	}
 	
-	int remainingShotsFor(int player) throws InvalidInstruction {
+	public int remainingShotsFor(int player) throws InvalidInstruction {
 		if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
 		return state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
 	}
 	
-	void enableShotsPerShip() {
+	public void enableShotsPerShip() {
 		state.remainingshots = new Integer[2][xWidth][yWidth];
 		state.shotspershipenabled = true;
 		

@@ -1,5 +1,11 @@
 package adapters;
 
+import gruppe16.Level;
+import gruppe16.State;
+import gruppe16.exceptions.InvalidInstruction;
+import gruppe16.exceptions.InvalidLevelException;
+import adapters.BattleshipTestAdapterExtended1;
+import adapters.BattleshipTestAdapterMinimal;
 
 /**
  * This is the test adapter for the second extended stage of completion.
@@ -15,11 +21,24 @@ package adapters;
  */
 public class BattleshipTestAdapterExtended2 extends BattleshipTestAdapterExtended1 {
 	
+	private boolean enable = false;
+	
 	/**
 	 * Use this constructor to initialize everything you need.
 	 */
 	public BattleshipTestAdapterExtended2() {
-		//TODO implement this stub
+		super();
+	}
+	
+	@Override
+	public
+	void createGameUsingLevelString(String levelstring) {
+		try {
+			engine.setState(new State(new Level(levelstring)));
+		} catch (InvalidLevelException e) {
+			// according to specification in Minimal adapter we should just ignore invalid levels and keep the last. Since this Test Level doesn't test level validity, no record is kept
+		}
+		if (enable) engine.enableShotsPerShip();
 	}
 	
 	/**
@@ -32,14 +51,21 @@ public class BattleshipTestAdapterExtended2 extends BattleshipTestAdapterExtende
 	 * @return 0 or number of shots left.
 	 */
 	public int remainingShotsAtPosition(final int x, final int y) {
-		//TODO implement this stub
-		return -1;
+		int[] coords = Level.parseTestInterfaceCoords(x, y, engine.getyWidth());
+		try {
+			engine.chooseFiringXY(coords[0], coords[1], coords[2]);
+			return engine.remainingShotsFor(coords[0]);
+		} catch (InvalidInstruction e) {
+			// shouldn't happen
+			e.printStackTrace();
+		}
+		return -1; // returned when exception caught
 	}
 	
 	/**
 	 * Enables shots-per-ship game mode for the next game.
 	 */
 	public void enableShotsPerShipForNextGame() {
-		//TODO implement this stub
+		enable = true;
 	}
 }

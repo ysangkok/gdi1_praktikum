@@ -36,7 +36,7 @@ import gruppe16.exceptions.InvalidLevelException;
 public class BattleshipTestAdapterMinimal {
 	
 	Level level;
-	Engine engine;
+	protected Engine engine;
 	AI ai;
 	boolean catchedException;
 
