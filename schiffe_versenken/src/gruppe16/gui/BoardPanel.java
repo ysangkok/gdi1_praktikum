@@ -1,23 +1,31 @@
 package gruppe16.gui;
 
-import gruppe16.AI;
 import gruppe16.Engine;
 
+import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 public class BoardPanel extends JPanel implements MouseListener {
+	private class SelectedTriple {
+		int x;
+		int y;
+		JButton button;
+	}
+	
 	private static final long serialVersionUID = 1L;
 	private BoardPanel otherBoard;
 	private Engine engine;
@@ -26,6 +34,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private int player;
 	private boolean dontfog;
 	private Vector<JButton> entities;
+	SelectedTriple currentlyselected;
+	private Border standardBorder = BorderFactory.createLineBorder(Color.black);
+	private Border fancyBorder = BorderFactory.createLineBorder(Color.WHITE);
 	
 	public BoardPanel getOtherBoard() {
 		return otherBoard;
@@ -78,6 +89,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 				//if (j >= 6) return;
 			}
 		}
+		if (currentlyselected != null)
+			addSelection(currentlyselected.x, currentlyselected.y);
 
 	}
 	
@@ -136,8 +149,24 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 	
 
+	public void removeSelection() {
+		if (currentlyselected != null) {
+			currentlyselected.button.setBorder(standardBorder);
+			currentlyselected = null;
+		}
+	}
+	
+	public void addSelection(int x, int y) {
+		currentlyselected = new SelectedTriple();
+		currentlyselected.x = x;
+		currentlyselected.y = y;
+		currentlyselected.button = buttons[x][y];
+		currentlyselected.button.setBorder(fancyBorder);
+	}
+	
 	private JButton placeEntity(Icon icon){
 		JButton btn = new JButton();
+		btn.setBorder(standardBorder);
 
 		btn.setMargin(
 				new Insets(
@@ -149,7 +178,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 			entities.add(btn);
 		}
 
-		//btn.addKeyListener(app);
+		if (app instanceof KeyListener) {
+			btn.addKeyListener((KeyListener) app);
+		}
 		btn.addMouseListener(this);
 		btn.setIcon(icon);
 
@@ -160,7 +191,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent evt) {
+	public void mousePressed(MouseEvent evt) {
 
 		//if (player == 0) { evt.consume(); return; } // you can't shoot your own map
 		
@@ -205,7 +236,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
+	public void mouseClicked(MouseEvent arg0) {
 
 		
 	}

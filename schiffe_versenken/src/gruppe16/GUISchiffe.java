@@ -1,10 +1,14 @@
 package gruppe16;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.peer.KeyboardFocusManagerPeer;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 
@@ -24,6 +29,7 @@ import gruppe16.gui.placeOwnShipsDialog;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -31,6 +37,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 
 import translator.TranslatableGUIElement;
 import translator.Translator;
@@ -119,7 +127,7 @@ class CountdownTimerPanel extends JPanel {
 /**
  * class implementing Swing UI
  */
-public class GUISchiffe implements ActionListener, BoardUser {
+public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	private JFrame frame;
 	/**
 	 * this is the engine used in gui game. initialized multiple places
@@ -130,6 +138,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	private boolean speerfeuer = true;
 	private CountdownTimerPanel clock;
 	private final Translator translator;
+	private JLabel statusLabel;
+	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
 	
 	/**
 	 * call this when game is over to notify user of winning player and shut down
@@ -217,6 +227,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		clock.resume();
 	}
 	
+	private void setStatusBarMessage(String message) {
+		statusLabel.setText(message);
+	}
+	
 	/**
 	 * initialize and show main game window
 	 */
@@ -225,6 +239,21 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		
 		frame = guiBuilder.generateJFrame("guiFrame");
 		frame.setResizable(false);
+		frame.setLayout(new BorderLayout());
+		
+		JPanel statusPanel = new JPanel();
+		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		frame.add(statusPanel, BorderLayout.SOUTH);
+		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 16));
+		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+		statusLabel = new JLabel();
+		if (engine.getState().shotspershipenabled) {
+			setStatusBarMessage("Select a shooter");
+		} else {
+			setStatusBarMessage("Shots per ship not enabled, just attack");
+		}
+		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		statusPanel.add(statusLabel);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
@@ -240,6 +269,8 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		
 		panel1.setOtherBoard(panel2);
 		panel2.setOtherBoard(panel1);
+		
+		panels[keyboardSelected[0]].addSelection(keyboardSelected[1], keyboardSelected[2]);
 		
 		if (speerfeuer) {
 			clock = new CountdownTimerPanel(this);
@@ -501,10 +532,10 @@ public class GUISchiffe implements ActionListener, BoardUser {
 	@Override
 	public void bomb(int player, int x, int y) {
 			if (player == 0) {
-				System.err.format("lol %d %d",x,y);
 				if (engine.getState().shotspershipenabled) {
 					try {
-						engine.chooseFiringXY(player, y, x);
+						int shots = engine.chooseFiringXY(player, y, x);
+						setStatusBarMessage(String.format("Selected (%d,%d): %d shots remaining", x,y,shots));
 					} catch (InvalidInstruction e) {
 						userError(e.getMessage());
 					}
@@ -519,9 +550,13 @@ public class GUISchiffe implements ActionListener, BoardUser {
 				userError(e.getMessage());
 				if (speerfeuer) clock.resume();
 				return;
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+			
+			if (engine.getState().shotspershipenabled && player == 1)
+				try {
+					setStatusBarMessage(String.format("Remaining shots: %d", engine.remainingShotsFor(0)));
+				} catch (InvalidInstruction e) {
+				}
 				
 			if (engine.isFinished()) { GameOver(); return; }
 
@@ -545,5 +580,75 @@ public class GUISchiffe implements ActionListener, BoardUser {
 		if (engine.isFinished()) { GameOver(); return; }
 		
 		if (speerfeuer) clock.resetCountdown();
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		int p = keyboardSelected[0];
+		int x = keyboardSelected[1];
+		int y = keyboardSelected[2];
+		
+		switch (e.getKeyCode()) {
+		case KeyEvent.VK_LEFT:
+			x--;
+			break;
+		case KeyEvent.VK_RIGHT:
+			x++;
+			break;
+		case KeyEvent.VK_UP:
+			y--;
+			break;
+		case KeyEvent.VK_DOWN:
+			y++;
+			break;
+		case KeyEvent.VK_SPACE:
+			bomb(p,x,y);
+			break;
+		default:
+			return;
+		}
+		
+		if (x < 0 && p == 1) {
+			x = engine.getyWidth()-1;
+			p = Engine.otherPlayer(p);
+		}
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > engine.getyWidth()-1 && p == 0) {
+			x = 0;
+			p = Engine.otherPlayer(p);
+		}
+		if (x > engine.getyWidth()-1) {
+			x = engine.getyWidth()-1;
+		}
+		
+		if (y < 0) {
+			y = 0;
+		}
+		
+		if (y > engine.getxWidth()-1) {
+			y = engine.getxWidth()-1;
+		}
+		
+		keyboardSelected = new int[] {p, x, y};
+		
+		//System.err.println(Arrays.toString(keyboardSelected));
+		
+		panels[0].removeSelection();
+		panels[1].removeSelection();
+		panels[p].addSelection(y, x);
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+
+		
 	}
 }

@@ -77,10 +77,16 @@ public class Engine {
 	// shots per ship
 	
 
-	void chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
+	int chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
 		if (x > xWidth || y > yWidth || x < 0 | y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
 		state.chosenFiringX[player] = x;
 		state.chosenFiringY[player] = y;
+		return remainingShotsFor(player);
+	}
+	
+	int remainingShotsFor(int player) throws InvalidInstruction {
+		if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
+		return state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
 	}
 	
 	void enableShotsPerShip() {
@@ -117,7 +123,7 @@ public class Engine {
 	 * @throws InvalidInstruction if you shoot at field that was already hit. also throws when out of range.
 	 */
 	public char attack(int player, int x, int y) throws InvalidInstruction {
-		char hit = '\0';
+		char hit;
 		
 		if (player == -1) {
 			int[] coords = Level.parseTestInterfaceCoords(y, x, yWidth);
@@ -145,12 +151,14 @@ public class Engine {
 			
 			//Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
 			//System.err.println(helper.getBoardString(remainingshots[player]));
-			
-			if (Level.isShip(hit)) state.remainingshots[Engine.otherPlayer(player)][x][y] = 0;
 		}
 		
 		hit = newState.getLevel().attack(player, x, y);
 		whoMadeLastShot = player;
+		
+		if (state.shotspershipenabled) {
+			if (Level.isShip(hit)) state.remainingshots[Engine.otherPlayer(player)][x][y] = 0;
+		}
 		
 		//System.err.println(getLevel().toString());
 		
