@@ -19,7 +19,7 @@ public class ScoreTableModel implements TableModel {
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		
-		return ;
+		return  ;
 	}
 
 	@Override
