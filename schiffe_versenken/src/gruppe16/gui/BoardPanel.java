@@ -58,7 +58,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		entities = new Vector<JButton>();
 		images = new HashMap<String, ImageIcon>();
 
-		for (String icon : icons) {
+		for (String icon : TemplateImages.icons) {
 			try {
 				registerImage(icon, "./template/resources/images/defaultskin/" + icon + ".png");
 			} catch (RuntimeException e){
@@ -84,7 +84,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 		for (int i=0; i<engine.getxWidth(); i++) {
 			for (int j=0; j<engine.getyWidth(); j++) {
-				String iconname = fieldToIcon(b[i][j]);
+				String iconname = TemplateImages.fieldToIcon(b[i][j]);
 				buttons[i][j] = placeEntity(iconname);
 				//if (j >= 6) return;
 			}
@@ -106,35 +106,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 			}
 			removeButtons();
 			return;
-	}
-
-	private static String[] icons = { "border", "fogofwar", "ship_bottom",
-		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",
-		"ship_hit", "ship_hit_right", "ship_hit_top",
-		"ship_hit_vertical", "ship_horizontal", "ship_left",
-		"ship_right", "ship_top", "ship_vertical", "water_hit",
-	"water" };
-
-	private static String fieldToIcon(Character c) {
-		Map<Character, String> m = new HashMap<Character, String>();
-		for (String n : icons) {
-			if (n == "fogofwar") m.put('#',n);
-			if (n == "ship_bottom") m.put('b',n);
-			if (n == "ship_hit_bottom") m.put('B',n);
-			if (n == "ship_hit_horizontal") m.put('H',n);
-			if (n == "ship_hit_left") m.put('L',n);
-			if (n == "ship_hit_right") m.put('R',n);
-			if (n == "ship_hit_top") m.put( 'T', n);
-			if (n == "ship_hit_vertical") m.put('V', n);
-			if (n == "ship_horizontal") m.put('h', n);
-			if (n == "ship_left") m.put('l', n);
-			if (n == "ship_right") m.put('r', n);
-			if (n == "ship_top") m.put('t', n);
-			if (n == "ship_vertical") m.put('v', n);
-			if (n == "water_hit") m.put('*', n);
-			if (n == "water") m.put('-', n);
-		}
-		return m.get(c);
 	}
 
 	private HashMap<String, ImageIcon> images = null;

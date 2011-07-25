@@ -1,6 +1,7 @@
 package gruppe16;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -25,6 +26,8 @@ import gruppe16.gui.BoardUser;
 import gruppe16.gui.placeOwnShipsDialog;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,6 +40,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+
+import com.google.gwt.core.client.CodeDownloadException.Reason;
 
 import translator.TranslatableGUIElement;
 import translator.Translator;
@@ -51,6 +56,7 @@ class CountdownTimerPanel extends JPanel {
 	
     private JTextField _timeField;  // set by timer listener
     private long endtime;
+    private long timeleft;
     private GUISchiffe app;
     /**
      * swing timer used measuring time. used in constructor
@@ -91,13 +97,14 @@ class CountdownTimerPanel extends JPanel {
      */
     void pause() {
     	t.stop();
+    	timeleft = endtime - System.currentTimeMillis();
     }
     
     /**
      * used after pausing with pause()
      */
     void resume() {
-    	resetCountdown();
+    	endtime = System.currentTimeMillis() + timeleft;
     	t.start();
     }
     
@@ -145,19 +152,37 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	public void GameOver() {
 		if (speerfeuer) clock.pause();
 		
-		int winner = engine.checkWin();
+		int winner = engine.checkWin().playernr;
 		
 		String winnerstr;
 		
 		if (winner == -1) {
-			winnerstr = "Draw";
+			winnerstr = "Draw.";
 		} else {
 			winnerstr = "Player " + (winner+1) + " won!";
 		}
 		
-		JOptionPane.showMessageDialog(frame,
-			    "Game over. " + winnerstr, 
-			    "Game over", 0);
+		final JDialog d = new JDialog(frame, "Game over", Dialog.ModalityType.DOCUMENT_MODAL);
+		d.setSize(500, 100);
+		FlowLayout layout = new FlowLayout();
+		d.setLayout(layout);
+		d.add(new JLabel("Game over. " + winnerstr + " Reason: " + engine.checkWin().reason));
+		JButton but = new JButton();
+		but.setText("Quit");
+		but.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				d.dispose();
+			}
+		});
+		d.add(but);
+		//d.add(layout);
+		d.setVisible(true);
+		
+		
+/*		JOptionPane.showMessageDialog(frame,
+			    "Game over. " + winnerstr + " Reason: " + engine.checkWin().reason, 
+			    "Game over", 0);*/
 		frame.dispose();
 	}
 	
@@ -545,7 +570,10 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 				engine.attack(Engine.otherPlayer(player), y, x);
 			} catch (InvalidInstruction e) {
 				if (speerfeuer) clock.pause();
-				userError(e.getMessage());
+				if (e.getReason() != gruppe16.exceptions.InvalidInstruction.Reason.NOMOREAMMO)
+					userError(e.getMessage());
+				else
+					setStatusBarMessage(e.getMessage());
 				if (speerfeuer) clock.resume();
 				return;
 			}
@@ -567,11 +595,12 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	 * called when 5 sec speerfeuer timer expires
 	 * @param player the player number the AI plays as
 	 */
-	void aiAttackAs(int player) {
+	void aiAttackAs(int player) {		
 		int i = 0;
-		while (!engine.getState().isPlayerTurn()) {
+		while (!engine.getState().isPlayerTurn() && !engine.isFinished()) {
 			System.out.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
 			ai.playAs(player);
+			engine.checkWin();
 		}
 		panels[Engine.otherPlayer(player)].refresh();
 		

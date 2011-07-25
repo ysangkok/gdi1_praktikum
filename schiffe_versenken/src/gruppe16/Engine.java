@@ -85,7 +85,7 @@ public class Engine {
 	 * @throws InvalidInstruction coordinates out of range
 	 */
 	public int chooseFiringXY(int player, int x, int y) throws InvalidInstruction {
-		if (x > xWidth || y > yWidth || x < 0 | y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
+		if (x > xWidth-1 || y > yWidth-1 || x < 0 || y < 0) throw new InvalidInstruction(Reason.INVALIDSHOOTER);
 		state.chosenFiringX[player] = x;
 		state.chosenFiringY[player] = y;
 		return remainingShotsFor(player);
@@ -203,36 +203,36 @@ public class Engine {
 	 * check if someone won
 	 * @return -1 if no one won so far. returns the winning player if somebody lost
 	 */
-	public int checkWin() {
+	public Loser checkWin() {
 		for (int i : new int[] {0, 1}) {
 			//System.err.println("Checking player " + i);
 			if (state.shotspershipenabled) {
 				if (!hasRemainingShots(i) && hasRemainingShots(Engine.otherPlayer(i))) {
 					this.state.setFinished(true);
-					return otherPlayer(i);
+					return new Loser(String.format("Player %d had no shots, unlike player %d", i+1, otherPlayer(i)+1), otherPlayer(i));
 				}
 				if (!hasRemainingShots(i) && !hasRemainingShots(Engine.otherPlayer(i))) {
 					if (state.hits[Engine.otherPlayer(i)] > state.hits[i]) {
 						this.state.setFinished(true);
-						return otherPlayer(i);
+						return new Loser(String.format("Hit count %d > %d", state.hits[Engine.otherPlayer(i)], state.hits[i]),otherPlayer(i));
 					} else if (state.hits[Engine.otherPlayer(i)] < state.hits[i]) {
 						this.state.setFinished(true);
-						return i;
+						return new Loser(String.format("Hit count %d < %d", state.hits[Engine.otherPlayer(i)], state.hits[i]),i);
 					} else {
 						if (whoMadeLastShot != -1) {
 							this.state.setFinished(true);
-							return whoMadeLastShot;
+							return new Loser("Losing player didn't make last shot", whoMadeLastShot);
 						}
 					}
 				}
 			}
 			if (state.getLevel().isPlayerLoser(i)) {
 				this.state.setFinished(true);
-				return otherPlayer(i);
+				return new Loser("Other player had all ships shot",otherPlayer(i));
 			}
 					
 		}
-		return -1;
+		return new Loser(-1);
 	}
 	
 	/**

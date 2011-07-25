@@ -123,7 +123,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true, if the player won the current level.
 	 */
 	public boolean isWon() {
-		return engine.checkWin() == 0;
+		return engine.checkWin().playernr == 0;
 	}
 	
 	/**
@@ -132,7 +132,7 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true, if the player lost the current level.
 	 */
 	public boolean isLost() {
-		return engine.checkWin() == 1;
+		return engine.checkWin().playernr == 1;
 	}
 	
 	/**

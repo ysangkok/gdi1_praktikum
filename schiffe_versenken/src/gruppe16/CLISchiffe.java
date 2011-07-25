@@ -65,7 +65,7 @@ public class CLISchiffe extends ConsoleProgram {
 				computer.playAs(1); // play as player 2 (players are 0 and 1)
 			}
 			
-			winner = engine.checkWin(); // updates also isFinished()
+			winner = engine.checkWin().playernr; // updates also isFinished()
 		}
 		println("Game over");
 		if (winner == -1) {
