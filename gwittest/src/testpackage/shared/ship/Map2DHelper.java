@@ -1,6 +1,5 @@
 package testpackage.shared.ship;
 
-import java.util.Formatter;
 import java.util.List;
 
 import testpackage.shared.Util;
@@ -20,7 +19,7 @@ public class Map2DHelper<T> {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
-				sb.append(Util.format("%1$2s", a[i][j]));
+				sb.append(Util.format("%d ", a[i][j]));
 			}
 			sb.append("\n");
 		}
@@ -38,7 +37,7 @@ public class Map2DHelper<T> {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
 				//System.err.println(a[i][j]);
-				sb.append(Util.format("%1$2s", a[i][j]));
+				sb.append(Util.format("%d ", a[i][j]));
 			}
 			sb.append("\n");
 		}
@@ -57,7 +56,7 @@ public class Map2DHelper<T> {
 		for (int i = 0; i < a.size(); i++) {
 			for (int j = 0; j < a.get(i).size(); j++) {
 				//sb.append(Integer.toString(i) + "," + Integer.toString(j));
-				sb.append(Util.format("%1$2s", a.get(i).get(j)));
+				sb.append(Util.format("%d ", a.get(i).get(j)));
 			}
 			sb.append("\n");
 		}

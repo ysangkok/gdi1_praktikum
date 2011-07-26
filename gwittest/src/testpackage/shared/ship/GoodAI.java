@@ -2,9 +2,7 @@ package testpackage.shared.ship;
 
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 
-import java.awt.List;
 import java.lang.Character;
-import java.util.LinkedList;
 import java.util.Random;
 
 public class GoodAI extends AI {

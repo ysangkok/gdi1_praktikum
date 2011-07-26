@@ -260,7 +260,7 @@ public class Engine {
 	 * @param i the player number NOT to return
 	 * @return the other player number
 	 */
-	static int otherPlayer(int i) {
+	public static int otherPlayer(int i) {
 		if (i == 0) {
 			return 1;
 		} else {

@@ -1,7 +1,5 @@
 package testpackage.shared.ship.exceptions;
 
-import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
-
 public class InvalidInstruction extends Exception {
 	public static enum Reason {
 		NOTYOURTURN, NOMOREAMMO, NOSHOOTERDESIGNATED, OUTOFBOUNDS, NOTSHOOTABLE, INVALIDSHOOTER

@@ -14,7 +14,7 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	/**
 	 * shots per ship disabled by default
 	 */
-	boolean shotspershipenabled = false;
+	public boolean shotspershipenabled = false;
 	/**
 	 * same dimensions as with boards
 	 */
@@ -144,7 +144,6 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
         return (T[])Arrays.asList(array).toArray();
     }
     
-    @SuppressWarnings("unchecked")
     public static int[] clone(int[] array) {
         int[] newarr = new int[array.length];
         for (int i = 0; i < array.length; i++)

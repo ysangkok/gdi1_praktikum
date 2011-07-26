@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TemplateImages {
-	static String[] icons = { "border", "fogofwar", "ship_bottom",
+	public static String[] icons = { "border", "fogofwar", "ship_bottom",
 		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",
 		"ship_hit", "ship_hit_right", "ship_hit_top",
 		"ship_hit_vertical", "ship_horizontal", "ship_left",
 		"ship_right", "ship_top", "ship_vertical", "water_hit",
 	"water" };
 
-	static String fieldToIcon(Character c) {
+	public static String fieldToIcon(Character c) {
 		Map<Character, String> m = new HashMap<Character, String>();
 		for (String n : icons) {
 			if (n == "fogofwar") m.put('#',n);

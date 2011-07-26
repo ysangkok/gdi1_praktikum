@@ -1,7 +1,7 @@
 package testpackage.shared.ship;
 
 public class Loser {
-	String reason;
+	public String reason;
 	public int playernr;
 	
 	Loser(String reason, int playernr) {
