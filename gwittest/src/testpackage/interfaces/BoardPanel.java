@@ -61,7 +61,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		for (String icon : TemplateImages.icons) {
 			try {
-				registerImage(icon, "./template/resources/images/defaultskin/" + icon + ".png");
+				registerImage(icon, TemplateImages.imagesdir + icon + ".png");
 			} catch (RuntimeException e){
 				System.err.println(e.getMessage());
 			}

@@ -42,6 +42,7 @@ import testpackage.shared.ship.Level;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
+import testpackage.shared.ship.gui.TemplateImages;
 import translator.TranslatableGUIElement;
 import translator.Translator;
 
@@ -408,7 +409,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	 * randomly loads level from built-in collection. this functionality is required by minimal assignment level
 	 */
 	private void quickNewGame() {
-		String levelDir = "./template/resources/levels/defaultlevels/";
+		String levelDir = TemplateImages.levelspath;
 		
 		File dir = new File(levelDir);
 

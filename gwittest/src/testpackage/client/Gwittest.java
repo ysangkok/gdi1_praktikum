@@ -1,25 +1,26 @@
 package testpackage.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
-import testpackage.shared.FieldVerifier;
+import testpackage.shared.ship.Loser;
+import testpackage.shared.ship.exceptions.InvalidInstruction;
+import testpackage.shared.ship.gui.TemplateImages;
+import testpackage.shared.Util;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -34,136 +35,129 @@ public class Gwittest implements EntryPoint {
 		computer = new BadAI(engine);
 	}
 	
-	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
-	 */
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network "
-			+ "connection and try again.";
-
-	/**
-	 * Create a remote service proxy to talk to the server-side Greeting service.
-	 */
-	private final GreetingServiceAsync greetingService = GWT
-			.create(GreetingService.class);
-
+	private Label lbl = new Label();
+	
+	private Map<Image, Coord> buttocoord;
+	private Image[][][] buttons;
+	
+	class Coord {
+		int x;
+		int y;
+		int p;
+		
+		Coord(int p, int x, int y) {
+			this.p = p;
+			this.x = x;
+			this.y = y;
+		}
+	}
+	
+	private ClickHandler fieldclick = new ClickHandler() {
+		
+		@Override
+		public void onClick(ClickEvent event) {
+			
+			//GWT.log(buttocoord.get(event.getSource()).toString());
+			Coord point = buttocoord.get(event.getSource());
+			
+			if (point.p == 0) return;
+			
+			char c;
+			
+			//if (!engine.getState().isPlayerTurn()) engine.getState().changeTurn();
+			
+			try {
+				c = engine.attack(Engine.otherPlayer(point.p), point.x, point.y);
+			} catch (InvalidInstruction e) {
+				userError(e.getMessage());
+				return;
+			}
+			
+			updateField(point, c);
+			
+			aiAttackAs(point.p);
+			
+		}
+	};
+	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-	    final Image image = new Image();
-	    image.setUrl("file://");
+		buttocoord = new HashMap<Image, Coord>();
 		
+		buttons = new Image[2][engine.getxWidth()][engine.getyWidth()];
 		
-/*		final Button sendButton = new Button("Send");
-		final TextBox nameField = new TextBox();
-		nameField.setText("GWT User");
-		final Label errorLabel = new Label();
+		for (int p = 0; p <= 1; p++) {
 
-		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
+			for (int i=0; i<engine.getxWidth(); i++) {
+				HorizontalPanel hpanel = new HorizontalPanel();
+				for (int j=0; j<engine.getyWidth(); j++) {
 
-		// Add the nameField and sendButton to the RootPanel
-		// Use RootPanel.get() to get the entire body element
-		RootPanel.get("nameFieldContainer").add(nameField);
-		RootPanel.get("sendButtonContainer").add(sendButton);
-		RootPanel.get("errorLabelContainer").add(errorLabel);
+					final Image image = new Image();
+					buttocoord.put(image, new Coord(p,i,j));
+					
+					buttons[p][i][j] = image;
 
-		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
+					image.addErrorHandler(new ErrorHandler() {
+						public void onError(ErrorEvent event) {
+							lbl.setText("An error occurred while loading: " + event.toDebugString());
+						}
+					});
+					
+					image.addClickHandler(fieldclick);
 
-		// Create the popup dialog box
-		final DialogBox dialogBox = new DialogBox();
-		dialogBox.setText("Remote Procedure Call");
-		dialogBox.setAnimationEnabled(true);
-		final Button closeButton = new Button("Close");
-		// We can set the id of a widget by accessing its Element
-		closeButton.getElement().setId("closeButton");
-		final Label textToServerLabel = new Label();
-		final HTML serverResponseLabel = new HTML();
-		VerticalPanel dialogVPanel = new VerticalPanel();
-		dialogVPanel.addStyleName("dialogVPanel");
-		dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
-		dialogVPanel.add(textToServerLabel);
-		dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
-		dialogVPanel.add(serverResponseLabel);
-		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-		dialogVPanel.add(closeButton);
-		dialogBox.setWidget(dialogVPanel);
+					hpanel.add(image);
 
-		// Add a handler to close the DialogBox
-		closeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
-			}
-		});
-
-		// Create a handler for the sendButton and nameField
-		class MyHandler implements ClickHandler, KeyUpHandler {
-			*//**
-			 * Fired when the user clicks on the sendButton.
-			 *//*
-			public void onClick(ClickEvent event) {
-				sendNameToServer();
-			}
-
-			*//**
-			 * Fired when the user types in the nameField.
-			 *//*
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					sendNameToServer();
 				}
+				RootPanel.get("board" + p).add(hpanel);
 			}
+			refresh(p);
+		}
+		
+		RootPanel.get("errorLabelContainer").add(lbl);
+		
 
-			*//**
-			 * Send the name from the nameField to the server and wait for a response.
-			 *//*
-			private void sendNameToServer() {
-				// First, we validate the input.
-				errorLabel.setText("");
-				String textToServer = nameField.getText();
-				if (!FieldVerifier.isValidName(textToServer)) {
-					errorLabel.setText("Please enter at least four characters");
-					return;
-				}
+	}
 
-				// Then, we send the input to the server.
-				sendButton.setEnabled(false);
-				textToServerLabel.setText(textToServer);
-				serverResponseLabel.setText("");
-				greetingService.greetServer(textToServer,
-						new AsyncCallback<String>() {
-							public void onFailure(Throwable caught) {
-								// Show the RPC error message to the user
-								dialogBox
-										.setText("Remote Procedure Call - Failure");
-								serverResponseLabel
-										.addStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(SERVER_ERROR);
-								dialogBox.center();
-								closeButton.setFocus(true);
-							}
+	protected void aiAttackAs(int player) {
+		int i = 0;
+		while (!engine.getState().isPlayerTurn() && !engine.isFinished()) {
+			GWT.log(i++ + " AI plays as " + player); // debug output to detect runaway AI
+			computer.playAs(player);
+			engine.checkWin();
+		}
+		refresh(Engine.otherPlayer(player));
+		
+		if (engine.isFinished()) { GameOver(); return; }
+	}
 
-							public void onSuccess(String result) {
-								dialogBox.setText("Remote Procedure Call");
-								serverResponseLabel
-										.removeStyleName("serverResponseLabelError");
-								serverResponseLabel.setHTML(result);
-								dialogBox.center();
-								closeButton.setFocus(true);
-							}
-						});
+	private void refresh(int p) {
+		Character[][] board = null;
+		
+		if (p == 0) board = engine.getPlayerArray();
+		if (p == 1) board = engine.getVisibleOpponentArray();
+
+		for (int i=0; i<engine.getxWidth(); i++) {
+			for (int j=0; j<engine.getyWidth(); j++) {
+				updateField(new Coord(p,i,j), board[i][j]);
 			}
 		}
+	}
 
-		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
-		sendButton.addClickHandler(handler);
-		nameField.addKeyUpHandler(handler);*/
+	private void GameOver() {
+		Loser loser = engine.checkWin();
+		String message = Util.format("Loser: %d, Reason: %s", loser.playernr, loser.reason);
+		userError("Game over! " + message);
+	}
+
+	protected void userError(String message) {
+		lbl.setText(System.currentTimeMillis() + ": " + message);
+		
+	}
+
+	protected void updateField(Coord point, char c) {
+		buttons[point.p][point.x][point.y].setUrl(TemplateImages.webimagesdir + TemplateImages.fieldToIcon(c) + ".png");
+		
 	}
 }
