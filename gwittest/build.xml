@@ -49,7 +49,7 @@
       <arg line="-war"/>
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-      <arg line="${gwt.args}"/>
+      <arg line="${gwt.args} -draftCompile -style DETAILED"/>
       <arg value="testpackage.Gwittest"/>
     </java>
   </target>
@@ -69,7 +69,7 @@
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
-      <arg value="Gwittest"/>
+      <arg value="testpackage.Gwittest"/>
     </java>
   </target>
 
