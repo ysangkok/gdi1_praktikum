@@ -214,8 +214,15 @@ public class BattleshipTestAdapterMinimal {
 	 * @return true if this cell is hit, false in any other cases (e.g. ship which is not hit, not hit water, invalid coordinate, ...)
 	 */
 	public boolean isCellHitAt(int x, int y) {
-		//TODO implement this stub
-		return false;
+
+		int[] coords = Level.parseTestInterfaceCoords(x, y, engine.getyWidth());
+		int p = coords[0];
+		int newx = coords[1]=x;
+		int newy = coords[2]=y;
+		
+		Character[][] board = engine.getState().getLevel().getPlayerBoard(p);
+		return matchChar("LRTBVH", board[newx][newy]);
+
 	}
 	
 	
