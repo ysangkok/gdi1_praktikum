@@ -196,6 +196,8 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			URL url = this.getClass().getResource(TemplateImages.translationspath + str);
 			File destination = new File(str);
 			
+			if (url == null) { throw new RuntimeException("can't extract translation"); }
+			
 			try {
 				FileUtils.copyURLToFile(url, destination);
 			} catch (IOException e) {
