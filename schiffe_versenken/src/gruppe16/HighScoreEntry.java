@@ -1,9 +1,6 @@
 package gruppe16;
 
 import java.util.*;
-import java.util.List;
-import java.util.Comparator;
-import java.util.Calendar;
 import java.text.SimpleDateFormat;
 
 class HighScoreEntry {
@@ -39,7 +36,7 @@ class HighScoreEntry {
 	}
 
 	public String getStartingTime() {
-		return current.get(startTime);
+		return current().get(startTime);
 
 	}
 
@@ -105,7 +102,8 @@ class HighScoreEntry {
 	/**
 	 * 
 	 * 
-	 * this class gives the time and date a single game started
+	 * this class represents the format in which a time and date are represented.
+	 * 
 	 * 
 	 * @author yanai
 	 * @return : date and time
@@ -116,11 +114,9 @@ class HighScoreEntry {
 
 		
 	}
-	
-	public String current() {
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-		return sdf.format(cal.getTime());
+	/**
+	 * 
+	 * 
 
 	}
 
