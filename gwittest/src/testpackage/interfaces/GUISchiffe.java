@@ -68,6 +68,10 @@ class CountdownTimerPanel extends JPanel {
      */
     javax.swing.Timer t;
 
+    void go() {
+    	t.start();
+    }
+    
     /**
      * @param app guischiffe app so that we can change turn and attack when timer expires
      */
@@ -86,7 +90,6 @@ class CountdownTimerPanel extends JPanel {
         //    Use full package qualification for javax.swing.Timer
         //    to avoid potential conflicts with java.util.Timer.
         t = new javax.swing.Timer(50, new ClockListener());
-        t.start();
 
     }
     
@@ -407,6 +410,9 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
+		if (speerfeuer) {
+			clock.go();
+		}
 	}
 	
 	/**
