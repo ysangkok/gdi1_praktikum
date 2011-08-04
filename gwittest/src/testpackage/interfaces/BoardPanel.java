@@ -9,8 +9,8 @@ import java.awt.Insets;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -61,7 +61,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		for (String icon : TemplateImages.icons) {
 			try {
-				registerImage(icon, TemplateImages.imagesdir + icon + ".png");
+				registerImage(icon, this.getClass().getResource(TemplateImages.imagesdir + icon + ".png"));
 			} catch (RuntimeException e){
 				System.err.println(e.getMessage());
 			}
@@ -111,8 +111,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	private HashMap<String, ImageIcon> images = null;
 
-	private boolean registerImage(String identifier, String fileName) {
-		return images.put(identifier, new ImageIcon(fileName)) != null;
+	private boolean registerImage(String identifier, URL url) {
+		return images.put(identifier, new ImageIcon(url)) != null;
 	}
 
 

@@ -1,5 +1,7 @@
 package testpackage.shared;
 
+import java.util.Scanner;
+
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.regexp.shared.SplitResult;
 
@@ -17,4 +19,7 @@ public class Util {
 	  return msg.toString();
 	}
 	
+	public static String getResourceAsString(String path) {
+		return new Scanner(Util.class.getResourceAsStream(path)).useDelimiter("\\A").next();
+	}
 }

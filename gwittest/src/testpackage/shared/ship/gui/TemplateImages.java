@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TemplateImages {
-	public static final String weblevelspath = "template/resources/levels/defaultlevels/";
-	public static final String webimagesdir = "template/resources/images/defaultskin/";
+	public static final String translationspath = "/translations/";
+
+	public static final String levelspath = "/resources/levels/defaultlevels/";
+	public static final String imagesdir = "/resources/images/defaultskin/";
 	
-	public static final String levelspath = "./war/" + weblevelspath;
-	public static final String imagesdir = "./war/" + webimagesdir;
+	public static final String weblevelspath = "template/" + levelspath;
+	public static final String webimagesdir = "template/" + imagesdir;
+	
 	
 	public static String[] icons = { "border", "fogofwar", "ship_bottom",
 		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",

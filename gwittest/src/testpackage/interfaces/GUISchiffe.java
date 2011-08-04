@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
 
@@ -35,6 +36,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+import org.apache.commons.io.FileUtils;
+
+import testpackage.shared.Util;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
@@ -43,6 +47,7 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.gui.TemplateImages;
+
 import translator.TranslatableGUIElement;
 import translator.Translator;
 
@@ -186,10 +191,25 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		frame.dispose();
 	}
 	
+	private void copyTranslations() {
+		for (String str : new String[] {"Battleship.en_US", "Battleship.de_DE"}) {
+			URL url = this.getClass().getResource(TemplateImages.translationspath + str);
+			File destination = new File(str);
+			
+			try {
+				FileUtils.copyURLToFile(url, destination);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private GUISchiffe(Locale targetLocale) {
 		initNewEngineAndAI();
 		
-		translator = new Translator("translations/Battleship", targetLocale);
+		copyTranslations();
+		
+		translator = new Translator("Battleship", targetLocale);
 		showFrame();
 	}
 	
@@ -409,6 +429,12 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	 * randomly loads level from built-in collection. this functionality is required by minimal assignment level
 	 */
 	private void quickNewGame() {
+		String[] levels = {"01.lvl", "02.lvl", "03.lvl", "04.lvl", "05.lvl", "06.lvl", "07.lvl", "08.lvl", "09.lvl", "10.lvl", "11.lvl", "12.lvl", "13.lvl", "14.lvl", "15.lvl", "16.lvl", "17.lvl", "18.lvl", "19.lvl"};
+		
+		Random gen = new Random();
+		String chosenLvl = levels[gen.nextInt(levels.length)];
+		
+		/*
 		String levelDir = TemplateImages.levelspath;
 		
 		File dir = new File(levelDir);
@@ -429,16 +455,15 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			if (ext.equals(".lvl")) break;
 			else if (!ext.equals(".svn")) userError("Unknown file in levels dir: " + children[chosenLvl]);
 		}
-		
+		*/
 		Level level;
 		
 		try {
-			level = new Level(readFileAsString(levelDir + children[chosenLvl]));
+			//level = new Level(readFileAsString(levelDir + children[chosenLvl]));
+			level = new Level(Util.getResourceAsString(TemplateImages.levelspath + chosenLvl));
+		
 		} catch (InvalidLevelException e) {
-			userError(String.format("Template level corrupted: %s",children[chosenLvl]));
-			return;
-		} catch (IOException e) {
-			userError("IO Error: " + e.getMessage());
+			userError(String.format("Template level corrupted: %s",chosenLvl));
 			return;
 		}
 		
