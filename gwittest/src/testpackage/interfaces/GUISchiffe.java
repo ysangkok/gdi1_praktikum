@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,6 +21,7 @@ import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -148,11 +148,30 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	Engine engine;
 	private AI ai;
 	private BoardPanel[] panels;
-	private boolean speerfeuer = true;
+	private boolean speerfeuer = false;
 	private CountdownTimerPanel clock;
 	private final Translator translator;
 	private JLabel statusLabel;
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
+	
+	private class GameoverKeyHandler implements KeyListener {
+
+		@Override
+		public void keyPressed(KeyEvent arg0) {
+			//System.err.println(arg0.toString());
+			if (arg0.getKeyCode() == KeyEvent.VK_SPACE) arg0.consume();
+			
+		}
+
+		@Override
+		public void keyReleased(KeyEvent arg0) {
+		}
+
+		@Override
+		public void keyTyped(KeyEvent arg0) {
+		}
+		
+	}
 	
 	/**
 	 * call this when game is over to notify user of winning player and shut down
@@ -171,11 +190,13 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		}
 		
 		final JDialog d = new JDialog(frame, "Game over", Dialog.ModalityType.DOCUMENT_MODAL);
-		d.setSize(500, 100);
+		//d.setSize(500, 100);
 		FlowLayout layout = new FlowLayout();
 		d.setLayout(layout);
 		d.add(new JLabel("Game over. " + winnerstr + " Reason: " + engine.checkWin().reason));
 		JButton but = new JButton();
+		
+		but.addKeyListener(new GameoverKeyHandler());
 		but.setText("Quit");
 		but.addActionListener(new ActionListener() {
 			@Override
@@ -185,6 +206,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		});
 		d.add(but);
 		//d.add(layout);
+		d.pack();
 		d.setVisible(true);
 		
 		
@@ -210,7 +232,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	}
 	
 	private GUISchiffe(Locale targetLocale) {
-		initNewEngineAndAI();
+		initNewEngineAndAI(false, false);
 		
 		copyTranslations();
 		
@@ -218,13 +240,17 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		showFrame();
 	}
 	
-	private boolean placeOwnShipsWizard() {
+	private boolean placeOwnShipsWizard() {		
 		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame);
 
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
 
 		if (shipchooser.finished ) {
+			boolean[] settings = SettingsChooser.askForSettings(frame);
+			speerfeuer = settings[1];
+			
 			engine = shipchooser.engine;
+			if (settings[1]) engine.enableShotsPerShip();
 			ai = new BadAI(engine);
 			
 			frame.dispose();
@@ -232,6 +258,39 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			return true;
 		}
 		return false;
+	}
+
+	static class SettingsChooser {
+
+		static boolean speerfeuerenabled = false;
+		static boolean ammoenabled = false;
+		
+		static boolean[] askForSettings(JFrame parent) {
+
+			final JDialog d = new JDialog(parent, "Choose game type", Dialog.ModalityType.DOCUMENT_MODAL);
+			BoxLayout layout = new BoxLayout(d.getContentPane(), BoxLayout.Y_AXIS);
+			d.setLayout(layout);
+			final JCheckBox speercb = new JCheckBox("Speerfeuer");
+			speercb.setSelected(speerfeuerenabled);
+			final JCheckBox ammocb = new JCheckBox("Munition");
+			ammocb.setSelected(ammoenabled);
+			d.add(speercb);
+			d.add(ammocb);
+			JButton but = new JButton("OK");
+			but.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					speerfeuerenabled = speercb.isSelected();
+					ammoenabled = ammocb.isSelected();
+					d.dispose();
+				}
+			});
+			d.add(but);
+			d.pack();
+			d.setVisible(true);
+			return new boolean[] {ammoenabled, speerfeuerenabled};
+		}
 	}
 
 	private static class actions {
@@ -252,27 +311,27 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	public void actionPerformed(ActionEvent actionEvent) {
 		//System.err.println(actionEvent);
 		String a = actionEvent.getActionCommand();
-		clock.pause();
+		if (speerfeuer) clock.pause();
 		if (a.equals(actions.quicknewgame)) { // would be nice with the Java 7 string switch
 			quickNewGame();
-			clock.resetCountdown();
+			if (speerfeuer) clock.resetCountdown();
 		} else if (a.equals(actions.save)) {
 			save();
 		} else if (a.equals(actions.load)) {
 			load();
-			clock.resetCountdown();
+			if (speerfeuer) clock.resetCountdown();
 		} else if (a.equals(actions.about)) {
 			about();
 		} else if (a.equals(actions.newplaceownships)) {
 			if (placeOwnShipsWizard())
-				clock.resetCountdown();
+				if (speerfeuer) clock.resetCountdown();
 		} else if (a.equals(actions.newgenerated)) {
 			generatedNewGame();
-			clock.resetCountdown();
+			if (speerfeuer) clock.resetCountdown();
 		} else {
 			userError("Unknown action!");
 		}
-		clock.resume();
+		if (speerfeuer) clock.resume();
 	}
 	
 	private void setStatusBarMessage(String message) {
@@ -475,26 +534,29 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			return;
 		}
 		
-		initNewEngineAndAIWithLevel(level);
+		initNewEngineAndAIWithLevel(level, false, false);
 		
 		frame.dispose();
 		showFrame();
 	}
 
-	private void initNewEngineAndAIWithLevel(Level level) {
+	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer) {
 		engine = new Engine(level);
-		engine.enableShotsPerShip();
+		this.speerfeuer = speerfeuer;
+		if (enableshotspership) engine.enableShotsPerShip();
 		ai = new BadAI(engine);
 	}
 	
-	private void initNewEngineAndAI() {
+	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer) {
 		engine = new Engine();
-		engine.enableShotsPerShip();
+		this.speerfeuer = speerfeuer;
+		if (enableshotspership) engine.enableShotsPerShip();
 		ai = new BadAI(engine);
 	}
 	
 	private void generatedNewGame() {
-		initNewEngineAndAI();
+		boolean[] settings = SettingsChooser.askForSettings(frame);
+		initNewEngineAndAI(settings[0], settings[1]);
 		
 		frame.dispose();
 		showFrame();
@@ -565,24 +627,6 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		
 		frame.dispose();
 		showFrame();
-	}
-	
-	/**
-	 * reads file into string. from here: http://snippets.dzone.com/posts/show/1335
-	 * @param filePath file to load
-	 * @return string with file contents
-	 * @throws IOException
-	 */
-	private static String readFileAsString(String filePath) throws IOException{
-	    byte[] buffer = new byte[(int) new File(filePath).length()];
-	    BufferedInputStream f = null;
-	    try {
-	        f = new BufferedInputStream(new FileInputStream(filePath));
-	        f.read(buffer);
-	    } finally {
-	        if (f != null) try { f.close(); } catch (IOException ignored) { } // doesn't matter if we get error while closing, since we're just doing it to be nice
-	    }
-	    return new String(buffer);
 	}
 
 	@Override

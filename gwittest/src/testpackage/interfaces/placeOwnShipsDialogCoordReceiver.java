@@ -7,6 +7,7 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 
 import java.awt.Dialog;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -28,6 +30,7 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 	private int shiplength;
 	private JRadioButton rbutton1;
 	private JRadioButton rbutton2;
+	private boolean didChoose = false; 
 	
 	/**
 	 * @param app the ship placement dialog class
@@ -56,9 +59,14 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		BoardPanel bpanel = new BoardPanel(this, engine, 0, true);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		//panel.setLayout(new FlowLayout());
 		dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
-		panel.add(rbutton1);
-		panel.add(rbutton2);
+		JPanel top = new JPanel();
+		top.add(new JLabel("<html>Choose orientation and click<br>top/left end of ship on board.</html>"));
+		top.add(rbutton1);
+		top.add(rbutton2);
+		panel.add(top);
+		bpanel.setMaximumSize( bpanel.getPreferredSize() );
 		panel.add(bpanel);
 		dialog.setContentPane(panel);
 		dialog.pack();
@@ -81,12 +89,13 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 
 		//System.out.println("action performed: " + shiplength);
 		
-		but.setEnabled(false);
+		if (didChoose) but.setEnabled(false);
 		
 	}
 
 	@Override
 	public void bomb(int p, int x, int y) {
+		didChoose = true;
 		//System.err.println("bomb: " + shiplength + ", x=" + x + ", y=" + y);
 		wizard.chose(y, x, shiplength, (rbutton1.getSelectedObjects() != null ? Orientation.HORIZONTAL : Orientation.VERTICAL));
 		dialog.dispose();

@@ -6,6 +6,7 @@ import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.Ship;
 
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -101,6 +102,7 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 		
 		Container cp = getContentPane();
 		cp.setLayout(new BoxLayout(cp, BoxLayout.PAGE_AXIS));
+		//cp.setLayout(new FlowLayout());
 		JPanel placers = new JPanel();
 		placers.setLayout(new BoxLayout(placers, BoxLayout.PAGE_AXIS));
 		build(cp);
@@ -116,7 +118,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 		bottompanel.add(ok);
 		bottompanel.add(cancel);
 		cp.add(bottompanel);
-		setSize(250, 500);
+		//setSize(250, 500);
+		pack();
 	}
 	
 	@Override
