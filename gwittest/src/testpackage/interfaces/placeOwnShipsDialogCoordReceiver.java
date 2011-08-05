@@ -7,7 +7,6 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 
 import java.awt.Dialog;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

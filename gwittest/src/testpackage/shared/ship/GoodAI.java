@@ -13,14 +13,24 @@ public class GoodAI extends AI {
 	char lastChar = '\0';
 	Engine engine;
 	boolean randomMode = true;
-	int[][] coor;
-
+	
 	int xwidth;
 	int ywidth;
 	
-	int [] listY;
 	
-	GoodAI(Engine engine) {
+	boolean dirSouth = false;
+	boolean dirNorth = false;
+	boolean dirEast = false;
+	boolean dirWest = false;
+	
+	int currentX = -1;
+	int currentY = -1;
+	char currentChar = '\0';
+	
+	char bottom = '\0';
+	char top = '\0';
+	
+	public void setEngine(Engine engine) {
 		gen = new Random();
 		xwidth = engine.getxWidth();
 		ywidth = engine.getyWidth();
@@ -31,6 +41,11 @@ public class GoodAI extends AI {
 		return Character.isUpperCase(c);
 	}
 
+	
+	
+	
+	
+	
 	@Override
 	public void playAs(int player) {
 		if (randomMode) {
@@ -42,252 +57,151 @@ public class GoodAI extends AI {
 
 				if (hitShip(lastChar))
 					randomMode = false;
+				
+				
 			} catch (InvalidInstruction e) {
 				
 			}
-		} else {
-			int chosenX = lastX;
-			int chosenY = lastY;
-
-			if (lastChar == 'L' || lastChar == 'R') {
-				Hor(player, chosenX, chosenY, lastChar);
+		}
+		else {	
+			direction(player);
+		}
+	}
+		
+	public void direction(int player){
+		if (dirSouth){
+			dirSouth(player);
+		}
+		else if (dirNorth){
+			dirNorth(player);
+		}
+		else if (dirEast){
+			dirEast(player);
+		}
+		else if (dirWest){
+			dirWest(player);
+		}
+		else {
+		
+			if (lastX != 9){
+			try {
+			currentChar = engine.attack(player, currentX = lastX + 1, lastY);
+			if (hitShip(currentChar)){
+				dirSouth = true;
 			}
-
-			else if (lastChar == 'T' || lastChar == 'B'){
-				Ver(player, chosenX, chosenY, lastChar);
+			else {
+				currentX = lastX;
+				dirNorth = true;
+				currentY = lastY;
+			}
+		}
+		catch (InvalidInstruction e) {
+			
+		}}
+		else if (lastX == 9){
+			dirNorth = true;
+			dirNorth(player);
+		}
+		}
+		
+		
+		
+	}
+	
+	
+	public void dirSouth(int player){
+		
+		try {
+			currentChar = engine.attack(player, currentX = currentX + 1, lastY);
+			if (!hitShip(currentChar)){
+				dirSouth = false;
+				dirNorth = true;
+				
 			}
 			
-			else if (lastChar == 'H'){
-				
-				firstHitHorEast(player, lastX, lastY);
-				
+		}
+		catch (InvalidInstruction e) {
+			randomMode = false;
+			dirNorth = true;
+			dirSouth = false;
+			dirNorth(player);
+		}
+		
+		
+	}
+	
+	public void dirNorth(int player){
+		
+		try {
+			currentChar = engine.attack(player, currentX = currentX - 1, lastY);
+			
+			if (!hitShip(currentChar)){
+				dirNorth = false;
+				dirEast = true;
+				currentChar = lastChar;
 			}
 			
-			else if (lastChar == 'V'){
-				
-				firstHitVerSouth(player, lastX, lastY, lastChar);
-				
-			}
-			/*
-			 * 
-			 * 
-			 * try { engine.attack(player, chosenX, chosenY); } catch
-			 * (InvalidInstruction e) {
-			 * 
-			 * } randomMode = true;
-			 */
-
-		}
-	}
-	
-	
-	
-	public void firstHitHorEast(int player, int lastX, int lastY){
-		char current = '\0';
-		int currentY = lastY;
-		
-		try {
-			current = engine.attack(player, lastX, currentY = currentY + 1);
-
-		} catch (InvalidInstruction e) {
-		}
-		
-		if (current == 'H'){
-			firstHitHorEast(player, lastX, currentY);
-		}
-		else if (current == 'R'){
-			firstHitHorWest(player, lastX, lastY);
-		}
-	}
-	
-	
-	public void firstHitHorWest(int player, int lastX, int lastY){
-		char current = '\0';
-		try {
-			current = engine.attack(player, lastX, lastY = lastY - 1);
-
-		} catch (InvalidInstruction e) {
-		}
-		
-		if (current == 'H'){
-			firstHitHorWest(player, lastX, lastY);
-		}
-		else if (current == 'L'){
-			randomMode = true;
-			playAs(player);
-		}
-	}
-	
-	public void firstHitVerSouth(int player, int lastX, int lastY, char lastChar){
-		char current = '\0';
-		int currentX = lastX;
-		
-		try {
-			current = engine.attack(player, currentX = currentX + 1, lastY);
-
-		} catch (InvalidInstruction e) {
-		}
-		
-		if (current == 'V'){
-			firstHitVerSouth(player, currentX, lastY, lastChar);
-		}
-		else if (current == 'B'){
-			firstHitVerNorth(player, lastX, lastY, lastChar);
-		}
-		
-	}
-	
-	public void firstHitVerNorth(int player, int lastX, int lastY, int lastChar){
-		char current = '\0';
-		try {
-			current = engine.attack(player, lastX = lastX - 1, lastY);
-
-		} catch (InvalidInstruction e) {
-		}
-		
-		if (current == 'V'){
-			firstHitVerNorth(player, lastX, lastY, lastChar);
-		}
-		else if (current == 'T'){
-			randomMode = true;
-			playAs(player);
-		}
-	}
-
-	public void Hor(int player, int lastX, int lastY, char lastChar) {
-		if (lastChar == 'R') {
-
-			try {
-				lastChar = engine.attack(player, lastX, lastY = lastY - 1);
-
-			} catch (InvalidInstruction e) {
-			}
-			if (lastChar == 'H') {
-				HorMidRight(player, lastX, lastY, lastChar);
-			} else if (lastChar == 'L') {
+			if (currentChar == 'T'){
+				dirNorth = false;
 				randomMode = true;
-				playAs(player);
+				currentChar = '\0';
 			}
-
+			
 		}
-
-		if (lastChar == 'L') {
-			try {
-				lastChar = engine.attack(player, lastX, lastY = lastY + 1);
-
-			} catch (InvalidInstruction e) {
-			}
-			if (lastChar == 'H') {
-				HorMidLeft(player, lastX, lastY, lastChar);
-			} else if (lastChar == 'R') {
-				randomMode = true;
-				playAs(player);
-			}
-
+		catch (InvalidInstruction e) {
+			randomMode = false;
+			dirNorth = false;
+			dirEast = true;
+			dirEast(player);
 		}
+		
 	}
 	
-	public void Ver(int player, int lastX, int lastY, char lastChar) {
-		if (lastChar == 'T') {
-
-			try {
-				lastChar = engine.attack(player, lastX = lastX + 1, lastY);
-
-			} catch (InvalidInstruction e) {
-			}
-			if (lastChar == 'V') {
-				VerMidBottom(player, lastX, lastY, lastChar);
-			} else if (lastChar == 'B') {
-				randomMode = true;
-				playAs(player);
-			}
-
-		}
-
-		if (lastChar == 'B') {
-			try {
-				lastChar = engine.attack(player, lastX = lastX - 1, lastY);
-
-			} catch (InvalidInstruction e) {
-			}
-			if (lastChar == 'V') {
-				VerMidTop(player, lastX, lastY, lastChar);
-			} else if (lastChar == 'T') {
-				randomMode = true;
-				playAs(player);
-			}
-
-		}
-	}
-
-	public void HorMidLeft(int player, int lastX, int lastY, char lastChar) {
-
+	public void dirEast (int player){
+		
 		try {
-			lastChar = engine.attack(player, lastX, lastY = lastY + 1);
-
-		} catch (InvalidInstruction e) {
+			currentChar = engine.attack(player, lastX, currentY = currentY + 1);
+			if (!hitShip(currentChar)){
+				dirEast = false;
+				dirWest = true;
+				currentChar = lastChar;
+				currentY = lastY;
+			}
 		}
-		if (lastChar == 'H') {
-			HorMidLeft(player, lastX, lastY, lastChar);
+		catch (InvalidInstruction e) {
+			randomMode = false;
+			dirEast = false;
+			dirWest = true;
+			dirWest(player);
 		}
-
-		else if (lastChar == 'R') {
-			randomMode = true;
-			playAs(player);
-		}
-
+		
+		
+		
 	}
 	
-	public void VerMidBottom(int player, int lastX, int lastY, char lastChar) {
-
+	public void dirWest (int player){
+		
 		try {
-			lastChar = engine.attack(player, lastX = lastX + 1, lastY);
-
-		} catch (InvalidInstruction e) {
+			currentChar = engine.attack(player, lastX, currentY = currentY - 1);
+			
+			if (!hitShip(currentChar)){
+				dirWest = false;
+				randomMode = true;
+				currentChar = lastChar;
+			}
+			
+			if (currentChar == 'L'){
+				dirWest = false;
+				randomMode = true;
+				currentChar = '\0';
+			}
+			
 		}
-		if (lastChar == 'V') {
-			VerMidBottom(player, lastX, lastY, lastChar);
-		}
-
-		else if (lastChar == 'B') {
+		catch (InvalidInstruction e) {
+			dirWest = false;
 			randomMode = true;
-			playAs(player);
+			currentChar = '\0';
 		}
-
-	}
-	public void HorMidRight(int player, int lastX, int lastY, char lastChar) {
-
-		try {
-			lastChar = engine.attack(player, lastX, lastY = lastY - 1);
-
-		} catch (InvalidInstruction e) {
 		}
-		if (lastChar == 'H') {
-			HorMidRight(player, lastX, lastY, lastChar);
-		}
-
-		else if (lastChar == 'L') {
-			randomMode = true;
-			playAs(player);
-		}
-
+		
 	}
-
-public void VerMidTop(int player, int lastX, int lastY, char lastChar) {
-
-	try {
-		lastChar = engine.attack(player, lastX = lastX - 1, lastY);
-
-	} catch (InvalidInstruction e) {
-	}
-	if (lastChar == 'V') {
-		VerMidTop(player, lastX, lastY, lastChar);
-	}
-
-	else if (lastChar == 'T') {
-		randomMode = true;
-		playAs(player);
-	}
-
-}
-}

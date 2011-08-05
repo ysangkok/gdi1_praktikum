@@ -105,8 +105,9 @@ public class Engine {
 	
 	/**
 	 * called to enable shots per ship game mode. only works after level initialization
+	 * @param ammocount 
 	 */
-	public void enableShotsPerShip() {
+	public void enableShotsPerShip(int ammocount) {
 		state.remainingshots = new Integer[2][xWidth][yWidth];
 		state.shotspershipenabled = true;
 		
@@ -117,7 +118,7 @@ public class Engine {
 			for ( int j=0; j<state.remainingshots[0].length; j++)
 				for ( int k=0; k<state.remainingshots[0][0].length; k++)
 					if (state.getLevel().isShipAt(Engine.otherPlayer(i),j,k))
-						state.remainingshots[Engine.otherPlayer(i)][j][k] = Rules.shotsPerShipPart;
+						state.remainingshots[Engine.otherPlayer(i)][j][k] = ammocount;
 					else 
 						state.remainingshots[Engine.otherPlayer(i)][j][k] = 0;
 	}

@@ -1,6 +1,7 @@
 package tests.adapters;
 
 import testpackage.shared.ship.Level;
+import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
@@ -38,7 +39,7 @@ public class BattleshipTestAdapterExtended2 extends BattleshipTestAdapterExtende
 		} catch (InvalidLevelException e) {
 			// according to specification in Minimal adapter we should just ignore invalid levels and keep the last. Since this Test Level doesn't test level validity, no record is kept
 		}
-		if (enable) engine.enableShotsPerShip();
+		if (enable) engine.enableShotsPerShip(Rules.shotsPerShipPart);
 	}
 	
 	/**

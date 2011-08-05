@@ -32,7 +32,8 @@ public class Gwittest implements EntryPoint {
 	
 	public Gwittest() {
 		engine = new Engine();
-		computer = new BadAI(engine);
+		computer = new BadAI();
+		computer.setEngine(engine);
 	}
 	
 	private Label lbl = new Label();

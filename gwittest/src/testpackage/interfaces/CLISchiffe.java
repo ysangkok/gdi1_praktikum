@@ -3,6 +3,7 @@ package testpackage.interfaces;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
+import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 //import testpackage.shared.ship.exceptions.InvalidLevelException;
 import acm.program.ConsoleProgram;
@@ -28,10 +29,11 @@ public class CLISchiffe extends ConsoleProgram {
 	 */
 	public void run() {
 		boolean shotspership = readBoolean("Limit shots per ship?");
-		if (shotspership) engine.enableShotsPerShip();
+		if (shotspership) engine.enableShotsPerShip(Rules.shotsPerShipPart);
 		
 		int winner = -1;
-		AI computer = new BadAI(engine);
+		AI computer = new BadAI();
+		computer.setEngine(engine);
 		while (!engine.isFinished()) {
 			if (engine.getState().isPlayerTurn()) {
 				print(engine.getLevelStringForPlayer(0));

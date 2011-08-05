@@ -4,6 +4,7 @@ package testpackage.shared.ship;
  * class for storing game rules
  */
 public class Rules {
+	public static final int standardSpeerfeuerTime = 5000;
 	/**
 	 * Necessary for test compliance
 	 */
@@ -31,6 +32,6 @@ public class Rules {
 	/**
 	 * number of shots per each part of not-sunken ship part. value necessary for test compliance
 	 */
-	static int shotsPerShipPart = 5;
+	public static int shotsPerShipPart = 5;
 	
 }

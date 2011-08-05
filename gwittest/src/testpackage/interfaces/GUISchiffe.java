@@ -15,13 +15,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -43,6 +44,7 @@ import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Level;
+import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
@@ -78,7 +80,7 @@ class CountdownTimerPanel extends JPanel {
     public CountdownTimerPanel(GUISchiffe app) {
     	this.app = app;
     	
-        _timeField = new JTextField(5);
+        _timeField = new JTextField(Rules.standardSpeerfeuerTime/1000);
         _timeField.setEditable(false);
         _timeField.setFont(new Font("sansserif", Font.PLAIN, 48));
 
@@ -97,7 +99,7 @@ class CountdownTimerPanel extends JPanel {
      * called at the point of time the user should have 5 seconds from
      */
     void resetCountdown() {
-    	endtime = System.currentTimeMillis() + 5000;
+    	endtime = System.currentTimeMillis() + app.speerfeuertime;
     }
     
     /**
@@ -149,6 +151,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	private AI ai;
 	private BoardPanel[] panels;
 	private boolean speerfeuer = false;
+	int speerfeuertime = Rules.standardSpeerfeuerTime;
 	private CountdownTimerPanel clock;
 	private final Translator translator;
 	private JLabel statusLabel;
@@ -232,7 +235,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	}
 	
 	private GUISchiffe(Locale targetLocale) {
-		initNewEngineAndAI(false, false);
+		initNewEngineAndAI(false, speerfeuer, Rules.shotsPerShipPart, speerfeuertime, BadAI.class);
 		
 		copyTranslations();
 		
@@ -246,12 +249,15 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
 
 		if (shipchooser.finished ) {
-			boolean[] settings = SettingsChooser.askForSettings(frame);
-			speerfeuer = settings[1];
+			SettingsChooser s = new SettingsChooser();
+			s.askForSettings(frame);
+			if (!s.finished) return false;
+			speerfeuer = s.speerfeuerenabled;
 			
 			engine = shipchooser.engine;
-			if (settings[1]) engine.enableShotsPerShip();
-			ai = new BadAI(engine);
+			if (s.ammoenabled) engine.enableShotsPerShip(s.ammospinnervalue);
+			
+			instantiateAndSetAI(s.chosenAI);
 			
 			frame.dispose();
 		    showFrame();
@@ -260,37 +266,31 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		return false;
 	}
 
-	static class SettingsChooser {
-
-		static boolean speerfeuerenabled = false;
-		static boolean ammoenabled = false;
-		
-		static boolean[] askForSettings(JFrame parent) {
-
-			final JDialog d = new JDialog(parent, "Choose game type", Dialog.ModalityType.DOCUMENT_MODAL);
-			BoxLayout layout = new BoxLayout(d.getContentPane(), BoxLayout.Y_AXIS);
-			d.setLayout(layout);
-			final JCheckBox speercb = new JCheckBox("Speerfeuer");
-			speercb.setSelected(speerfeuerenabled);
-			final JCheckBox ammocb = new JCheckBox("Munition");
-			ammocb.setSelected(ammoenabled);
-			d.add(speercb);
-			d.add(ammocb);
-			JButton but = new JButton("OK");
-			but.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					speerfeuerenabled = speercb.isSelected();
-					ammoenabled = ammocb.isSelected();
-					d.dispose();
-				}
-			});
-			d.add(but);
-			d.pack();
-			d.setVisible(true);
-			return new boolean[] {ammoenabled, speerfeuerenabled};
+	@SuppressWarnings("rawtypes")
+	private void instantiateAndSetAI(Class<?> chosenAI) {
+		Constructor<?> c;
+		try {
+			c = chosenAI.getConstructor(new Class[] {});
+			ai = (AI) c.newInstance(new Object[] {});
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchMethodException e) {
+			System.err.println("OTHER CONSTRUCTORS:");
+			for (Constructor otherc : chosenAI.getConstructors()) {
+				System.err.println(otherc.toString());
+			}
+			
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
+		ai.setEngine(engine);
 	}
 
 	private static class actions {
@@ -326,8 +326,8 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			if (placeOwnShipsWizard())
 				if (speerfeuer) clock.resetCountdown();
 		} else if (a.equals(actions.newgenerated)) {
-			generatedNewGame();
-			if (speerfeuer) clock.resetCountdown();
+			boolean startedNewGame = generatedNewGame();
+			if (speerfeuer && startedNewGame) clock.resetCountdown();
 		} else {
 			userError("Unknown action!");
 		}
@@ -534,32 +534,37 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			return;
 		}
 		
-		initNewEngineAndAIWithLevel(level, false, false);
+		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass());
 		
 		frame.dispose();
 		showFrame();
 	}
 
-	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer) {
+	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine(level);
 		this.speerfeuer = speerfeuer;
-		if (enableshotspership) engine.enableShotsPerShip();
-		ai = new BadAI(engine);
+		this.speerfeuertime = time;
+		if (enableshotspership) engine.enableShotsPerShip(ammocount);
+		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer) {
+	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine();
 		this.speerfeuer = speerfeuer;
-		if (enableshotspership) engine.enableShotsPerShip();
-		ai = new BadAI(engine);
+		this.speerfeuertime = time;
+		if (enableshotspership) engine.enableShotsPerShip(ammocount);
+		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void generatedNewGame() {
-		boolean[] settings = SettingsChooser.askForSettings(frame);
-		initNewEngineAndAI(settings[0], settings[1]);
+	private boolean generatedNewGame() {
+		SettingsChooser s = new SettingsChooser();
+		s.askForSettings(frame);
+		if (!s.finished) return false;
+		initNewEngineAndAI(s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI);
 		
 		frame.dispose();
 		showFrame();
+		return true;
 	}
 	
 	private void skins(){

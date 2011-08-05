@@ -46,7 +46,8 @@ public class BattleshipTestAdapterMinimal {
 	public BattleshipTestAdapterMinimal() {
 		level = new Level();
 		engine = new Engine(level);
-		ai = new BadAI(engine);
+		ai = new BadAI();
+		ai.setEngine(engine);
 	}
 	
 	
