@@ -144,7 +144,8 @@ public class GoodAI extends AI {
 			if (!hitShip(currentChar)){
 				dirNorth = false;
 				dirEast = true;
-				currentChar = lastChar;
+				currentX = lastX;
+				currentY = lastY;
 			}
 			
 			if (currentChar == 'T'){
@@ -158,7 +159,9 @@ public class GoodAI extends AI {
 			randomMode = false;
 			dirNorth = false;
 			dirEast = true;
-			
+			currentX = lastX;
+			currentY = lastY;
+			dirEast(player);
 		}
 		
 	}
