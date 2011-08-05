@@ -221,7 +221,7 @@ public class BattleshipTestAdapterMinimal {
 		int newy = coords[2]=y;
 		
 		Character[][] board = engine.getState().getLevel().getPlayerBoard(p);
-		return matchChar("LRTBVH", board[newx][newy]);
+		return Level.matchChar("LRTBVH", board[newx][newy]);
 
 	}
 	
