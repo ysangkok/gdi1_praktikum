@@ -125,15 +125,7 @@ public class Level implements Serializable {
 		checkShips(1, getPlayerBoard(1), check);
 	}
 	
-	/**
-	 * @param player check ships for this player
-	 * @param b board to check
-	 * @param countShips count ships when checking
-	 * @throws InvalidLevelException
-	 */
-	static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
-		debug("Checking player " + player);
-		
+	public static List<Ship> getShips(Character[][] b) throws InvalidLevelException {
 		List<Ship> ships = new ArrayList<Ship>();
 		
 		for (int i=0; i<b.length; i++) {
@@ -153,6 +145,30 @@ public class Level implements Serializable {
 				}
 			}
 		}
+		
+		return ships;
+	}
+	
+	public static Ship getShipAt(List<Ship> ships, int x, int y) {
+		for (Ship s : ships) {
+			for (Integer[] coord : s.getAllOccupiedCoords()) {
+				if (x == coord[0] && y == coord[1]) return s;
+			}
+		}
+		//throw new RuntimeException(Util.format("No matching ship found! Coord requested: %d %d. Ships: ",x,y) + ships.toString());
+		return null;
+	}
+	
+	/**
+	 * @param player check ships for this player
+	 * @param b board to check
+	 * @param countShips count ships when checking
+	 * @throws InvalidLevelException
+	 */
+	static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
+		debug("Checking player " + player);
+		
+		List<Ship> ships = getShips(b);
 		
 		Map<Integer, Integer[]> reference;
 		reference = new TreeMap<Integer, Integer[]>();
@@ -428,7 +444,7 @@ public class Level implements Serializable {
 	 * @param c char to control
 	 * @return true if char is a ship char
 	 */
-	static boolean isShip(char c) {
+	public static boolean isShip(char c) {
 		return matchChar(unharmedShip + harmedShip, c);
 	}
 

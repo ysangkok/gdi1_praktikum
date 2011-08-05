@@ -1,7 +1,10 @@
 package testpackage.interfaces;
 
 import testpackage.shared.ship.Engine;
+import testpackage.shared.ship.Ship;
+import testpackage.shared.ship.Level;
 import testpackage.shared.ship.gui.TemplateImages;
+import testpackage.shared.ship.exceptions.InvalidLevelException;
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -12,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -83,11 +87,27 @@ public class BoardPanel extends JPanel implements MouseListener {
 				b = engine.getVisibleOpponentArray();
 			}
 		}
+		
+		List<Ship> ships = null;
+		
+		if (player == 1)
+			try {
+				ships = Level.getShips(engine.getOpponentArrayWithoutFog());
+			} catch (InvalidLevelException e) {
+				throw new RuntimeException(e);
+			}
+		
 		for (int i=0; i<engine.getxWidth(); i++) {
 			for (int j=0; j<engine.getyWidth(); j++) {
-				String iconname = TemplateImages.fieldToIcon(b[i][j]);
+				char c = b[i][j];
+				String iconname;
+				
+				if (Level.isShip(c) && player == 1 && !Level.getShipAt(ships, i, j).isAllShotUp(engine.getOpponentArrayWithoutFog())) {
+					iconname = "ship_hit";
+				} else {
+					iconname = TemplateImages.fieldToIcon(c);
+				}
 				buttons[i][j] = placeEntity(iconname);
-				//if (j >= 6) return;
 			}
 		}
 		if (currentlyselected != null)

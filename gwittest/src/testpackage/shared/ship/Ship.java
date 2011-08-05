@@ -81,4 +81,14 @@ public class Ship {
 		
 		return coords;
 	}
+	
+	public boolean isAllShotUp(Character[][] board) {
+		for (Integer[] coord : getAllOccupiedCoords()) {
+			char c = board[coord[0]][coord[1]];
+			if (!Character.isLetter(c)) throw new RuntimeException(toString() + ": Character: " + c + ", Launched on wrong board! Board: " + new Map2DHelper<Character>().getBoardString(board));
+			if (Character.isLowerCase(c))
+				return false;
+		}
+		return true;
+	}
 }
