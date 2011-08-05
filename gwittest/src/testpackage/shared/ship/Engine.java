@@ -148,11 +148,8 @@ public class Engine {
 	public char attack(int player, int x, int y) throws InvalidInstruction {
 		char hit;
 		
-		if (player == -1) { // player=-1 bedeutet: koordinaten sind in test format
-			int[] coords = Level.parseTestInterfaceCoords(y, x, yWidth);
-			player = otherPlayer(coords[0]);
-			x = coords[1];
-			y = coords[2];
+		if (player < 0 || player > 1) {
+			throw new RuntimeException("player ungueltig");
 		}
 		
 		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction(InvalidInstruction.Reason.NOTYOURTURN);

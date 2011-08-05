@@ -163,11 +163,33 @@ public class BattleshipTestAdapterMinimal {
 	 * @see #doAIShot()        
 	 */
 	public boolean selectCell(int x, int y) {
+		
+		boolean isSelectingShooter;
+		
 		//System.out.println(engine.getState().getLevel().toString());
+		int[] coords = Level.parseTestInterfaceCoords(x, y, engine.getyWidth());
+		int player = coords[0];
+		x = coords[1];
+		y = coords[2];
+		
+		isSelectingShooter = (engine.getState().shotspershipenabled && coords[0] == 0);
+		
 		boolean catched = false;
+		
+		if (isSelectingShooter) {
+			try {
+				engine.chooseFiringXY(player, x, y);
+			} catch (InvalidInstruction e) {
+				return false;
+			}
+			return true;
+		}
+		
+		player = Engine.otherPlayer(player);
+		
 		char c = '\0';
 		try {
-			c = engine.attack(-1, y, x);
+			c = engine.attack(player, x, y);
 			System.out.println("Shot result: "+c);
 		} catch (InvalidInstruction e) {
 			System.err.println(e.getMessage());
@@ -217,8 +239,8 @@ public class BattleshipTestAdapterMinimal {
 	public boolean isCellHitAt(int x, int y) {
 		int[] coords = Level.parseTestInterfaceCoords(x, y, engine.getyWidth());
 		int p = coords[0];
-		int newx = coords[1]=x;
-		int newy = coords[2]=y;
+		int newx = coords[1];
+		int newy = coords[2];
 		
 		Character[][] board = engine.getState().getLevel().getPlayerBoard(p);
 		return Level.matchChar("LRTBVH", board[newx][newy]);
