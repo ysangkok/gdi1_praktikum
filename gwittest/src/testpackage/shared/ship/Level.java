@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.Iterable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -149,7 +150,7 @@ public class Level implements Serializable {
 		return ships;
 	}
 	
-	public static Ship getShipAt(List<Ship> ships, int x, int y) {
+	public static Ship getShipAt(Iterable<Ship> ships, int x, int y) {
 		for (Ship s : ships) {
 			for (Integer[] coord : s.getAllOccupiedCoords()) {
 				if (x == coord[0] && y == coord[1]) return s;

@@ -1,17 +1,27 @@
 package testpackage.shared.ship;
 
 import testpackage.shared.Util;
+import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+
+//import com.google.common.base.Predicate;
+//import com.google.common.base.Predicates;
+//import com.google.common.collect.Iterables;
 
 /**
  * class for game core logic
  */
 public class Engine {
 	private boolean allowMultipleShotsPerTurn = Rules.defaultAllowMultipleShotsPerTurn;
+
+	private List<Map<Ship,Boolean>> shotships;
 
 	private List<State> undoLog;
 	private State state;
@@ -21,6 +31,25 @@ public class Engine {
 	
 	private int whoMadeLastShot = -1;
 	
+	private void detectShips() {
+		List<List<Ship>> ships = new ArrayList<List<Ship>>();
+		try {
+			ships.add(Level.getShips(state.getLevel().getPlayerBoard(0)));
+			ships.add(Level.getShips(state.getLevel().getPlayerBoard(1)));
+		} catch (InvalidLevelException e) {
+			throw new RuntimeException(e);
+		}
+
+		shotships = new ArrayList<Map<Ship,Boolean>>();
+		for (int p : new int[] {0, 1}) {
+			Map map = new HashMap<Ship,Boolean>();
+			shotships.add(map);
+			for (Ship s : ships.get(p)) {
+				map.put(s, false);
+			}
+		}
+	}
+
 	/**
 	 * @return height of map, since x (i.e. first coordinates) are actually lines
 	 */
@@ -41,6 +70,7 @@ public class Engine {
 	public Engine(Level level) {
 		state = new State(level);
 		updateWidth(level);
+		detectShips();
 		
 		undoLog = new LinkedList<State>(); // list for storing all states since last new game
 		undoLog.add(state);
@@ -73,6 +103,7 @@ public class Engine {
 		this.state = initialState;
 		this.xWidth = initialLevel.getPlayerBoard(0).length;
 		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
+		detectShips();
 	}
 	
 	// shots per ship
@@ -188,7 +219,16 @@ public class Engine {
 			state.changeTurn();
 		}
 		
-		if (Level.isShip(hit)) { state.hits[player]++; }
+		if (Level.isShip(hit)) {
+			state.hits[player]++;
+			Map<Ship,Boolean> shipsmap = shotships.get(otherPlayer(player));
+			Ship s = Level.getShipAt(shipsmap.keySet(), x, y);
+			boolean allshotup = s.isAllShotUp(state.getLevel().getPlayerBoard(otherPlayer(player)));
+			shipsmap.put(s, allshotup);
+			System.err.println(allshotup);
+
+//			Iterable<Ship> evenNumbers = Iterables.filter(s.entrySet(), Predicates.alwaysTrue);
+		}
 		
 		checkWin(); // update isFinished, just in case we dont explicitly check from GUI or CLI
 		
@@ -357,6 +397,7 @@ public class Engine {
 		state = state2;
 		undoLog.add(state);
 		updateWidth(state.getLevel());
+		detectShips();
 	}
 
 	/**
