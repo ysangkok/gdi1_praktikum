@@ -83,20 +83,24 @@ public class GoodAI extends AI {
 		}
 		else {
 		
-			if (lastX != 9){
-			try {
+		if (lastX != 9){
+		try {
 			currentChar = engine.attack(player, currentX = lastX + 1, lastY);
 			if (hitShip(currentChar)){
 				dirSouth = true;
 			}
 			else {
 				currentX = lastX;
-				dirNorth = true;
 				currentY = lastY;
+				dirNorth = true;
 			}
 		}
 		catch (InvalidInstruction e) {
-			
+			dirNorth = true;
+			dirSouth = false;
+			currentX = lastX;
+			currentY = lastY;
+			dirNorth(player);
 		}}
 		else if (lastX == 9){
 			dirNorth = true;
@@ -116,14 +120,16 @@ public class GoodAI extends AI {
 			if (!hitShip(currentChar)){
 				dirSouth = false;
 				dirNorth = true;
-				
+				currentX = lastX;
+				currentY = lastY;
 			}
 			
 		}
 		catch (InvalidInstruction e) {
-			randomMode = false;
 			dirNorth = true;
 			dirSouth = false;
+			currentX = lastX;
+			currentY = lastY;
 			dirNorth(player);
 		}
 		
@@ -152,7 +158,7 @@ public class GoodAI extends AI {
 			randomMode = false;
 			dirNorth = false;
 			dirEast = true;
-			dirEast(player);
+			
 		}
 		
 	}
@@ -172,6 +178,7 @@ public class GoodAI extends AI {
 			randomMode = false;
 			dirEast = false;
 			dirWest = true;
+			currentY = lastY;
 			dirWest(player);
 		}
 		
