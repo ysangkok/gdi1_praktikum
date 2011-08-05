@@ -282,7 +282,7 @@ public class Level implements Serializable {
 	 * @param player player number
 	 * @return 2D array
 	 */
-	Character[][] getPlayerBoard(int player) {
+	public Character[][] getPlayerBoard(int player) {
 		Character[][] res = new Character[boards.get(player).size()][boards.get(player).get(0).size()];
 		int i = 0;
 		for (List<Character> l: boards.get(player)) {
@@ -309,7 +309,7 @@ public class Level implements Serializable {
         return sb.toString();
 	}
 	
-	private static boolean matchChar(String chars, char c) {
+	public static boolean matchChar(String chars, char c) {
 		return chars.indexOf(new String(new char[] {c})) != -1;
 	}
 	
