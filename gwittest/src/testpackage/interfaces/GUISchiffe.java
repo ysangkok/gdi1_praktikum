@@ -15,11 +15,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
+import javax.sound.sampled.*;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -49,9 +52,13 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.gui.TemplateImages;
+import testpackage.interfaces.SoundHandler.Sound;
 
 import translator.TranslatableGUIElement;
 import translator.Translator;
+
+import javazoom.jl.player.Player;
+import javazoom.jl.decoder.JavaLayerException;
 
 /**
  * panel handles display AND logic
@@ -142,7 +149,7 @@ class CountdownTimerPanel extends JPanel {
 /**
  * class implementing Swing UI
  */
-public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
+public class GUISchiffe extends SoundHandler implements ActionListener, BoardUser, KeyListener {
 	private JFrame frame;
 	/**
 	 * this is the engine used in gui game. initialized multiple places
@@ -234,7 +241,65 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 		}
 	}
 	
+	/**
+	 * entry point
+	 * @param args not used
+	 */
+	
 	private GUISchiffe(Locale targetLocale) {
+/*
+		copyTranslations();
+		
+		translator = new Translator("Battleship", targetLocale);
+
+///////////////
+
+		AudioInputStream din = null;
+		try {
+			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream("/sounds/shipAllShotUp.mp3"));
+			AudioInputStream in = AudioSystem.getAudioInputStream(soundStream);
+			AudioFormat baseFormat = in.getFormat();
+			AudioFormat decodedFormat = new AudioFormat(
+					AudioFormat.Encoding.PCM_SIGNED,
+					baseFormat.getSampleRate(), 16, baseFormat.getChannels(),
+					baseFormat.getChannels() * 2, baseFormat.getSampleRate(),
+					false);
+			din = AudioSystem.getAudioInputStream(decodedFormat, in);
+			DataLine.Info info = new DataLine.Info(SourceDataLine.class, decodedFormat);
+			SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+			if(line != null) {
+				line.open(decodedFormat);
+				byte[] data = new byte[4096];
+				// Start
+				line.start();
+				
+				int nBytesRead;
+				while ((nBytesRead = din.read(data, 0, data.length)) != -1) {	
+					System.err.println("LOL");
+					line.write(data, 0, nBytesRead);
+				}
+				// Stop
+				line.drain();
+				line.stop();
+				line.close();
+				din.close();
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			if(din != null) {
+				try { din.close(); } catch(IOException e) { }
+			}
+		}
+
+
+///////////////
+
+		if (true) return;
+*/
 		initNewEngineAndAI(false, speerfeuer, Rules.shotsPerShipPart, speerfeuertime, BadAI.class);
 		
 		copyTranslations();
@@ -473,11 +538,8 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 			clock.go();
 		}
 	}
-	
-	/**
-	 * entry point
-	 * @param args not used
-	 */
+
+
 	public static void main(String[] args) {
 		new GUISchiffe(Locale.GERMANY);
 	}
@@ -542,6 +604,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 
 	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine(level);
+		engine.setSoundHandler(this);
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
@@ -550,6 +613,7 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	
 	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine();
+		engine.setSoundHandler(this);
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
@@ -759,5 +823,29 @@ public class GUISchiffe implements ActionListener, BoardUser, KeyListener {
 	public void keyTyped(KeyEvent e) {
 
 		
+	}
+
+	@Override 
+	public void playSound(Sound sound) {
+		String path = TemplateImages.getSoundPath(sound);
+		InputStream soundStream = this.getClass().getResourceAsStream(path);
+
+		if (soundStream == null) 
+			throw new RuntimeException("Can't open " + path);
+
+		final Player player;
+
+		try {
+			player = new Player(soundStream);
+		} catch (JavaLayerException e) {
+			throw new RuntimeException(e);
+		}
+
+                new Thread() {
+                    public void run() {
+                        try { player.play(); }
+                        catch (Exception e) { System.out.println(e); }
+                    }
+                }.start();
 	}
 }

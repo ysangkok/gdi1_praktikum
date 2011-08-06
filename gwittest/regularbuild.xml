@@ -3,7 +3,10 @@
     <property name="translator" value="jars/translator.jar"/>
     <property name="acm" value="jars/acm.jar"/>
     <path id="project.class.path">
+       <pathelement path="jars/mp3spi1.9.5.jar" />
+       <pathelement path="jars/tritonus_share.jar" />
        <pathelement path="jars/commons-io-2.0.1.jar" />
+       <pathelement path="jars/jl1.0.1.jar" />
        <pathelement path="jars/junit-4.9b3.jar"/>
        <pathelement path="${gwt.user}" />
        <pathelement path="${acm}" />

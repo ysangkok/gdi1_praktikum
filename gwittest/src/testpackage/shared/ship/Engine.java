@@ -4,6 +4,8 @@ import testpackage.shared.Util;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
+import testpackage.interfaces.SoundHandler;
+import testpackage.interfaces.SoundHandler.Sound;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +32,18 @@ public class Engine {
 	private int yWidth;
 	
 	private int whoMadeLastShot = -1;
+	
+	private SoundHandler soundhandler = null;
+
+	public void setSoundHandler(SoundHandler handler) {
+		this.soundhandler = handler;
+	}
+	
+	private void maybePlaySound(Sound sound) {
+		if (soundhandler != null) {
+			soundhandler.playSound(sound);
+		}
+	}
 	
 	private void detectShips() {
 		List<List<Ship>> ships = new ArrayList<List<Ship>>();
@@ -225,7 +239,7 @@ public class Engine {
 			Ship s = Level.getShipAt(shipsmap.keySet(), x, y);
 			boolean allshotup = s.isAllShotUp(state.getLevel().getPlayerBoard(otherPlayer(player)));
 			shipsmap.put(s, allshotup);
-			System.err.println(allshotup);
+			if (allshotup) { maybePlaySound(SoundHandler.Sound.shipAllShotUp); }
 
 //			Iterable<Ship> evenNumbers = Iterables.filter(s.entrySet(), Predicates.alwaysTrue);
 		}

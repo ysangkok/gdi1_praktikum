@@ -3,7 +3,11 @@ package testpackage.shared.ship.gui;
 import java.util.HashMap;
 import java.util.Map;
 
+import testpackage.interfaces.SoundHandler.Sound;
+
 public class TemplateImages {
+	private static final String soundspath = "/sounds";
+
 	public static final String translationspath = "/translations/";
 
 	public static final String levelspath = "/resources/levels/defaultlevels/";
@@ -19,6 +23,10 @@ public class TemplateImages {
 		"ship_hit_vertical", "ship_horizontal", "ship_left",
 		"ship_right", "ship_top", "ship_vertical", "water_hit",
 	"water" };
+
+	public static String getSoundPath(Sound sound) {
+		return soundspath + "/" + sound + ".mp3";
+	}
 
 	public static String fieldToIcon(Character c) {
 		Map<Character, String> m = new HashMap<Character, String>();
