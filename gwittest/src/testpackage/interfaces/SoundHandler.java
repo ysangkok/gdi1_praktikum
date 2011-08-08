@@ -2,7 +2,8 @@ package testpackage.interfaces;
 
 abstract public class SoundHandler {
 	public enum Sound {
-		shipAllShotUp
+		shipAllShotUp_mp3, Water_wav
 	}
 	abstract public void playSound(Sound sound);
+	abstract public void playSound(Sound sound, int player);
 }

@@ -28,6 +28,7 @@
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="on" debuglevel="lines,vars,source">
+	  <exclude name="testpackage/highscore/*.java" />
           <classpath refid="project.class.path" />
         </javac>
 

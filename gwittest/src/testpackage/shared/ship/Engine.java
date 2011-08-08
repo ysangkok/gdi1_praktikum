@@ -39,6 +39,11 @@ public class Engine {
 		this.soundhandler = handler;
 	}
 	
+	private void maybePlaySound(Sound sound, int player) {
+		if (soundhandler != null) {
+			soundhandler.playSound(sound, player);
+		}
+	}
 	private void maybePlaySound(Sound sound) {
 		if (soundhandler != null) {
 			soundhandler.playSound(sound);
@@ -239,7 +244,7 @@ public class Engine {
 			Ship s = Level.getShipAt(shipsmap.keySet(), x, y);
 			boolean allshotup = s.isAllShotUp(state.getLevel().getPlayerBoard(otherPlayer(player)));
 			shipsmap.put(s, allshotup);
-			if (allshotup) { maybePlaySound(SoundHandler.Sound.shipAllShotUp); }
+			if (allshotup) { maybePlaySound(SoundHandler.Sound.Water_wav, otherPlayer(player)); }
 
 //			Iterable<Ship> evenNumbers = Iterables.filter(s.entrySet(), Predicates.alwaysTrue);
 		}

@@ -31,12 +31,12 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	}
 
 	private void pause() {
-		System.err.println("Pausing");
+		//System.err.println("Pausing");
 		paused = true;
 	}
 
 	void play() {
-		System.err.println("Playing");
+		//System.err.println("Playing");
 		synchronized(lock) {
 			paused = false;
 			lock.notifyAll();
@@ -44,7 +44,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	}
 
 	void restart() {
-		System.err.println("Restarting");
+		//System.err.println("Restarting");
 		doRestart = true;
 		play();
 	}
@@ -76,7 +76,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 					FloatControl pan = (FloatControl) line.getControl(FloatControl.Type.PAN);
 					pan.setValue(panValue);
 				} else {
-					System.err.println("Pan not supported");
+					System.err.println(sound + ": Pan not supported");
 				}
 				
 				byte[] data = new byte[4096];
@@ -109,7 +109,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 				}
 
 			}
-			System.err.println("Done");
+			//System.err.println("Done");
 			pause();
 			}//for(;;)
 			// Stop
@@ -130,7 +130,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	}
 
 public static void main( String[] args ) {
-	SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp, 1);
+	SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp_mp3, 1);
 	ssp.play();
 	sleep(1000);
 	ssp.restart();

@@ -19,6 +19,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,92 +56,6 @@ import javazoom.jl.player.Player;
 import javazoom.jl.decoder.JavaLayerException;
 
 /**
- * panel handles display AND logic
- */
-class CountdownTimerPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
-// http://leepoint.net/notes-java/examples/animation/41TextClock/25textclock.html
-	
-    private JTextField _timeField;  // set by timer listener
-    private long endtime;
-    private long timeleft;
-    private GUISchiffe app;
-    /**
-     * swing timer used measuring time. used in constructor
-     */
-    javax.swing.Timer t;
-
-    void go() {
-    	t.start();
-    }
-    
-    /**
-     * @param app guischiffe app so that we can change turn and attack when timer expires
-     */
-    public CountdownTimerPanel(GUISchiffe app) {
-    	this.app = app;
-    	
-        _timeField = new JTextField(Rules.standardSpeerfeuerTime/1000);
-        _timeField.setEditable(false);
-        _timeField.setFont(new Font("sansserif", Font.PLAIN, 48));
-
-        this.setLayout(new FlowLayout());
-        this.add(_timeField); 
-        
-        resetCountdown();
-        
-        //    Use full package qualification for javax.swing.Timer
-        //    to avoid potential conflicts with java.util.Timer.
-        t = new javax.swing.Timer(50, new ClockListener());
-
-    }
-    
-    /**
-     * called at the point of time the user should have 5 seconds from
-     */
-    void resetCountdown() {
-    	endtime = System.currentTimeMillis() + app.speerfeuertime;
-    }
-    
-    /**
-     * used for pausing the timer when the user opens a dialog window or similar that obstructs gameplay. would be unfair if timer was still running then.
-     */
-    void pause() {
-    	t.stop();
-    	timeleft = endtime - System.currentTimeMillis();
-    }
-    
-    /**
-     * used after pausing with pause()
-     */
-    void resume() {
-    	endtime = System.currentTimeMillis() + timeleft;
-    	t.start();
-    }
-    
-    /**
-     * this actionlistener is used for handling the clock timeout every 50 milliseconds
-     */
-    class ClockListener implements ActionListener {
-    	public void actionPerformed(ActionEvent e) {
-
-       		long nowtime = System.currentTimeMillis();
-
-            _timeField.setText(String.format("%.1f", Math.abs((double) (endtime-nowtime))/1000)); // abs to prevent short minus interval when timer goes below 0
- 
-    		if (nowtime >= endtime) {
-    			if (!app.engine.getState().isPlayerTurn()) return;
-    			app.engine.getState().changeTurn();
-    			app.aiAttackAs(1);
-    			//app.userError("Time's up!");
-    			//t.stop();
-    		}
-    	}
-    }
-}
-
-/**
  * class implementing Swing UI
  */
 public class GUISchiffe extends SoundHandler implements ActionListener, BoardUser, KeyListener {
@@ -156,6 +72,21 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private final Translator translator;
 	private JLabel statusLabel;
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
+	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
+
+	private void initSound() {
+		soundPlayerMaps = new Map[3];
+		for (int p : new int[] {0, 1, 2}) { // 2 ist stereo
+			Map thisMap = soundPlayerMaps[p] = new HashMap<Sound,SoundStreamPlayer>();
+			for (Sound sound : SoundHandler.Sound.values()) {
+				if (p == 2) {
+					thisMap.put(sound, new SoundStreamPlayer(sound, 0));
+				} else {
+					thisMap.put(sound, new SoundStreamPlayer(sound, (p == 0 ? -0.8f : 0.8f)));
+				}
+			}
+		}
+	}
 	
 	private class GameoverKeyHandler implements KeyListener {
 
@@ -528,6 +459,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine(level);
 		engine.setSoundHandler(this);
+		initSound();
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
@@ -537,6 +469,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine();
 		engine.setSoundHandler(this);
+		initSound();
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
@@ -751,6 +684,13 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	@Override 
 	public void playSound(Sound sound) {
+		soundPlayerMaps[2].get(sound).restart();
+	}
+
+	@Override 
+	public void playSound(Sound sound, int player) {
+		soundPlayerMaps[player].get(sound).restart();
+		/*
 		String path = TemplateImages.getSoundPath(sound);
 		InputStream soundStream = this.getClass().getResourceAsStream(path);
 
@@ -771,5 +711,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
                         catch (Exception e) { System.out.println(e); }
                     }
                 }.start();
+		*/
 	}
 }

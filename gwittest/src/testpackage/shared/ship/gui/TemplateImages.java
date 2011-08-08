@@ -26,7 +26,7 @@ public class TemplateImages {
 	private static Map<Character, String> m = null;
 
 	public static String getSoundPath(Sound sound) {
-		return soundspath + "/" + sound + ".mp3";
+		return soundspath + "/" + sound.toString().replace('_', '.');
 	}
 
 	public static String fieldToIcon(Character c) {
