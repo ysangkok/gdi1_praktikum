@@ -11,58 +11,88 @@ English.label=English
 //file
 fileMenu.label=File
 fileMenu.toolTipText=
-Options.iconName=file.gif
 
 //Options
 Options.label=Options
-Options.iconName=options.gif
 Options.toolTipText=
 
 //New
 New.label=New...
-New.iconName=New.gif
 New.toolTipText=
 
 //About
 About.label=About us
-About.iconName=quit.gif
 About.toolTipText=
 
 //QuickNew
 QuickNew.label=Load built-in level
-QuickNew.iconName=newGame.gif
 QuickNew.toolTipText=
 QuickNew.mnemonic=n
 
 //PlaceShips
 PlaceShips.label=Place own ships
-PlaceShips.iconName=shipPosition.gif
 PlaceShips.toolTipText=
 PlaceShips.mnemonic=p
 
 //DefaultNewGame
 DefaultNewGame.label=Randomly placed ships
-DefaultNewGame.iconName=DefaultNewGame.gif
 DefaultNewGame.toolTipText=
 DefaultNewGame.mnemonic=g
 
 //SaveGame
 saveGame.label=Save game
-saveGame.iconName=saveGame.gif
 saveGame.toolTipText=
 saveGame.mnemonic=control S
 
 //loadItem
 loadGame.label=Load game
-loadGame.iconName=loadGame.gif
 loadGame.toolTipText=
 loadGame.mnemonic=control L
 
-//gameOverDraw
-gameOverDraw.label=Draw.
-//gameOverWinner
-gameOverWinner.label=Player {0} won!
+quit.label=Quit
 
-gameOverWindowTitle.label=Game over
-;// 0 ist hier gameOverWinner/Draw
-gameOverReasonLabel.label=Game over. {0} Reason: {1}
+gameOverDraw=Draw.
+gameOverWinner=Player {0} won!
+gameOverWindowTitle=Game over
+// 0 ist hier gameOverWinner/Draw
+gameOverReasonLabel=Game over. {0} Reason: {1}
+gameOverQuit=Quit
+gameOverStartOver=Start over
+
+constructorShooterSelect=Select a shooter
+constructorJustAttack=Shots per ship is not enabled, just attack a field on the right side.
+
+userErrorWindowTitle=Error
+
+aboutContent=Gruppe 16: Dimitrios, Janus, Alymbek, Yanai
+aboutWindowTitle=About
+
+bombSelectShooter=Selected ({0},{1}): {2} shots remaining
+bombRemainingShots=Remaining shots: {0}
+
+OK=OK
+Cancel=Cancel
+
+SCWindowTitle=Choose game type
+SCSpeerCheckBox=Speerfeuer enabled
+SCAmmoCheckBox=Ammunition enabled
+SCSpeerLabel=Time per turn in seconds:
+SCAmmoLabel=Ammo per ship field:
+SCAILabel=AI:
+SCAIUncapable=<html>{0} doesn&rsquo;t support ammunition. Choose another AI.</html>
+
+POSDN_Ship={0}-ship:
+POSDPlace=Place 
+POSDWindowTitle=Place your ships
+
+CRHorizontal=Horizontal
+CRVertical=Vertical
+CRWindowTitle=Click a position
+CRLabel=<html>Choose orientation and click<br>top/left end of ship on board.</html>
+
+RNoMoreAmmo=<html>The selected firing field is out of ammunition. Choose a new firing location before firing.</html>
+RNoShooterDesignated=<html>You did not designate a shooter yet. Click a field on your own board (left) to do that.</html>
+RNotShootable=<html>You can&rsquo;t shoot there. Note, that you can&rsquo;t shoot the same field twice.</html> 
+RNotYourTurn=<html>It&rsquo;s not your turn. Wait.</html>
+
+hitCounter=You: {0} hits : Computer: {1} hits 

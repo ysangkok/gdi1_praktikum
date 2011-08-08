@@ -174,7 +174,7 @@ public class LevelGenerator {
 			try {
 				placeShip(s.len, player, s.x, s.y, s.o == Orientation.VERTICAL);
 			} catch (PlaceShipRulesViolation e) {
-				throw new InvalidLevelException(Util.format("This ship couldn't be placed (reason: %s): %s", s.toString(), e.getMessage()));
+				throw new InvalidLevelException(Util.format("This ship couldn't be placed: %s. Reason: %s", s.toString(), e.getMessage()));
 			}
 		}
 	}

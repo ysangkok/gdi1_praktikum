@@ -18,11 +18,12 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	private float panValue;
 
 	private Sound sound;
+	private Thread pt;
 
 	public SoundStreamPlayer(Sound sound, float panValue) {
 		this.sound = sound;
 		this.panValue = panValue;
-		Thread pt = new Thread() {
+		pt = new Thread() {
 			public void run() {
 				runLoop();
 			}
@@ -135,24 +136,30 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 		}
 	}
 
-public static void main( String[] args ) {
-	SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp_mp3, 1);
-	ssp.play();
-	sleep(1000);
-	ssp.restart();
-	sleep(1000);
-	ssp.pause();
-	sleep(1000);
-	ssp.play();
-	sleep(10000);
-	ssp.restart();
-	sleep(10000);
+	public static void main( String[] args ) {
+		SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp_mp3, 1);
+		ssp.play();
+		sleep(1000);
+		ssp.restart();
+		sleep(1000);
+		ssp.pause();
+		sleep(1000);
+		ssp.play();
+		sleep(10000);
+		ssp.restart();
+		sleep(10000);
 
-}
+	}
 
-private static void sleep(int count) {
-	try {
-	Thread.sleep(count);
-	} catch (Exception e) {}
-}
+	private static void sleep(int count) {
+		try {
+			Thread.sleep(count);
+		} catch (Exception e) {}
+	}
+
+	public void kill() {
+		pt.interrupt();
+		play();
+	}
+
 }

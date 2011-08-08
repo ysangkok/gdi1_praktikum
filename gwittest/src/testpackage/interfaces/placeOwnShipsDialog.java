@@ -4,6 +4,7 @@ import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Ship.Orientation;
 import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.Ship;
+import translator.Translator;
 
 import java.awt.Container;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	Translator translator;
+	
 	/**
 	 * list for storing all ships placed so far
 	 */
@@ -66,8 +69,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 				shipcount++;
 				JPanel g = new JPanel();
 				
-				JLabel lab = new JLabel(String.format("%d-ship: ", shiprules[0]));
-				JButton but = new JButton("Place");
+				JLabel lab = new JLabel(translator.translateMessage("POSDN_Ship", String.valueOf(shiprules[0])));
+				JButton but = new JButton(translator.translateMessage("POSDPlace"));
 				
 				buttolen.put(but,shiprules[0]);
 				g.add(lab);
@@ -94,8 +97,11 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	 * constructor shows window
 	 * @param parent parent will normally be GUIShiffe frame
 	 */
-	public placeOwnShipsDialog(JFrame parent) {
-		super(parent, "Place your ships", true);
+	public placeOwnShipsDialog(JFrame parent, Translator translator) {
+		super(parent, translator.translateMessage("POSDWindowTitle"), true);
+		
+		this.translator=translator;
+		
 		engine = new Engine();
 		engine.getState().getLevel().clearPlayerBoard();
 		
@@ -108,10 +114,12 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 		cp.add(placers);
 
 		JPanel bottompanel = new JPanel();
-		ok = new JButton("OK");
+		ok = new JButton(translator.translateMessage("OK"));
+		ok.setActionCommand("ok");
 		ok.setEnabled(false);
 		ok.addActionListener(this);
-		JButton cancel = new JButton("Cancel");
+		JButton cancel = new JButton(translator.translateMessage("Cancel"));
+		cancel.setActionCommand("cancel");
 		cancel.addActionListener(this);
 		
 		bottompanel.add(ok);
@@ -123,12 +131,12 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand() == "OK") {
+		if (e.getActionCommand().equals("ok")) {
 			finished = true;
 			/*for (Ship s : chosencoords) {
 				System.out.println(s.toString());
 			}*/
-		} else if (e.getActionCommand() == "Cancel") {
+		} else if (e.getActionCommand().equals("cancel")) {
 
 		}
 		dispose();

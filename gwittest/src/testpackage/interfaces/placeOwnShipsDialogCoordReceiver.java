@@ -5,6 +5,7 @@ import testpackage.shared.ship.LevelGenerator;
 import testpackage.shared.ship.Ship.Orientation;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
+import translator.Translator;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,7 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 	private JRadioButton rbutton1;
 	private JRadioButton rbutton2;
 	private boolean didChoose = false; 
+	private Translator translator;
 	
 	/**
 	 * @param app the ship placement dialog class
@@ -37,6 +39,7 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 	public placeOwnShipsDialogCoordReceiver(placeOwnShipsDialog app) {
 		engine = app.engine;
 		this.wizard = app;
+		this.translator = wizard.translator;
 	}
 	
 	@Override
@@ -50,8 +53,8 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		//System.out.println(helper.getBoardString(engine.getPlayerArray()));
 		
 		ButtonGroup group = new ButtonGroup();
-		rbutton1 = new JRadioButton("Horizontal", true);
-		rbutton2 = new JRadioButton("Vertical", false);
+		rbutton1 = new JRadioButton(translator.translateMessage("CRHorizontal"), true);
+		rbutton2 = new JRadioButton(translator.translateMessage("CRVertical"), false);
 	    group.add(rbutton1);
 	    group.add(rbutton2);
 	    
@@ -59,9 +62,9 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		//panel.setLayout(new FlowLayout());
-		dialog = new JDialog(wizard, "Click a position", Dialog.ModalityType.DOCUMENT_MODAL);
+		dialog = new JDialog(wizard, translator.translateMessage("CRWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
 		JPanel top = new JPanel();
-		top.add(new JLabel("<html>Choose orientation and click<br>top/left end of ship on board.</html>"));
+		top.add(new JLabel(translator.translateMessage("CRLabel")));
 		top.add(rbutton1);
 		top.add(rbutton2);
 		panel.add(top);
@@ -81,7 +84,7 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		} catch (InvalidLevelException e1) {
 			JOptionPane.showMessageDialog(dialog,
 					e1.getMessage(),
-				    "Error", 0);
+					translator.translateMessage("userErrorWindowTitle"), 0);
 			wizard.chosencoords.remove(wizard.chosencoords.size()-1);
 			return;
 		}

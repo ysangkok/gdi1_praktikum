@@ -11,51 +11,41 @@ English.label=Englisch
 //file
 fileMenu.label=Datei
 fileMenu.toolTipText=
-fileMenu.iconName=file.gif
 
 //Options
 Options.label=Einstellungen
-Options.iconName=options.gif
 Options.toolTipText=
 
 //New
 New.label=Neues...
-New.iconName=new.gif
 New.toolTipText=
 
 //About
 About.label=Über uns
-About.iconName=about.gif
 About.toolTipText=
 
 //QuickNew
 QuickNew.label=Eingebautes Level
-QuickNew.iconName=newGame.gif
 QuickNew.toolTipText=
 QuickNew.mnemonic=n
 
 //PlaceShips
 PlaceShips.label=Schiffe selbst einrichten
-PlaceShips.iconName=shipPosition.gif
 PlaceShips.toolTipText=
 PlaceShips.mnemonic=p
 
 //DefaultNewGame
 DefaultNewGame.label=Standardmässig (generiert)
-DefaultNewGame.iconName=DefaultNewGame.gif
 DefaultNewGame.toolTipText=Neues Spiel mit random Schiffen
 DefaultNewGame.mnemonic=g
 
 //SaveGame
 saveGame.label=Speichern
-saveGame.iconName=saveGame.gif
 saveGame.toolTipText=
 saveGame.mnemonic=control S
 
 //loadItem
 loadGame.label=Laden
-loadGame.iconName=loadGame.gif
 loadGame.toolTipText=
 loadGame.mnemonic=control L
 
-gameOverWinner.label=Player {0} won!

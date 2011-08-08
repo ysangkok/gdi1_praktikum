@@ -238,7 +238,7 @@ public class Engine {
 		}
 		
 		if (Level.isShip(hit)) {
-			state.hits[player]++;
+			state.incrHits(player);
 			Map<Ship,Boolean> shipsmap = shotships.get(otherPlayer(player));
 			Ship s = Level.getShipAt(shipsmap.keySet(), x, y);
 			boolean allshotup = s.isAllShotUp(state.getLevel().getPlayerBoard(otherPlayer(player)));
@@ -269,12 +269,12 @@ public class Engine {
 					return new Loser(Util.format("Player %d had no shots, unlike player %d", i+1, otherPlayer(i)+1), otherPlayer(i));
 				}
 				if (!hasRemainingShots(i) && !hasRemainingShots(Engine.otherPlayer(i))) {
-					if (state.hits[Engine.otherPlayer(i)] > state.hits[i]) {
+					if (state.getHits()[Engine.otherPlayer(i)] > state.getHits()[i]) {
 						this.state.setFinished(true);
-						return new Loser(Util.format("Hit count %d > %d", state.hits[Engine.otherPlayer(i)], state.hits[i]),otherPlayer(i));
-					} else if (state.hits[Engine.otherPlayer(i)] < state.hits[i]) {
+						return new Loser(Util.format("Hit count %d > %d", state.getHits()[Engine.otherPlayer(i)], state.getHits()[i]),otherPlayer(i));
+					} else if (state.getHits()[Engine.otherPlayer(i)] < state.getHits()[i]) {
 						this.state.setFinished(true);
-						return new Loser(Util.format("Hit count %d < %d", state.hits[Engine.otherPlayer(i)], state.hits[i]),i);
+						return new Loser(Util.format("Hit count %d < %d", state.getHits()[Engine.otherPlayer(i)], state.getHits()[i]),i);
 					} else {
 						if (whoMadeLastShot != -1) {
 							this.state.setFinished(true);

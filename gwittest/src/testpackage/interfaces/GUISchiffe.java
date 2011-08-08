@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -44,6 +47,7 @@ import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.SoundHandler;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
+import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.gui.TemplateImages;
 
@@ -66,6 +70,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private CountdownTimerPanel clock;
 	private final Translator translator;
 	private JLabel statusLabel;
+	private JLabel hitsLabel;
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
 
@@ -76,13 +81,21 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private void initSound() {
 		soundPlayerMaps = new Map[3];
 		for (int p : new int[] {0, 1, 2}) { // 2 ist stereo
-			Map thisMap = soundPlayerMaps[p] = new HashMap<Sound,SoundStreamPlayer>();
+			Map<Sound,SoundStreamPlayer> thisMap = soundPlayerMaps[p] = new HashMap<Sound,SoundStreamPlayer>();
 			for (Sound sound : SoundHandler.Sound.values()) {
 				if (p == 2) {
 					thisMap.put(sound, new SoundStreamPlayer(sound, 0));
 				} else {
 					thisMap.put(sound, new SoundStreamPlayer(sound, (p == 0 ? -0.8f : 0.8f)));
 				}
+			}
+		}
+	}
+	
+	private void uninitSound() {
+		for (int p : new int[] {0, 1, 2}) {
+			for (SoundStreamPlayer ssp : soundPlayerMaps[p].values()) {
+				ssp.kill();
 			}
 		}
 	}
@@ -122,27 +135,27 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			winnerstr = translator.translateMessage("gameOverWinner", String.valueOf(winner+1));
 		}
 		
-		final JDialog d = new JDialog(frame, "Game over", Dialog.ModalityType.DOCUMENT_MODAL);
+		final JDialog d = new JDialog(frame, translator.translateMessage("gameOverWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
 		//d.setSize(500, 100);
 		FlowLayout layout = new FlowLayout();
 		d.setLayout(layout);
-		d.add(new JLabel("Game over. " + winnerstr + " Reason: " + engine.checkWin().reason));
+		d.add(new JLabel(translator.translateMessage("gameOverReasonLabel", winnerstr, engine.checkWin().reason)));
 		
 		JButton but = new JButton();
 		but.addKeyListener(new GameoverKeyHandler());
-		but.setText("Quit");
+		but.setText(translator.translateMessage("gameOverQuit"));
 		but.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				d.dispose();
-				frame.dispose();
+				shutdown();
 			}
 		});
 		d.add(but);
 		
 		JButton butnew = new JButton();
 		butnew.addKeyListener(new GameoverKeyHandler());
-		butnew.setText("Start over");
+		butnew.setText(translator.translateMessage("gameOverStartOver"));
 		butnew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -175,6 +188,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 		translator = new Translator("Battleship", targetLocale);
 		showFrame();
+		
 	}
 	
 	private void initDefaultGame() {
@@ -182,12 +196,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private boolean placeOwnShipsWizard() {		
-		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame);
+		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame, translator);
 
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
 
 		if (shipchooser.finished ) {
-			SettingsChooser s = new SettingsChooser();
+			SettingsChooser s = new SettingsChooser(translator);
 			s.askForSettings(frame);
 			if (!s.finished) return false;
 			speerfeuer = s.speerfeuerenabled;
@@ -243,6 +257,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		public static String newgenerated = actionnames.newgenerated.name();
 		public static String about = actionnames.about.name();
 		public static String skins = actionnames.skins.name();
+		public static String quit = actionnames.skins.name();
 	}
 	
 	@Override
@@ -266,14 +281,40 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		} else if (a.equals(actions.newgenerated)) {
 			boolean startedNewGame = generatedNewGame();
 			if (speerfeuer && startedNewGame) clock.resetCountdown();
+		} else if (a.equals(actions.quit)) {
+			shutdown();
 		} else {
-			userError("Unknown action!");
+			throw new RuntimeException("Unknown action!");
 		}
 		if (speerfeuer) clock.resume();
 	}
 	
 	private void setStatusBarMessage(String message) {
 		statusLabel.setText(message);
+	}
+	
+	private JPanel makeStatusPanel() {
+		JPanel statusPanel = new JPanel();
+		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+
+		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 16));
+		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+		statusLabel = new JLabel();
+		if (engine.getState().shotspershipenabled) {
+			setStatusBarMessage(translator.translateMessage("constructorShooterSelect"));
+		} else {
+			setStatusBarMessage(translator.translateMessage("constructorJustAttack"));
+		}
+		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		statusPanel.add(statusLabel);
+		
+		statusPanel.add(Box.createHorizontalGlue());
+		
+		hitsLabel = new JLabel(translator.translateMessage("hitCounter", String.valueOf(0), String.valueOf(0)));
+		hitsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		statusPanel.add(hitsLabel);
+		
+		return statusPanel;
 	}
 	
 	/**
@@ -283,37 +324,29 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		TranslatableGUIElement guiBuilder = translator.getGenerator();
 		
 		frame = guiBuilder.generateJFrame("guiFrame");
+		
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(new WindowListener() {
+
+			public void windowActivated(WindowEvent arg0) {}
+			public void windowClosed(WindowEvent arg0) {}
+			public void windowClosing(WindowEvent e) {
+				shutdown();
+			}
+			public void windowDeactivated(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {}
+			public void windowOpened(WindowEvent e) {}
+		});
+		
 		frame.setResizable(false);
 		frame.setLayout(new BorderLayout());
 		
-		JPanel statusPanel = new JPanel();
-		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		frame.add(statusPanel, BorderLayout.SOUTH);
-		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 16));
-		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-		statusLabel = new JLabel();
-		if (engine.getState().shotspershipenabled) {
-			setStatusBarMessage("Select a shooter");
-		} else {
-			setStatusBarMessage("Shots per ship not enabled, just attack");
-		}
-		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		statusPanel.add(statusLabel);
+		frame.add(makeStatusPanel(), BorderLayout.SOUTH);
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		JPanel boardpanel = new JPanel();
-		
-		BoardPanel panel1 = new BoardPanel(this, engine, 0, false);
-		boardpanel.add(panel1);
-		BoardPanel panel2 = new BoardPanel(this, engine, 1, false);
-		panels = new BoardPanel[] {panel1, panel2};
-		boardpanel.add(panel2);
-		
-		panel.add(boardpanel);
-		
-		panel1.setOtherBoard(panel2);
-		panel2.setOtherBoard(panel1);
+		panel.add(setUpBoardPanels());
 		
 		panels[keyboardSelected[0]].addSelection(keyboardSelected[1], keyboardSelected[2]);
 		
@@ -326,8 +359,19 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
-		ActionListener menuListener = this;
 
+		fillMenuBar(guiBuilder, menuBar);
+		
+		frame.pack();
+		frame.setVisible(true);
+		if (speerfeuer) {
+			clock.go();
+		}
+	}
+
+	private void fillMenuBar(TranslatableGUIElement guiBuilder, JMenuBar menuBar) {
+		ActionListener menuListener = this;
+		
 		// File Menu
 	    JMenu fileMenu = guiBuilder.generateJMenu("fileMenu");
 	    fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -381,6 +425,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    loadItem.setActionCommand(actions.load);
 	    fileMenu.add(loadItem);
 	    
+	    JMenuItem quitItem = guiBuilder.generateJMenuItem("quit");
+	    quitItem.addActionListener(this);
+	    quitItem.setActionCommand(actions.quit);
+	    fileMenu.add(quitItem);
+	    
 	    //Language Menu
 	    JMenu languageMenu = guiBuilder.generateJMenu("languageMenu");
 		
@@ -401,17 +450,30 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		languageMenu.add(englishItem);
 		languageMenu.add(germanItem);
 		// End Language Menu
-		
-		
 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
-		if (speerfeuer) {
-			clock.go();
-		}
+	}
+	
+	private JPanel setUpBoardPanels() {
+		JPanel boardpanel = new JPanel();
+		
+		BoardPanel panel1 = new BoardPanel(this, engine, 0, false);
+		boardpanel.add(panel1);
+		BoardPanel panel2 = new BoardPanel(this, engine, 1, false);
+		panels = new BoardPanel[] {panel1, panel2};
+		boardpanel.add(panel2);
+		
+		panel1.setOtherBoard(panel2);
+		panel2.setOtherBoard(panel1);
+		
+		return boardpanel;
 	}
 
+	protected void shutdown() {
+		System.err.println("Shutting down");
+		frame.dispose();
+		uninitSound();
+		System.err.println("Done");
+	}
 
 	public static void main(String[] args) {
 		new GUISchiffe(Locale.US);
@@ -424,7 +486,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	void userError(String message) {
 		JOptionPane.showMessageDialog(frame,
 			    message, 
-			    "Error", 0);
+			    translator.translateMessage("userErrorWindowTitle"), 0);
 	}
 	
 	/**
@@ -443,8 +505,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			level = new Level(getResourceAsString(TemplateImages.levelspath + chosenLvl));
 		
 		} catch (InvalidLevelException e) {
-			userError(String.format("Template level corrupted: %s",chosenLvl));
-			return;
+			throw new RuntimeException(String.format("Template level corrupted: %s",chosenLvl),e);
 		}
 		
 		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass());
@@ -474,7 +535,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private boolean generatedNewGame() {
-		SettingsChooser s = new SettingsChooser();
+		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
 		if (!s.finished) return false;
 		initNewEngineAndAI(s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI);
@@ -490,8 +551,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	
 	private void about(){
 		JOptionPane.showMessageDialog(frame,
-			    "Gruppe 16: Dimitrios, Janus, Alymbek, Yanai", 
-			    "About", JOptionPane.PLAIN_MESSAGE);
+			    translator.translateMessage("aboutContent"), 
+			    translator.translateMessage("aboutWindowTitle"), JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	
@@ -514,7 +575,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			out.close();
 			fileOut.close();
 		} catch (IOException i) {
-			i.printStackTrace();
+			userError(i.getMessage());
 		}
 	}
 	
@@ -557,9 +618,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				if (engine.getState().shotspershipenabled) {
 					try {
 						int shots = engine.chooseFiringXY(player, y, x);
-						setStatusBarMessage(String.format("Selected (%d,%d): %d shots remaining", x,y,shots));
+						setStatusBarMessage(translator.translateMessage("bombSelectShooter", String.valueOf(x),String.valueOf(y),String.valueOf(shots)));
 					} catch (InvalidInstruction e) {
-						userError(e.getMessage());
+						userError(localizeException(e));
 					}
 				}
 				return;
@@ -571,16 +632,16 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				if (speerfeuer) clock.pause();
 				if (e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOMOREAMMO &&
 					e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOTSHOOTABLE)
-					userError(e.getMessage());
+					userError(localizeException(e));
 				else
-					setStatusBarMessage(e.getMessage());
+					setStatusBarMessage(localizeException(e));
 				if (speerfeuer) clock.resume();
 				return;
 			}
 			
 			if (engine.getState().shotspershipenabled && player == 1)
 				try {
-					setStatusBarMessage(String.format("Remaining shots: %d", engine.remainingShotsFor(0)));
+					setStatusBarMessage(translator.translateMessage("bombRemainingShots", String.valueOf(engine.remainingShotsFor(0))));
 				} catch (InvalidInstruction e) {
 				}
 				
@@ -589,8 +650,25 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			aiAttackAs(player);
 			
 			panels[player].refresh();
+			
+			hitsLabel.setText(translator.translateMessage("hitCounter", String.valueOf(engine.getState().getHits()[0]), String.valueOf(engine.getState().getHits()[1])));
 	}
 	
+	private String localizeException(InvalidInstruction e) {
+		switch (e.getReason()) {
+		case NOMOREAMMO:
+			return translator.translateMessage("RNoMoreAmmo"); 
+		case NOSHOOTERDESIGNATED:
+			return translator.translateMessage("RNoShooterDesignated");
+		case NOTSHOOTABLE:
+			return translator.translateMessage("RNotShootable");
+		case NOTYOURTURN:
+			return translator.translateMessage("RNotYourTurn");
+		default:
+			return e.getMessage();
+		}
+	}
+
 	/**
 	 * called when 5 sec speerfeuer timer expires
 	 * @param player the player number the AI plays as

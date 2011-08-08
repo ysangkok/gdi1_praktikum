@@ -20,6 +20,7 @@ import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.GoodAI;
 import testpackage.shared.ship.Rules;
+import translator.Translator;
 
 class SettingsChooser {
 
@@ -29,9 +30,14 @@ class SettingsChooser {
 	int ammospinnervalue;
 	int speerfeuerspinnervalue;
 	Class<? extends AI> chosenAI;
+	Translator translator;
+	
+	SettingsChooser(Translator translator) {
+		 this.translator = translator;
+	}
 	
 	void askForSettings(JFrame parent) {
-
+		
 		/* TODO
 		 * 3. board size vælger
 		 */
@@ -55,14 +61,14 @@ class SettingsChooser {
 			}
 		};
 		
-		final JDialog d = new JDialog(parent, "Choose game type", Dialog.ModalityType.DOCUMENT_MODAL);
+		final JDialog d = new JDialog(parent, translator.translateMessage("SCWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
 		BoxLayout layout = new BoxLayout(d.getContentPane(), BoxLayout.Y_AXIS);
 		d.setLayout(layout);
-		final JCheckBox speerfeuercb = new JCheckBox("Speerfeuer enabled:");
+		final JCheckBox speerfeuercb = new JCheckBox(translator.translateMessage("SCSpeerCheckBox"));
 		speerfeuercb.setSelected(speerfeuerenabled);
 		speerfeuercb.addActionListener(listener);
 		speerfeuercb.setActionCommand("speerfeuer");
-		final JCheckBox ammocb = new JCheckBox("Munition enabled:");
+		final JCheckBox ammocb = new JCheckBox(translator.translateMessage("SCAmmoCheckBox"));
 		ammocb.setSelected(ammoenabled);
 		ammocb.addActionListener(listener);
 		ammocb.setActionCommand("munition");
@@ -82,14 +88,14 @@ class SettingsChooser {
 		}
 		
 		d.add(speerfeuercb);
-		d.add(new JLabel("Time per turn in seconds:"));
+		d.add(new JLabel(translator.translateMessage("SCSpeerLabel")));
 		d.add(speerfeuerspinner);
 		d.add(ammocb);
-		d.add(new JLabel("Ammo per field in seconds:"));
+		d.add(new JLabel(translator.translateMessage("SCAmmoLabel")));
 		d.add(ammospinner);
-		d.add(new JLabel("AI:"));
+		d.add(new JLabel(translator.translateMessage("SCAILabel")));
 		d.add(aidropdown);
-		JButton but = new JButton("OK");
+		JButton but = new JButton(translator.translateMessage("OK"));
 		but.addActionListener(new ActionListener() {
 
 			@Override
@@ -102,7 +108,7 @@ class SettingsChooser {
 				chosenAI = availableAIs[aidropdown.getSelectedIndex()];
 				try {
 					if (!chosenAI.getConstructor().newInstance().supportsAmmo() && ammoenabled) {
-						javax.swing.JOptionPane.showMessageDialog(d, aidropdown.getSelectedItem() + " doesn't support ammunition. Choose another AI.", "AI skills inadequate", 0);
+						javax.swing.JOptionPane.showMessageDialog(d, translator.translateMessage("SCAIUncapable",(String) aidropdown.getSelectedItem()), translator.translateMessage("userErrorWindowTitle"), 0);
 						return;
 					}
 				} catch (Exception ex) {

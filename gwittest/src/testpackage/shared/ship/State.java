@@ -31,8 +31,12 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	/**
 	 * hit counter for usage in deciding who won when both players don't have available ships to shoot from. see checkWin
 	 */
-	int hits[] = {0, 0};
+	private int hits[] = {0, 0};
 	
+	public int[] getHits() {
+		return hits;
+	}
+
 	private Level level;
 	private boolean[][][] fog;
 	private int turn;
@@ -188,5 +192,10 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	 */
 	public void changeTurn() {
 		turn = Engine.otherPlayer(turn);
+	}
+
+	public void incrHits(int player) {
+		hits[player]++;
+		
 	}
 }
