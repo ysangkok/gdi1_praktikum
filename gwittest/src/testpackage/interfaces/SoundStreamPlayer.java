@@ -2,17 +2,26 @@ package testpackage.interfaces;
 
 import javax.sound.sampled.*;
 
+import testpackage.interfaces.SoundHandler.Sound;
+import testpackage.shared.ship.gui.TemplateImages;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
 
 public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.html
-	Object lock = new Object();
+	private Object lock = new Object();
 
-	volatile boolean paused = true;
-	volatile boolean doRestart = false;
+	private volatile boolean paused = true;
+	private volatile boolean doRestart = false;
 
-	public SoundStreamPlayer() {
+	private float panValue;
+
+	private Sound sound;
+
+	public SoundStreamPlayer(Sound sound, float panValue) {
+		this.sound = sound;
+		this.panValue = panValue;
 		Thread pt = new Thread() {
 			public void run() {
 				runLoop();
@@ -21,7 +30,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 		pt.start();
 	}
 
-	void pause() {
+	private void pause() {
 		System.err.println("Pausing");
 		paused = true;
 	}
@@ -40,10 +49,10 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 		play();
 	}
 
-	void runLoop() {
+	private void runLoop() {
 		AudioInputStream din = null;
 		try {
-			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream("/sounds/shipAllShotUp.mp3"));
+			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream(TemplateImages.getSoundPath(sound)));
 			soundStream.mark(1);
 			SourceDataLine line;
 
@@ -62,6 +71,14 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 			line = (SourceDataLine) AudioSystem.getLine(info);
 			if(line != null) {
 				line.open(decodedFormat);
+				
+				if (line.isControlSupported(FloatControl.Type.PAN)) {
+					FloatControl pan = (FloatControl) line.getControl(FloatControl.Type.PAN);
+					pan.setValue(panValue);
+				} else {
+					System.err.println("Pan not supported");
+				}
+				
 				byte[] data = new byte[4096];
 				// Start
 				line.start();
@@ -113,7 +130,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	}
 
 public static void main( String[] args ) {
-	final SoundStreamPlayer ssp = new SoundStreamPlayer();
+	SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp, 1);
 	ssp.play();
 	sleep(1000);
 	ssp.restart();

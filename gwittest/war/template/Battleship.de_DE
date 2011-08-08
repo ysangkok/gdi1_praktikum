@@ -8,7 +8,6 @@ languageMenu.label=Sprache
 German.label=Deutsch
 English.label=Englisch
 
-
 //file
 fileMenu.label=Datei
 fileMenu.toolTipText=
@@ -30,7 +29,7 @@ About.iconName=about.gif
 About.toolTipText=
 
 //QuickNew
-QuickNew.label=Load built-in level
+QuickNew.label=Eingebautes Level
 QuickNew.iconName=newGame.gif
 QuickNew.toolTipText=
 QuickNew.mnemonic=n

@@ -56,7 +56,7 @@ public class Engine {
 
 		shotships = new ArrayList<Map<Ship,Boolean>>();
 		for (int p : new int[] {0, 1}) {
-			Map map = new HashMap<Ship,Boolean>();
+			Map<Ship, Boolean> map = new HashMap<Ship,Boolean>();
 			shotships.add(map);
 			for (Ship s : ships.get(p)) {
 				map.put(s, false);

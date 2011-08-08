@@ -9,20 +9,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.Locale;
 import java.util.Random;
-import javax.sound.sampled.*;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -40,8 +36,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.apache.commons.io.FileUtils;
-
 import testpackage.shared.Util;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
@@ -52,7 +46,6 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.gui.TemplateImages;
-import testpackage.interfaces.SoundHandler.Sound;
 
 import translator.TranslatableGUIElement;
 import translator.Translator;
@@ -226,83 +219,13 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		frame.dispose();
 	}
 	
-	private void copyTranslations() {
-		for (String str : new String[] {"Battleship.en_US", "Battleship.de_DE"}) {
-			URL url = this.getClass().getResource(TemplateImages.translationspath + str);
-			File destination = new File(str);
-			
-			if (url == null) { throw new RuntimeException("can't extract translation"); }
-			
-			try {
-				FileUtils.copyURLToFile(url, destination);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	/**
 	 * entry point
 	 * @param args not used
 	 */
 	
 	private GUISchiffe(Locale targetLocale) {
-/*
-		copyTranslations();
-		
-		translator = new Translator("Battleship", targetLocale);
-
-///////////////
-
-		AudioInputStream din = null;
-		try {
-			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream("/sounds/shipAllShotUp.mp3"));
-			AudioInputStream in = AudioSystem.getAudioInputStream(soundStream);
-			AudioFormat baseFormat = in.getFormat();
-			AudioFormat decodedFormat = new AudioFormat(
-					AudioFormat.Encoding.PCM_SIGNED,
-					baseFormat.getSampleRate(), 16, baseFormat.getChannels(),
-					baseFormat.getChannels() * 2, baseFormat.getSampleRate(),
-					false);
-			din = AudioSystem.getAudioInputStream(decodedFormat, in);
-			DataLine.Info info = new DataLine.Info(SourceDataLine.class, decodedFormat);
-			SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-			if(line != null) {
-				line.open(decodedFormat);
-				byte[] data = new byte[4096];
-				// Start
-				line.start();
-				
-				int nBytesRead;
-				while ((nBytesRead = din.read(data, 0, data.length)) != -1) {	
-					System.err.println("LOL");
-					line.write(data, 0, nBytesRead);
-				}
-				// Stop
-				line.drain();
-				line.stop();
-				line.close();
-				din.close();
-			}
-			
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			if(din != null) {
-				try { din.close(); } catch(IOException e) { }
-			}
-		}
-
-
-///////////////
-
-		if (true) return;
-*/
 		initNewEngineAndAI(false, speerfeuer, Rules.shotsPerShipPart, speerfeuertime, BadAI.class);
-		
-		//copyTranslations();
 		
 		translator = new Translator("Battleship", targetLocale);
 		showFrame();
@@ -716,7 +639,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				engine.attack(Engine.otherPlayer(player), y, x);
 			} catch (InvalidInstruction e) {
 				if (speerfeuer) clock.pause();
-				if (e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOMOREAMMO)
+				if (e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOMOREAMMO &&
+					e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOTSHOOTABLE)
 					userError(e.getMessage());
 				else
 					setStatusBarMessage(e.getMessage());

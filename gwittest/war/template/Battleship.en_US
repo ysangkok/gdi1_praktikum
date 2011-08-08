@@ -19,19 +19,19 @@ Options.iconName=options.gif
 Options.toolTipText=
 
 //New
-New.label=New
+New.label=New...
 New.iconName=New.gif
 New.toolTipText=
 
 //About
 About.label=About us
 About.iconName=quit.gif
-About.toolTipText=About Us
+About.toolTipText=
 
 //QuickNew
-QuickNew.label=New game...
+QuickNew.label=Load built-in level
 QuickNew.iconName=newGame.gif
-QuickNew.toolTipText=Start New Game
+QuickNew.toolTipText=
 QuickNew.mnemonic=n
 
 //PlaceShips
