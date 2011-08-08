@@ -29,6 +29,8 @@ public class GoodAI extends AI {
 	
 	char bottom = '\0';
 	char top = '\0';
+
+	public boolean supportsAmmo() { return false; }
 	
 	public void setEngine(Engine engine) {
 		gen = new Random();

@@ -11,4 +11,6 @@ abstract public class AI {
 	 * @param player the player number it should play as (0 or 1)
 	 */
 	abstract public void playAs(int player);
+
+	abstract public boolean supportsAmmo();
 }

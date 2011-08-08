@@ -16,7 +16,6 @@ public class TemplateImages {
 	public static final String weblevelspath = "template/" + levelspath;
 	public static final String webimagesdir = "template/" + imagesdir;
 	
-	
 	public static String[] icons = { "border", "fogofwar", "ship_bottom",
 		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",
 		"ship_hit", "ship_hit_right", "ship_hit_top",
@@ -24,28 +23,30 @@ public class TemplateImages {
 		"ship_right", "ship_top", "ship_vertical", "water_hit",
 	"water" };
 
+	private static Map<Character, String> m = null;
+
 	public static String getSoundPath(Sound sound) {
 		return soundspath + "/" + sound + ".mp3";
 	}
 
 	public static String fieldToIcon(Character c) {
-		Map<Character, String> m = new HashMap<Character, String>();
-		for (String n : icons) {
-			if (n == "fogofwar") m.put('#',n);
-			if (n == "ship_bottom") m.put('b',n);
-			if (n == "ship_hit_bottom") m.put('B',n);
-			if (n == "ship_hit_horizontal") m.put('H',n);
-			if (n == "ship_hit_left") m.put('L',n);
-			if (n == "ship_hit_right") m.put('R',n);
-			if (n == "ship_hit_top") m.put( 'T', n);
-			if (n == "ship_hit_vertical") m.put('V', n);
-			if (n == "ship_horizontal") m.put('h', n);
-			if (n == "ship_left") m.put('l', n);
-			if (n == "ship_right") m.put('r', n);
-			if (n == "ship_top") m.put('t', n);
-			if (n == "ship_vertical") m.put('v', n);
-			if (n == "water_hit") m.put('*', n);
-			if (n == "water") m.put('-', n);
+		if (m == null) {
+			m = new HashMap<Character, String>();
+			m.put('#', "fogofwar") ;
+			m.put('B', "ship_hit_bottom") ;
+			m.put('b', "ship_bottom") ;
+			m.put('H', "ship_hit_horizontal") ;
+			m.put('h', "ship_horizontal") ;
+			m.put('L', "ship_hit_left") ;
+			m.put('l', "ship_left") ;
+			m.put('R', "ship_hit_right") ;
+			m.put('r', "ship_right") ;
+			m.put('T', "ship_hit_top") ;
+			m.put('t', "ship_top") ;
+			m.put('V', "ship_hit_vertical") ;
+			m.put('v', "ship_vertical") ;
+			m.put('*', "water_hit");
+			m.put('-', "water");
 		}
 		return m.get(c);
 	}

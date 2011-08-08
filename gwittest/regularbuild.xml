@@ -52,6 +52,18 @@
         <java jar="${jar.dir}/${ant.project.name}.jar" classpathref="project.class.path" fork="true" />
     </target>
 
+    <target name="alternaterun" depends="jar">
+       <java classname="testpackage.interfaces.SoundStreamPlayer">
+         <classpath>
+           <pathelement location="${jar.dir}/${ant.project.name}.jar" />
+           <path refid="project.class.path" />
+         </classpath>
+       </java>
+
+    </target>
+
+
+
     <target name="clean-build" depends="clean,jar"/>
 
     <target name="main" depends="clean,run"/>

@@ -14,6 +14,8 @@ public class BadAI extends AI {
 		private static final long serialVersionUID = 1L;	
 	}
 
+	public boolean supportsAmmo() { return true; }
+
 	/**
 	 * random generator used for finding coordinates to shoot at
 	 */

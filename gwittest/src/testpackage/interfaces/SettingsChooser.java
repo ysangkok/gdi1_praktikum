@@ -34,7 +34,6 @@ class SettingsChooser {
 
 		/* TODO
 		 * 3. board size vælger
-		 * 4. ai vælger
 		 */
 		
 		SpinnerModel ammomodel = new SpinnerNumberModel(Rules.shotsPerShipPart, 1, 20, 1);
@@ -94,13 +93,20 @@ class SettingsChooser {
 		but.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent evt) {
 				finished = true;
 				speerfeuerenabled = speerfeuercb.isSelected();
 				ammoenabled = ammocb.isSelected();
 				speerfeuerspinnervalue = (int) (1000 * ((Double)speerfeuerspinner.getValue()));
 				ammospinnervalue = (Integer) ammospinner.getValue();
 				chosenAI = availableAIs[aidropdown.getSelectedIndex()];
+				try {
+					if (!chosenAI.getConstructor().newInstance().supportsAmmo() && ammoenabled) {
+						javax.swing.JOptionPane.showMessageDialog(d, aidropdown.getSelectedItem() + " doesn't support ammunition. Choose another AI.", "AI skills inadequate", 0);
+						return;
+					}
+				} catch (Exception ex) {
+				}
 				d.dispose();
 			}
 		});
