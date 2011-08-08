@@ -1,0 +1,59 @@
+multi=One {0} two {1} three {2} parameters
+noSuchKeyException=no resource found for {0}!
+
+guiFrame=Schiffe Versenken
+
+//LanguageMenu
+languageMenu.label=Language
+German.label=German
+English.label=English
+
+//file
+fileMenu.label=File
+fileMenu.toolTipText=
+Options.iconName=file.gif
+
+//Options
+Options.label=Options
+Options.iconName=options.gif
+Options.toolTipText=
+
+//New
+New.label=New
+New.iconName=New.gif
+New.toolTipText=
+
+//About
+About.label=About us
+About.iconName=quit.gif
+About.toolTipText=About Us
+
+//QuickNew
+QuickNew.label=New game...
+QuickNew.iconName=newGame.gif
+QuickNew.toolTipText=Start New Game
+QuickNew.mnemonic=n
+
+//PlaceShips
+PlaceShips.label=Place own ships
+PlaceShips.iconName=shipPosition.gif
+PlaceShips.toolTipText=
+PlaceShips.mnemonic=p
+
+//DefaultNewGame
+DefaultNewGame.label=Randomly placed ships
+DefaultNewGame.iconName=DefaultNewGame.gif
+DefaultNewGame.toolTipText=
+DefaultNewGame.mnemonic=g
+
+//SaveGame
+saveGame.label=Save game
+saveGame.iconName=saveGame.gif
+saveGame.toolTipText=
+saveGame.mnemonic=control S
+
+//loadItem
+loadGame.label=Load game
+loadGame.iconName=loadGame.gif
+loadGame.toolTipText=
+loadGame.mnemonic=control L
