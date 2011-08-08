@@ -4,8 +4,7 @@ import testpackage.shared.Util;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
-import testpackage.interfaces.SoundHandler;
-import testpackage.interfaces.SoundHandler.Sound;
+import testpackage.shared.ship.SoundHandler.Sound;
 
 import java.util.LinkedList;
 import java.util.List;

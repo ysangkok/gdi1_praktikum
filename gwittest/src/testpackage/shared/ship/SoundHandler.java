@@ -1,4 +1,4 @@
-package testpackage.interfaces;
+package testpackage.shared.ship;
 
 abstract public class SoundHandler {
 	public enum Sound {

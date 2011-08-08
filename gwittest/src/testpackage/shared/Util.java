@@ -18,8 +18,4 @@ public class Util {
 	  msg.append(split.get(split.length() - 1));
 	  return msg.toString();
 	}
-	
-	public static String getResourceAsString(String path) {
-		return new Scanner(Util.class.getResourceAsStream(path)).useDelimiter("\\A").next();
-	}
 }

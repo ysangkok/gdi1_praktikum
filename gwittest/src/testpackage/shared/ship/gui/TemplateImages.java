@@ -3,7 +3,7 @@ package testpackage.shared.ship.gui;
 import java.util.HashMap;
 import java.util.Map;
 
-import testpackage.interfaces.SoundHandler.Sound;
+import testpackage.shared.ship.SoundHandler.Sound;
 
 public class TemplateImages {
 	private static final String soundspath = "/sounds";

@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Scanner;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,13 +39,13 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import testpackage.shared.Util;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Level;
 import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
+import testpackage.shared.ship.SoundHandler;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.gui.TemplateImages;
@@ -73,6 +74,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private JLabel statusLabel;
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
+
+	public static String getResourceAsString(String path) {
+		return new Scanner(GUISchiffe.class.getResourceAsStream(path)).useDelimiter("\\A").next();
+	}
 
 	private void initSound() {
 		soundPlayerMaps = new Map[3];
@@ -443,7 +448,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 		try {
 			//level = new Level(readFileAsString(levelDir + children[chosenLvl]));
-			level = new Level(Util.getResourceAsString(TemplateImages.levelspath + chosenLvl));
+			level = new Level(getResourceAsString(TemplateImages.levelspath + chosenLvl));
 		
 		} catch (InvalidLevelException e) {
 			userError(String.format("Template level corrupted: %s",chosenLvl));
