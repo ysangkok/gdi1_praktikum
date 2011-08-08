@@ -1647,12 +1647,12 @@ public class TranslatableGUIElement {
     else {
       String existingEntry = translatableComponents.get(component);
       // check if not identical and not substring
-      if (!key.equals(existingEntry) && existingEntry.indexOf(key + "い") == -1)
-        if (existingEntry.indexOf("い") == -1)
-          translatableComponents.put(component, existingEntry + "い" + key
-              + "い");
+      if (!key.equals(existingEntry) && existingEntry.indexOf(key + "造造") == -1)
+        if (existingEntry.indexOf("造造") == -1)
+          translatableComponents.put(component, existingEntry + "造造" + key
+              + "造造");
         else
-          translatableComponents.put(component, existingEntry + key + "い");
+          translatableComponents.put(component, existingEntry + key + "造造");
     }
     // if (translatableElements.containsKey(key)) {
     // Object o = translatableElements.get(key);
@@ -1676,7 +1676,7 @@ public class TranslatableGUIElement {
       String existingEntry = translatableComponents.get(component);
       if (existingEntry.equals(key))
         translatableComponents.remove(component); // just delete direct match
-      else if (existingEntry.indexOf(key) != -1) {// "keyい"
+      else if (existingEntry.indexOf(key) != -1) {// "key造造"
         int start = existingEntry.indexOf(key);
         int end = start + key.length();
         StringBuilder entry = new StringBuilder(256);
