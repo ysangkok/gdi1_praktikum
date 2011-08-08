@@ -4,7 +4,9 @@ import testpackage.shared.ship.exceptions.InvalidInstruction;
 
 import java.lang.Character;
 import java.util.Random;
-
+/**
+ * class for good AI
+ */
 public class GoodAI extends AI {
 
 	Random gen;
@@ -27,10 +29,10 @@ public class GoodAI extends AI {
 	int currentY = -1;
 	char currentChar = '\0';
 	
-	char bottom = '\0';
-	char top = '\0';
 
 	public boolean supportsAmmo() { return false; }
+	
+	
 	
 	public void setEngine(Engine engine) {
 		gen = new Random();
@@ -39,6 +41,11 @@ public class GoodAI extends AI {
 		this.engine = engine;
 	}
 
+	/**
+	 * 
+	 * @param c character to check
+	 * @return checks, if ship was damaged
+	 */
 	public static boolean hitShip(char c) {
 		return Character.isUpperCase(c);
 	}
@@ -46,7 +53,9 @@ public class GoodAI extends AI {
 	
 	
 	
-	
+	/**
+	 * 
+	 */
 	
 	@Override
 	public void playAs(int player) {
@@ -69,7 +78,12 @@ public class GoodAI extends AI {
 			direction(player);
 		}
 	}
-		
+	
+	/**
+	 * defines the direction of the ship
+	 * @param player player
+	 */
+	
 	public void direction(int player){
 		if (dirSouth){
 			dirSouth(player);
@@ -103,17 +117,19 @@ public class GoodAI extends AI {
 			currentX = lastX;
 			currentY = lastY;
 			dirNorth(player);
-		}}
+			}
+		}
 		else if (lastX == 9){
 			dirNorth = true;
 			dirNorth(player);
+			}
 		}
-		}
-		
-		
-		
 	}
-	
+	/**
+	 * dirNorth, dirSouth, dirEast, dirWest
+	 * trying to kill the ship completly
+	 * @param player player
+	 */
 	
 	public void dirSouth(int player){
 		
