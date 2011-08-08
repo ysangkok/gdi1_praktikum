@@ -63,7 +63,13 @@
 
     </target>
 
-
+    <target name="linux-run" depends="jar">
+	<exec executable="/usr/bin/aoss">
+		<arg value="/usr/lib/jvm/java-6-sun/bin/java" />
+		<arg value="-jar" />
+		<arg value="build/jar/HelloWorld.jar" />
+	</exec>
+    </target>
 
     <target name="clean-build" depends="clean,jar"/>
 

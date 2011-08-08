@@ -53,12 +53,12 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	private void runLoop() {
 		AudioInputStream din = null;
 		try {
-			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream(TemplateImages.getSoundPath(sound)));
-			soundStream.mark(1);
-			SourceDataLine line;
 
 			outer: for (;;) {
-			soundStream.reset();
+			BufferedInputStream soundStream = new BufferedInputStream(GUISchiffe.class.getResourceAsStream(TemplateImages.getSoundPath(sound)));
+			//soundStream.mark(1);
+			SourceDataLine line;
+			//soundStream.reset();
 			AudioInputStream in;
 			try {
 				 in = AudioSystem.getAudioInputStream(soundStream);
@@ -116,14 +116,14 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 				}
 
 			}
-			//System.err.println("Done");
-			pause();
-			}//for(;;)
-			// Stop
 			line.drain();
 			line.stop();
 			line.close();
 			din.close();
+			//System.err.println("Done");
+			pause();
+			}//for(;;)
+			// Stop
 			
 		}
 		catch(Exception e) {
