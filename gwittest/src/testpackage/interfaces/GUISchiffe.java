@@ -302,7 +302,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 */
 		initNewEngineAndAI(false, speerfeuer, Rules.shotsPerShipPart, speerfeuertime, BadAI.class);
 		
-		copyTranslations();
+		//copyTranslations();
 		
 		translator = new Translator("Battleship", targetLocale);
 		showFrame();
