@@ -57,3 +57,12 @@ loadGame.label=Load game
 loadGame.iconName=loadGame.gif
 loadGame.toolTipText=
 loadGame.mnemonic=control L
+
+//gameOverDraw
+gameOverDraw.label=Draw.
+//gameOverWinner
+gameOverWinner.label=Player {0} won!
+
+gameOverWindowTitle.label=Game over
+;// 0 ist hier gameOverWinner/Draw
+gameOverReasonLabel.label=Game over. {0} Reason: {1}

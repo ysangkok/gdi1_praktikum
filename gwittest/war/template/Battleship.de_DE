@@ -11,7 +11,7 @@ English.label=Englisch
 //file
 fileMenu.label=Datei
 fileMenu.toolTipText=
-Options.iconName=file.gif
+fileMenu.iconName=file.gif
 
 //Options
 Options.label=Einstellungen
@@ -57,3 +57,5 @@ loadGame.label=Laden
 loadGame.iconName=loadGame.gif
 loadGame.toolTipText=
 loadGame.mnemonic=control L
+
+gameOverWinner.label=Player {0} won!

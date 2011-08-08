@@ -2,7 +2,7 @@ package testpackage.interfaces;
 
 import javax.sound.sampled.*;
 
-import testpackage.interfaces.SoundHandler.Sound;
+import testpackage.shared.ship.SoundHandler.Sound;
 import testpackage.shared.ship.gui.TemplateImages;
 
 import java.io.BufferedInputStream;
@@ -58,7 +58,13 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 
 			outer: for (;;) {
 			soundStream.reset();
-			AudioInputStream in = AudioSystem.getAudioInputStream(soundStream);
+			AudioInputStream in;
+			try {
+				 in = AudioSystem.getAudioInputStream(soundStream);
+			} catch (IOException ex) {
+				System.err.println(getClass().getName() + ": " + ex.getMessage());
+				return;
+			}
 			AudioFormat baseFormat = in.getFormat();
 			AudioFormat decodedFormat = new AudioFormat(
 					AudioFormat.Encoding.PCM_SIGNED,
@@ -120,7 +126,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 			
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		finally {
 			if(din != null) {

@@ -67,8 +67,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	Engine engine;
 	private AI ai;
 	private BoardPanel[] panels;
-	private boolean speerfeuer = false;
-	int speerfeuertime = Rules.standardSpeerfeuerTime;
+	private boolean speerfeuer;
+	int speerfeuertime;
 	private CountdownTimerPanel clock;
 	private final Translator translator;
 	private JLabel statusLabel;
@@ -121,11 +121,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		int winner = engine.checkWin().playernr;
 		
 		String winnerstr;
-		
+
 		if (winner == -1) {
-			winnerstr = "Draw.";
+			winnerstr = translator.translateMessage("gameOverDraw");
 		} else {
-			winnerstr = "Player " + (winner+1) + " won!";
+			winnerstr = translator.translateMessage("gameOverWinner", String.valueOf(winner+1));
 		}
 		
 		final JDialog d = new JDialog(frame, "Game over", Dialog.ModalityType.DOCUMENT_MODAL);
@@ -133,18 +133,33 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		FlowLayout layout = new FlowLayout();
 		d.setLayout(layout);
 		d.add(new JLabel("Game over. " + winnerstr + " Reason: " + engine.checkWin().reason));
-		JButton but = new JButton();
 		
+		JButton but = new JButton();
 		but.addKeyListener(new GameoverKeyHandler());
 		but.setText("Quit");
 		but.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				d.dispose();
+				frame.dispose();
 			}
 		});
 		d.add(but);
-		//d.add(layout);
+		
+		JButton butnew = new JButton();
+		butnew.addKeyListener(new GameoverKeyHandler());
+		butnew.setText("Start over");
+		butnew.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				d.dispose();
+				frame.dispose();
+				initDefaultGame();
+				showFrame();
+			}
+		});
+		d.add(butnew);
+		
 		d.pack();
 		d.setVisible(true);
 		
@@ -152,7 +167,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 /*		JOptionPane.showMessageDialog(frame,
 			    "Game over. " + winnerstr + " Reason: " + engine.checkWin().reason, 
 			    "Game over", 0);*/
-		frame.dispose();
 	}
 	
 	/**
@@ -161,10 +175,16 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	 */
 	
 	private GUISchiffe(Locale targetLocale) {
-		initNewEngineAndAI(false, speerfeuer, Rules.shotsPerShipPart, speerfeuertime, BadAI.class);
+		initSound();
+		
+		initDefaultGame();
 		
 		translator = new Translator("Battleship", targetLocale);
 		showFrame();
+	}
+	
+	private void initDefaultGame() {
+		initNewEngineAndAI(false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class);
 	}
 	
 	private boolean placeOwnShipsWizard() {		
@@ -400,7 +420,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 
 	public static void main(String[] args) {
-		new GUISchiffe(Locale.GERMANY);
+		new GUISchiffe(Locale.US);
 	}
 
 	/**
@@ -422,28 +442,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		Random gen = new Random();
 		String chosenLvl = levels[gen.nextInt(levels.length)];
 		
-		/*
-		String levelDir = TemplateImages.levelspath;
-		
-		File dir = new File(levelDir);
-
-		String[] children = dir.list();
-		
-		int chosenLvl = -1;
-		
-		for (;;) {
-			Random gen = new Random();
-			chosenLvl = gen.nextInt(children.length);
-			String ext;
-			try {
-				ext = children[chosenLvl].substring(children[chosenLvl].length()-4);
-			} catch (StringIndexOutOfBoundsException e) {
-				ext = ".tooshort";
-			}
-			if (ext.equals(".lvl")) break;
-			else if (!ext.equals(".svn")) userError("Unknown file in levels dir: " + children[chosenLvl]);
-		}
-		*/
 		Level level;
 		
 		try {
@@ -464,7 +462,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine(level);
 		engine.setSoundHandler(this);
-		initSound();
+		
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
@@ -474,7 +472,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
 		engine = new Engine();
 		engine.setSoundHandler(this);
-		initSound();
+		
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
