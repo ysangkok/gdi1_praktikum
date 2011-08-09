@@ -45,7 +45,10 @@ public class Level implements Serializable {
 	 * @throws InvalidLevelException
 	 */	
 	public Level(String text) throws InvalidLevelException {
-		this(text, true);
+		this(text, true, true);
+	}
+	public Level(String text, boolean check) throws InvalidLevelException {
+		this(text, check, check);
 	}
 	
 	/**
@@ -54,7 +57,8 @@ public class Level implements Serializable {
 	 * @param check check for missing ships
 	 * @throws InvalidLevelException
 	 */
-	Level(String text, boolean check) throws InvalidLevelException {
+	Level(String text, boolean check, boolean checkaspectratio) throws InvalidLevelException {
+		if (!check && checkaspectratio) throw new RuntimeException("invalid arguments");
 		int charNum = 0;
 		int counter = 0; // for counting lines
 		
@@ -109,11 +113,12 @@ public class Level implements Serializable {
 			Player1Board.removeLast();
 			Player2Board.removeLast();
 		}
-		for ( int i : new int[] {0, 1})
-			for ( int j=0; j<boards.size(); j++)
-				for ( int k=0; k<boards.get(j).size(); k++)
-					if (boards.get(j).size() != boards.get(i).get(k).size())
-						throw new InvalidLevelException("different width and height");
+		if (checkaspectratio)
+			for ( int i : new int[] {0, 1})
+				for ( int j=0; j<boards.size(); j++)
+					for ( int k=0; k<boards.get(j).size(); k++)
+						if (boards.get(j).size() != boards.get(i).get(k).size())
+							throw new InvalidLevelException("different width and height");
 		
 		checkShips(0, getPlayerBoard(0), check);
 		checkShips(1, getPlayerBoard(1), check);

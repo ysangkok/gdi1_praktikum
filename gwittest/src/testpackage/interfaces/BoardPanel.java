@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -61,11 +62,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
 		
 		entities = new Vector<JButton>();
-		images = new HashMap<String, ImageIcon>();
+		allskins = new HashMap<String, Map<String, ImageIcon>>();
 
+		for (String skinName : TemplateImages.allSkins)
 		for (String icon : TemplateImages.icons) {
+			String path = TemplateImages.imagesdir + skinName + "/" + icon + ".png";
+			URL url = this.getClass().getResource(path);
+			if (url == null) { throw new RuntimeException(path + " invalid"); }
 			try {
-				registerImage(icon, this.getClass().getResource(TemplateImages.imagesdir + icon + ".png"));
+				registerImage(skinName, icon, url);
 			} catch (RuntimeException e){
 				System.err.println(e.getMessage());
 			}
@@ -129,15 +134,18 @@ public class BoardPanel extends JPanel implements MouseListener {
 			return;
 	}
 
-	private HashMap<String, ImageIcon> images = null;
+	private HashMap<String, Map<String, ImageIcon>> allskins = null;
 
-	private boolean registerImage(String identifier, URL url) {
-		return images.put(identifier, new ImageIcon(url)) != null;
+	private void registerImage(String skinName, String identifier, URL url) {
+		Map skinMap = allskins.get(skinName);
+		if (skinMap==null) { skinMap = new HashMap<String, ImageIcon>(); allskins.put(skinName, skinMap); }
+		skinMap.put(identifier, new ImageIcon(url));
+		
 	}
 
 
 	private JButton placeEntity(String imageIdentifier) {
-		return placeEntity(images.get(imageIdentifier)	);
+		return placeEntity(allskins.get(app.getSelectedSkin()).get(imageIdentifier)	);
 	}
 	
 

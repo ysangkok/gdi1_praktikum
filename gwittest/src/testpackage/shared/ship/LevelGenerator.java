@@ -287,7 +287,7 @@ public class LevelGenerator {
 	 */
 	public Level getLevel(boolean check) {
 		try {
-			return new Level(getLevelString(), check);
+			return new Level(getLevelString(), check, false);
 		} catch (InvalidLevelException e) {
 			Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			System.err.println(helper.getBoardString(getBoard(0)));

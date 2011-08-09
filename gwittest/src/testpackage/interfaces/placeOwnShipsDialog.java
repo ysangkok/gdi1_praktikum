@@ -51,6 +51,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	 * did user choose all ship and confirm?
 	 */
 	public boolean finished = false;
+
+	BoardUser parentuser;
 	
 	/**
 	 * @return list of chosen ships
@@ -97,11 +99,12 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	 * constructor shows window
 	 * @param parent parent will normally be GUIShiffe frame
 	 */
-	public placeOwnShipsDialog(JFrame parent, Translator translator, Engine engine) {
+	public placeOwnShipsDialog(JFrame parent, Translator translator, Engine engine, BoardUser parentuser) {
 		super(parent, translator.translateMessage("POSDWindowTitle"), true);
 		
 		this.translator=translator;
 		this.engine=engine;
+		this.parentuser = parentuser;
 		
 		engine.getState().getLevel().clearPlayerBoard();
 		

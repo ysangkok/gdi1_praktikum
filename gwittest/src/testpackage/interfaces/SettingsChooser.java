@@ -32,6 +32,8 @@ class SettingsChooser {
 	boolean moreshotsenabled = false;
 	int ammospinnervalue;
 	int speerfeuerspinnervalue;
+	int w;
+	int h;
 	Class<? extends AI> chosenAI;
 	Translator translator;
 	
@@ -48,9 +50,15 @@ class SettingsChooser {
 		
 		SpinnerModel ammomodel = new SpinnerNumberModel(Rules.shotsPerShipPart, 1, 20, 1);
 		SpinnerModel speerfeuermodel = new SpinnerNumberModel(((double) Rules.standardSpeerfeuerTime)/1000, 0.1, 30.0, 0.1);
+		SpinnerModel wboarddimensionmodel = new SpinnerNumberModel(Rules.defaultWidth, 4, 100 ,1);
+		SpinnerModel hboarddimensionmodel = new SpinnerNumberModel(Rules.defaultHeight, 4, 100 ,1);
 		
 		final JSpinner ammospinner = new JSpinner(ammomodel);
 		final JSpinner speerfeuerspinner = new JSpinner(speerfeuermodel);
+		final JSpinner heightspinner = new JSpinner(hboarddimensionmodel);
+		final JSpinner widthspinner = new JSpinner(wboarddimensionmodel);
+		heightspinner.setMaximumSize(heightspinner.getPreferredSize());
+		widthspinner.setMaximumSize(widthspinner.getPreferredSize());
 		
 		ActionListener listener = new ActionListener() {
 			@Override
@@ -69,6 +77,7 @@ class SettingsChooser {
 		Box box = Box.createVerticalBox();
 
 		final JCheckBox moreshotscb = new JCheckBox(translator.translateMessage("SCMoreShots"));
+		moreshotscb.setSelected(moreshotsenabled);
 		
 		final JCheckBox speerfeuercb = new JCheckBox(translator.translateMessage("SCSpeerCheckBox"));
 		//speerfeuercb.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
@@ -96,6 +105,12 @@ class SettingsChooser {
 
 		float alignment = Component.LEFT_ALIGNMENT;
 		
+		heightspinner.setAlignmentX(alignment);
+		widthspinner.setAlignmentX(alignment);
+
+		JLabel heightlabel = new JLabel(translator.translateMessage("SCHeightLabel"));
+		JLabel widthlabel = new JLabel(translator.translateMessage("SCWidthLabel"));
+
 		moreshotscb.setAlignmentX(alignment);
 		speerfeuercb.setAlignmentX(alignment);
 		JLabel speerlabel = new JLabel(translator.translateMessage("SCSpeerLabel"));
@@ -114,6 +129,9 @@ class SettingsChooser {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
+				h = (Integer) heightspinner.getValue();
+				w = (Integer) widthspinner.getValue();
+
 				finished = true;
 				moreshotsenabled = moreshotscb.isSelected();
 				speerfeuerenabled = speerfeuercb.isSelected();
@@ -132,16 +150,21 @@ class SettingsChooser {
 			}
 		});
 
+		box.add(heightlabel);
+		box.add(heightspinner);
+		box.add(widthlabel);
+		box.add(widthspinner);
+		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(moreshotscb);
-		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(speerfeuercb);
 		box.add(speerlabel);
 		box.add(speerfeuerspinner);
-		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(ammocb);
 		box.add(ammolabel);
 		box.add(ammospinner);
-		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(ailabel);
 		box.add(aidropdown);
 		JPanel buttonPanel = new JPanel();

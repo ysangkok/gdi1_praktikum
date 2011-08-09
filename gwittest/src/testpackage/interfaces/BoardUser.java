@@ -10,4 +10,6 @@ public interface BoardUser {
 	 * @param y coordinate (traditional format)
 	 */
 	void bomb(int p, int x, int y);
+
+	String getSelectedSkin();
 }

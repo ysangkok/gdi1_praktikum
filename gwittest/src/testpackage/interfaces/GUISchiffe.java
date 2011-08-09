@@ -34,11 +34,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.ButtonGroup;
 
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
@@ -76,7 +78,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
 	private JCheckBoxMenuItem soundcb;
-
+	private String currentSkin = "defaultskin";
 	public static String getResourceAsString(String path) {
 		return new Scanner(GUISchiffe.class.getResourceAsStream(path)).useDelimiter("\\A").next();
 	}
@@ -127,6 +129,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	 */
 	public void GameOver() {
 		if (speerfeuer) clock.pause();
+
+		panels[0].refresh();
+		panels[1].refresh();
 		
 		int winner = engine.checkWin().playernr;
 		
@@ -195,15 +200,16 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private void initDefaultGame() {
-		initNewEngineAndAI(false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
+		initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
 	}
 	
 	private boolean placeOwnShipsWizard() {
-		Engine newengine = new Engine();
-
 		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
 		if (!s.finished) return false;
+
+		Engine newengine = new Engine(new LevelGenerator(s.w, s.h).getLevel());
+
 		speerfeuer = s.speerfeuerenabled;
 		if (s.ammoenabled) {
 			newengine.enableShotsPerShip(s.ammospinnervalue);
@@ -211,7 +217,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		newengine.setMoreShots(s.moreshotsenabled);
 
 		//System.err.println(newengine.isShotsPerShipEnabled());
-		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame, translator, newengine);
+		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame, translator, newengine, this);
 		//System.err.println(newengine.isShotsPerShipEnabled());
 
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
@@ -258,7 +264,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	private static class actions {
 		static enum actionnames {
-			quicknewgame, save, load, newplaceownships, newgenerated, about, skins, soundcb
+			quicknewgame, save, load, newplaceownships, newgenerated, about, skins, soundcb, quit
 		}
 		
 		public static String quicknewgame = actionnames.quicknewgame.name();
@@ -268,7 +274,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		public static String newgenerated = actionnames.newgenerated.name();
 		public static String about = actionnames.about.name();
 		public static String skins = actionnames.skins.name();
-		public static String quit = actionnames.skins.name();
+		public static String quit = actionnames.quit.name();
 		public static String soundcb = actionnames.soundcb.name();
 	}
 	
@@ -297,6 +303,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			shutdown();
 		} else if (a.equals(actions.soundcb)) {
 			toggleSound();
+		} else if (a.equals(actions.skins)) {
+			changeSkin(actionEvent);
 		} else {
 			throw new RuntimeException("Unknown action!");
 		}
@@ -361,7 +369,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			public void windowOpened(WindowEvent e) {}
 		});
 		
-		frame.setResizable(false);
+		//frame.setResizable(false);
 		frame.setLayout(new BorderLayout());
 		
 		frame.add(makeStatusPanel(), BorderLayout.SOUTH);
@@ -370,7 +378,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.add(setUpBoardPanels());
 		
-		panels[keyboardSelected[0]].addSelection(keyboardSelected[1], keyboardSelected[2]);
+		panels[keyboardSelected[0]].addSelection(0, 0);
 		
 		if (speerfeuer) {
 			clock = new CountdownTimerPanel(this);
@@ -467,10 +475,17 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				translator.setTranslatorLocale(Locale.US);
 			}
 		});
+		JMenuItem russianItem = guiBuilder.generateJMenuItem("Russian");
+		russianItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				translator.setTranslatorLocale(new Locale("ru"));
+			}
+		});
 		
-	    Options.add(languageMenu);
+	    	Options.add(languageMenu);
 		languageMenu.add(englishItem);
 		languageMenu.add(germanItem);
+		languageMenu.add(russianItem);
 		// End Language Menu
 
 		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true, true);
@@ -479,7 +494,24 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 		Options.add(soundcb);
 
+		JMenu skinMenu = guiBuilder.generateJMenu("skinMenu");
+		ButtonGroup group = new ButtonGroup();
+		skinButtonToSkinName = new HashMap<JRadioButtonMenuItem, String>();
+		for (String skinname : TemplateImages.allSkins) {
+			JRadioButtonMenuItem radioitem = new JRadioButtonMenuItem(translator.translateMessage("skinMenuChoose", skinname));
+			if (currentSkin.equals(skinname)) radioitem.setSelected(true);
+			radioitem.setActionCommand(actions.skins);
+			radioitem.addActionListener(this);
+			group.add(radioitem);
+			skinMenu.add(radioitem);
+
+			skinButtonToSkinName.put(radioitem, skinname);
+		}
+		Options.add(skinMenu);
+
 	}
+
+	private Map<JRadioButtonMenuItem, String> skinButtonToSkinName;
 	
 	private JPanel setUpBoardPanels() {
 		JPanel boardpanel = new JPanel();
@@ -554,8 +586,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
-		initNewEngineAndAIWithLevel(	new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel(),
+	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
+		initNewEngineAndAIWithLevel(	new LevelGenerator(w, h).getLevel(),
 						enableshotspership,
 						speerfeuer,
 						ammocount,
@@ -567,15 +599,18 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
 		if (!s.finished) return false;
-		initNewEngineAndAI(s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
+		initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
 		
 		frame.dispose();
 		showFrame();
 		return true;
 	}
 	
-	private void skins(){
-		//TODO
+	private void changeSkin(ActionEvent evt){
+		JRadioButtonMenuItem source = (JRadioButtonMenuItem) evt.getSource();
+		currentSkin = skinButtonToSkinName.get(source);
+		panels[0].refresh();
+		panels[1].refresh();
 	}
 	
 	private void about(){
@@ -681,7 +716,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			
 			panels[player].refresh();
 			
-			hitsLabel.setText(translator.translateMessage("hitCounter", String.valueOf(engine.getState().getHits()[0]), String.valueOf(engine.getState().getHits()[1])));
+			updateHitCounter();
+	}
+
+	private void updateHitCounter() {
+		hitsLabel.setText(translator.translateMessage("hitCounter", String.valueOf(engine.getState().getHits()[0]), String.valueOf(engine.getState().getHits()[1])));
 	}
 	
 	private String localizeException(InvalidInstruction e) {
@@ -713,6 +752,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		panels[Engine.otherPlayer(player)].refresh();
 		
 		if (engine.isFinished()) { GameOver(); return; }
+
+		updateHitCounter();
 		
 		if (speerfeuer) clock.resetCountdown();
 	}
@@ -817,5 +858,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
                     }
                 }.start();
 		*/
+	}
+
+	public String getSelectedSkin() {
+		return currentSkin;
 	}
 }

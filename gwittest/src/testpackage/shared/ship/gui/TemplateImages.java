@@ -11,12 +11,14 @@ public class TemplateImages {
 	public static final String translationspath = "/translations/";
 
 	public static final String levelspath = "/resources/levels/defaultlevels/";
-	public static final String imagesdir = "/resources/images/defaultskin/";
+	public static final String imagesdir = "/resources/images/";
 	
 	public static final String weblevelspath = "template/" + levelspath;
-	public static final String webimagesdir = "template/" + imagesdir;
+	public static final String webimagesdir = "template/" + imagesdir + "defaultskin/";
 	
-	public static String[] icons = { "border", "fogofwar", "ship_bottom",
+	public static String[] allSkins = {"defaultskin", "smallskin"};
+
+	public static String[] icons = { "fogofwar", "ship_bottom",
 		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",
 		"ship_hit", "ship_hit_right", "ship_hit_top",
 		"ship_hit_vertical", "ship_horizontal", "ship_left",

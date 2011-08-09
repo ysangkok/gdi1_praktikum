@@ -100,3 +100,9 @@ hitCounter=You: {0} hits : Computer: {1} hits
 enableSounds.label=Sounds enabled
 
 SCMoreShots=Allow extra shots in when hit
+SCHeightLabel=Width of boards:
+SCWidthLabel=Height of boards:
+
+skinMenu.label=Skins
+Russian.label=Russian
+skinMenuChoose=Choose {0}

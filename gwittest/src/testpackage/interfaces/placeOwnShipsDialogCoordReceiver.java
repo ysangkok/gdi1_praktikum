@@ -104,4 +104,8 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		wizard.chose(y, x, shiplength, (rbutton1.getSelectedObjects() != null ? Orientation.HORIZONTAL : Orientation.VERTICAL));
 		dialog.dispose();
 	}
+
+	public String getSelectedSkin() {
+		return wizard.parentuser.getSelectedSkin();
+	}
 }
