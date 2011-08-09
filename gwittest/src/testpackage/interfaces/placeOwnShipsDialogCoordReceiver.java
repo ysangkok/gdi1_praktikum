@@ -76,7 +76,9 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		dialog.setVisible(true);
 		
 		try {
-			engine.setState(new State(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel(false)));
+			State state = engine.getState().clone(false); //dont check
+			state.setLevel(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel(false), engine.getState().getLastAmmoCount());
+			engine.setState(state);
 			
 			//Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			 

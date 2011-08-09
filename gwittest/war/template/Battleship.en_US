@@ -96,3 +96,7 @@ RNotShootable=<html>You can&rsquo;t shoot there. Note, that you can&rsquo;t shoo
 RNotYourTurn=<html>It&rsquo;s not your turn. Wait.</html>
 
 hitCounter=You: {0} hits : Computer: {1} hits 
+
+enableSounds.label=Sounds enabled
+
+SCMoreShots=Allow extra shots in when hit

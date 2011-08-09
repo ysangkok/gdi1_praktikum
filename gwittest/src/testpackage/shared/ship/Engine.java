@@ -22,6 +22,14 @@ import java.util.ArrayList;
 public class Engine {
 	private boolean allowMultipleShotsPerTurn = Rules.defaultAllowMultipleShotsPerTurn;
 
+	public boolean getMoreShots() {
+		return allowMultipleShotsPerTurn;
+	}
+	public void setMoreShots(boolean enabled) {
+		//System.err.format("Set allow: %s", enabled);
+		allowMultipleShotsPerTurn = enabled;
+	}
+
 	private List<Map<Ship,Boolean>> shotships;
 
 	private List<State> undoLog;
@@ -110,18 +118,7 @@ public class Engine {
 	 * constructor that automatically generates a level
 	 */
 	public Engine() {
-		Level initialLevel;
-		initialLevel = new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel();
-		
-		State initialState = new State(initialLevel);
-		
-		undoLog = new LinkedList<State>(); // list for storing all states since last new game
-		undoLog.add(initialState);
-		
-		this.state = initialState;
-		this.xWidth = initialLevel.getPlayerBoard(0).length;
-		this.yWidth = initialLevel.getPlayerBoard(0)[0].length;
-		detectShips();
+		this(new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel());
 	}
 	
 	// shots per ship
@@ -157,19 +154,7 @@ public class Engine {
 	 * @param ammocount 
 	 */
 	public void enableShotsPerShip(int ammocount) {
-		state.remainingshots = new Integer[2][xWidth][yWidth];
-		state.shotspershipenabled = true;
-		
-		//state.chosenFiringX = new int[] {-1, -1};
-		//state.chosenFiringY = new int[] {-1, -1};
-		
-		for ( int i : new int[] {0, 1})
-			for ( int j=0; j<state.remainingshots[0].length; j++)
-				for ( int k=0; k<state.remainingshots[0][0].length; k++)
-					if (state.getLevel().isShipAt(Engine.otherPlayer(i),j,k))
-						state.remainingshots[Engine.otherPlayer(i)][j][k] = ammocount;
-					else 
-						state.remainingshots[Engine.otherPlayer(i)][j][k] = 0;
+		state.initRemainingShots(ammocount);
 	}
 	
 	/**
@@ -200,6 +185,10 @@ public class Engine {
 		if (player < 0 || player > 1) {
 			throw new RuntimeException("player ungueltig");
 		}
+
+		//System.err.println("==attack==");
+		//System.err.println(state.isPlayerTurn());
+		//System.err.println(player);
 		
 		if ( (getState().isPlayerTurn() && player != 0) || (!getState().isPlayerTurn() && player != 1) ) throw new InvalidInstruction(InvalidInstruction.Reason.NOTYOURTURN);
 		
@@ -231,6 +220,7 @@ public class Engine {
 		
 		//System.err.println(getLevel().toString());
 		
+		//System.err.format("Allow: %s\n", allowMultipleShotsPerTurn);
 		if (allowMultipleShotsPerTurn) {
 			if (!Level.isShip(hit)) state.changeTurn();
 		} else {
@@ -254,6 +244,10 @@ public class Engine {
 		fog[x][y] = false; // this field is not visible
 		
 		return hit;
+	}
+
+	public boolean isShotsPerShipEnabled() {
+		return state.shotspershipenabled;
 	}
 	
 	/**

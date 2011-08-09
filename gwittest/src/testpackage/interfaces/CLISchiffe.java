@@ -29,7 +29,9 @@ public class CLISchiffe extends ConsoleProgram {
 	 */
 	public void run() {
 		boolean shotspership = readBoolean("Limit shots per ship?");
+		boolean moreshots = readBoolean("Extra shot when hit?");
 		if (shotspership) engine.enableShotsPerShip(Rules.shotsPerShipPart);
+		engine.setMoreShots(moreshots);
 		
 		int winner = -1;
 		AI computer = new BadAI();

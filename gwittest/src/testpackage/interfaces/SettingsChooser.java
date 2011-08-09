@@ -3,6 +3,7 @@ package testpackage.interfaces;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.*;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -15,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
@@ -27,6 +29,7 @@ class SettingsChooser {
 	boolean finished = false;
 	boolean speerfeuerenabled = false;
 	boolean ammoenabled = false;
+	boolean moreshotsenabled = false;
 	int ammospinnervalue;
 	int speerfeuerspinnervalue;
 	Class<? extends AI> chosenAI;
@@ -40,6 +43,7 @@ class SettingsChooser {
 		
 		/* TODO
 		 * 3. board size vælger
+		 * 4. multiple shots
 		 */
 		
 		SpinnerModel ammomodel = new SpinnerNumberModel(Rules.shotsPerShipPart, 1, 20, 1);
@@ -62,9 +66,12 @@ class SettingsChooser {
 		};
 		
 		final JDialog d = new JDialog(parent, translator.translateMessage("SCWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
-		BoxLayout layout = new BoxLayout(d.getContentPane(), BoxLayout.Y_AXIS);
-		d.setLayout(layout);
+		Box box = Box.createVerticalBox();
+
+		final JCheckBox moreshotscb = new JCheckBox(translator.translateMessage("SCMoreShots"));
+		
 		final JCheckBox speerfeuercb = new JCheckBox(translator.translateMessage("SCSpeerCheckBox"));
+		//speerfeuercb.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
 		speerfeuercb.setSelected(speerfeuerenabled);
 		speerfeuercb.addActionListener(listener);
 		speerfeuercb.setActionCommand("speerfeuer");
@@ -86,21 +93,29 @@ class SettingsChooser {
 			}
 			aidropdown.addItem(name);
 		}
+
+		float alignment = Component.LEFT_ALIGNMENT;
 		
-		d.add(speerfeuercb);
-		d.add(new JLabel(translator.translateMessage("SCSpeerLabel")));
-		d.add(speerfeuerspinner);
-		d.add(ammocb);
-		d.add(new JLabel(translator.translateMessage("SCAmmoLabel")));
-		d.add(ammospinner);
-		d.add(new JLabel(translator.translateMessage("SCAILabel")));
-		d.add(aidropdown);
+		moreshotscb.setAlignmentX(alignment);
+		speerfeuercb.setAlignmentX(alignment);
+		JLabel speerlabel = new JLabel(translator.translateMessage("SCSpeerLabel"));
+		speerfeuerspinner.setAlignmentX(alignment);
+		speerfeuerspinner.setMaximumSize(speerfeuerspinner.getPreferredSize());
+		ammocb.setAlignmentX(alignment);
+		JLabel ammolabel = new JLabel(translator.translateMessage("SCAmmoLabel"));
+		ammospinner.setAlignmentX(alignment);
+		ammospinner.setMaximumSize(ammospinner.getPreferredSize());
+		JLabel ailabel = new JLabel(translator.translateMessage("SCAILabel"));
+		aidropdown.setAlignmentX(alignment);
+		aidropdown.setMaximumSize(aidropdown.getPreferredSize());
 		JButton but = new JButton(translator.translateMessage("OK"));
+		but.setAlignmentX(alignment);
 		but.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				finished = true;
+				moreshotsenabled = moreshotscb.isSelected();
 				speerfeuerenabled = speerfeuercb.isSelected();
 				ammoenabled = ammocb.isSelected();
 				speerfeuerspinnervalue = (int) (1000 * ((Double)speerfeuerspinner.getValue()));
@@ -116,7 +131,28 @@ class SettingsChooser {
 				d.dispose();
 			}
 		});
-		d.add(but);
+
+		box.add(moreshotscb);
+		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(speerfeuercb);
+		box.add(speerlabel);
+		box.add(speerfeuerspinner);
+		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(ammocb);
+		box.add(ammolabel);
+		box.add(ammospinner);
+		box.add(Box.createRigidArea(new Dimension(0,10)));
+		box.add(ailabel);
+		box.add(aidropdown);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(but);
+		box.add(Box.createVerticalGlue());
+		box.add(buttonPanel);
+
+		d.add(box, BorderLayout.CENTER);
 		d.pack();
 		d.setVisible(true);
 		//return new boolean[] {ammoenabled, speerfeuerenabled};

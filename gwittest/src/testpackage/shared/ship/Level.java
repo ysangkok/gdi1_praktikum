@@ -35,6 +35,9 @@ public class Level implements Serializable {
 	private transient static final String   harmedShip = "LRTBVH";
 		
 	private List<List<List<Character>>> boards; // for storing the board of each player
+
+	public int getXWidth() { return boards.get(0).size(); }
+	public int getYWidth() { return boards.get(0).get(0).size(); }
 	
 	/**
 	 * constructor that takes the level as a string
@@ -42,7 +45,7 @@ public class Level implements Serializable {
 	 * @throws InvalidLevelException
 	 */	
 	public Level(String text) throws InvalidLevelException {
-		build(text, true);
+		this(text, true);
 	}
 	
 	/**
@@ -52,16 +55,6 @@ public class Level implements Serializable {
 	 * @throws InvalidLevelException
 	 */
 	Level(String text, boolean check) throws InvalidLevelException {
-		build(text, check);
-	}
-	
-	/**
-	 * build level from string, used by constructors
-	 * @param text level string
-	 * @param check check for missing ships
-	 * @throws InvalidLevelException
-	 */
-	private void build(String text, boolean check) throws InvalidLevelException  {	
 		int charNum = 0;
 		int counter = 0; // for counting lines
 		

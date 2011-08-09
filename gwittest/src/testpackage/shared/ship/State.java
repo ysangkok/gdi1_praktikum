@@ -15,6 +15,8 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	 * shots per ship disabled by default
 	 */
 	public boolean shotspershipenabled = false;
+	private int lastammocount;
+	public int getLastAmmoCount() { return lastammocount; }
 	/**
 	 * same dimensions as with boards
 	 */
@@ -99,15 +101,28 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	}
 
 	/**
+	 * DANGEROUS. set level
+	 *
+	 */
+	public void setLevel(Level level, Integer ammocount) {
+		this.level = level;
+		if (shotspershipenabled) initRemainingShots(ammocount);
+	}
+
+	public State clone() {
+		return clone(true);
+	}
+
+	/**
 	 * returns an independent State containing all the current values
 	 */
 	//@Override
-	public State clone() {
+	public State clone(boolean check) {
 		State newState;
 		try {
 			//System.out.println(level.toString());
 			
-			newState = new State(new Level(level.toString()));
+			newState = new State(new Level(level.toString(), check));
 		} catch (InvalidLevelException e) {
 			//System.err.println("We generated an invalid level!" + e.getMessage());
 			e.printStackTrace();
@@ -142,6 +157,25 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 		newState.turn = turn;
 		return newState;
 	}
+
+    void initRemainingShots(int ammocount) {
+		this.lastammocount = ammocount;
+
+		remainingshots = new Integer[2][level.getXWidth()][level.getYWidth()];
+		shotspershipenabled = true;
+		
+		//state.chosenFiringX = new int[] {-1, -1};
+		//state.chosenFiringY = new int[] {-1, -1};
+		
+		for ( int i : new int[] {0, 1})
+			for ( int j=0; j<remainingshots[0].length; j++)
+				for ( int k=0; k<remainingshots[0][0].length; k++)
+					if (level.isShipAt(Engine.otherPlayer(i),j,k))
+						remainingshots[Engine.otherPlayer(i)][j][k] = ammocount;
+					else 
+						remainingshots[Engine.otherPlayer(i)][j][k] = 0;
+
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> T[] clone(T[] array) {

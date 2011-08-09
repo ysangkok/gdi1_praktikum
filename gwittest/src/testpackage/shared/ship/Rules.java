@@ -8,15 +8,15 @@ public class Rules {
 	/**
 	 * Necessary for test compliance
 	 */
-	static int defaultWidth = 10;
+	public static int defaultWidth = 10;
 	/**
 	 * Necessary for test compliance
 	 */
-	static int defaultHeight = 10;
+	public static int defaultHeight = 10;
 	/**
 	 * Necessary for test compliance
 	 */
-	static boolean defaultAllowMultipleShotsPerTurn = false;
+	public static boolean defaultAllowMultipleShotsPerTurn = false;
 	
 	/**
 	 * default ship counts. first: ship length; second: ship count

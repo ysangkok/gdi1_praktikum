@@ -97,12 +97,12 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	 * constructor shows window
 	 * @param parent parent will normally be GUIShiffe frame
 	 */
-	public placeOwnShipsDialog(JFrame parent, Translator translator) {
+	public placeOwnShipsDialog(JFrame parent, Translator translator, Engine engine) {
 		super(parent, translator.translateMessage("POSDWindowTitle"), true);
 		
 		this.translator=translator;
+		this.engine=engine;
 		
-		engine = new Engine();
 		engine.getState().getLevel().clearPlayerBoard();
 		
 		Container cp = getContentPane();

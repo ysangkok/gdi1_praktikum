@@ -158,8 +158,8 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 	}
 
 	public void kill() {
+		pause();
 		pt.interrupt();
-		play();
 	}
 
 }

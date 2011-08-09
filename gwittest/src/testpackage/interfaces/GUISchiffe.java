@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -46,6 +47,7 @@ import testpackage.shared.ship.Level;
 import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.SoundHandler;
+import testpackage.shared.ship.LevelGenerator;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
@@ -73,6 +75,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private JLabel hitsLabel;
 	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
+	private JCheckBoxMenuItem soundcb;
 
 	public static String getResourceAsString(String path) {
 		return new Scanner(GUISchiffe.class.getResourceAsStream(path)).useDelimiter("\\A").next();
@@ -192,27 +195,35 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private void initDefaultGame() {
-		initNewEngineAndAI(false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class);
+		initNewEngineAndAI(false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
 	}
 	
-	private boolean placeOwnShipsWizard() {		
-		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame, translator);
+	private boolean placeOwnShipsWizard() {
+		Engine newengine = new Engine();
+
+		SettingsChooser s = new SettingsChooser(translator);
+		s.askForSettings(frame);
+		if (!s.finished) return false;
+		speerfeuer = s.speerfeuerenabled;
+		if (s.ammoenabled) {
+			newengine.enableShotsPerShip(s.ammospinnervalue);
+		}
+		newengine.setMoreShots(s.moreshotsenabled);
+
+		//System.err.println(newengine.isShotsPerShipEnabled());
+		placeOwnShipsDialog shipchooser = new placeOwnShipsDialog(frame, translator, newengine);
+		//System.err.println(newengine.isShotsPerShipEnabled());
 
 		shipchooser.setVisible(true); // blocks. i.e. next line is only executed after ship chooser is closed.
+		//System.err.println(newengine.isShotsPerShipEnabled());
 
 		if (shipchooser.finished ) {
-			SettingsChooser s = new SettingsChooser(translator);
-			s.askForSettings(frame);
-			if (!s.finished) return false;
-			speerfeuer = s.speerfeuerenabled;
-			
-			engine = shipchooser.engine;
-			if (s.ammoenabled) engine.enableShotsPerShip(s.ammospinnervalue);
+			engine = newengine;
 			
 			instantiateAndSetAI(s.chosenAI);
 			
 			frame.dispose();
-		    showFrame();
+			showFrame();
 			return true;
 		}
 		return false;
@@ -247,7 +258,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	private static class actions {
 		static enum actionnames {
-			quicknewgame, save, load, newplaceownships, newgenerated, about, skins
+			quicknewgame, save, load, newplaceownships, newgenerated, about, skins, soundcb
 		}
 		
 		public static String quicknewgame = actionnames.quicknewgame.name();
@@ -258,6 +269,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		public static String about = actionnames.about.name();
 		public static String skins = actionnames.skins.name();
 		public static String quit = actionnames.skins.name();
+		public static String soundcb = actionnames.soundcb.name();
 	}
 	
 	@Override
@@ -283,10 +295,20 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			if (speerfeuer && startedNewGame) clock.resetCountdown();
 		} else if (a.equals(actions.quit)) {
 			shutdown();
+		} else if (a.equals(actions.soundcb)) {
+			toggleSound();
 		} else {
 			throw new RuntimeException("Unknown action!");
 		}
 		if (speerfeuer) clock.resume();
+	}
+
+	private void toggleSound() {
+		if (soundcb.isSelected()) {
+			initSound();
+		} else {
+			uninitSound();
+		}
 	}
 	
 	private void setStatusBarMessage(String message) {
@@ -300,7 +322,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 16));
 		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
 		statusLabel = new JLabel();
-		if (engine.getState().shotspershipenabled) {
+		if (engine.isShotsPerShipEnabled()) {
 			setStatusBarMessage(translator.translateMessage("constructorShooterSelect"));
 		} else {
 			setStatusBarMessage(translator.translateMessage("constructorJustAttack"));
@@ -451,6 +473,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		languageMenu.add(germanItem);
 		// End Language Menu
 
+		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true, true);
+		soundcb.setActionCommand(actions.soundcb);
+		soundcb.addActionListener(this);
+		
+		Options.add(soundcb);
+
 	}
 	
 	private JPanel setUpBoardPanels() {
@@ -473,6 +501,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		frame.dispose();
 		uninitSound();
 		System.err.println("Done");
+		System.exit(0);
 	}
 
 	public static void main(String[] args) {
@@ -508,37 +537,37 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			throw new RuntimeException(String.format("Template level corrupted: %s",chosenLvl),e);
 		}
 		
-		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass());
+		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass(), Rules.defaultAllowMultipleShotsPerTurn);
 		
 		frame.dispose();
 		showFrame();
 	}
 
-	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
+	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
 		engine = new Engine(level);
 		engine.setSoundHandler(this);
 		
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
 		if (enableshotspership) engine.enableShotsPerShip(ammocount);
+		engine.setMoreShots(moreshots);
 		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI) {
-		engine = new Engine();
-		engine.setSoundHandler(this);
-		
-		this.speerfeuer = speerfeuer;
-		this.speerfeuertime = time;
-		if (enableshotspership) engine.enableShotsPerShip(ammocount);
-		instantiateAndSetAI(chosenAI);
+	private void initNewEngineAndAI(boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
+		initNewEngineAndAIWithLevel(	new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel(),
+						enableshotspership,
+						speerfeuer,
+						ammocount,
+						time,
+						chosenAI, moreshots);
 	}
 	
 	private boolean generatedNewGame() {
 		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
 		if (!s.finished) return false;
-		initNewEngineAndAI(s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI);
+		initNewEngineAndAI(s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
 		
 		frame.dispose();
 		showFrame();
@@ -615,7 +644,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	@Override
 	public void bomb(int player, int x, int y) {
 			if (player == 0) {
-				if (engine.getState().shotspershipenabled) {
+				if (engine.isShotsPerShipEnabled()) {
 					try {
 						int shots = engine.chooseFiringXY(player, y, x);
 						setStatusBarMessage(translator.translateMessage("bombSelectShooter", String.valueOf(x),String.valueOf(y),String.valueOf(shots)));
@@ -638,8 +667,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				if (speerfeuer) clock.resume();
 				return;
 			}
+			//System.err.println(engine.getState().isPlayerTurn());
 			
-			if (engine.getState().shotspershipenabled && player == 1)
+			if (engine.isShotsPerShipEnabled() && player == 1)
 				try {
 					setStatusBarMessage(translator.translateMessage("bombRemainingShots", String.valueOf(engine.remainingShotsFor(0))));
 				} catch (InvalidInstruction e) {
