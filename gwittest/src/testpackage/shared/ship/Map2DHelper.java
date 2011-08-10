@@ -15,7 +15,7 @@ public class Map2DHelper<T> {
 	 * @param a board to view
 	 * @return string for output
 	 */
-	String getBoardString(char[][] a) {
+	public String getBoardString(char[][] a) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
@@ -32,7 +32,7 @@ public class Map2DHelper<T> {
 	 * @param a board to view
 	 * @return string for output
 	 */
-	String getBoardString(T[][] a) {
+	public String getBoardString(T[][] a) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {

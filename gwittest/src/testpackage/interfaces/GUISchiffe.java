@@ -200,7 +200,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private void initDefaultGame() {
-		initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
+		try {
+			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
+		} catch (InvalidLevelException ex) {
+			throw new RuntimeException("Default level probably impossible", ex);
+		}
 	}
 	
 	private boolean placeOwnShipsWizard() {
@@ -586,8 +590,14 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
-		initNewEngineAndAIWithLevel(	new LevelGenerator(w, h).getLevel(),
+	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) throws InvalidLevelException {
+		Level l;
+		try {
+			l = new LevelGenerator(w, h).getLevel();
+		} catch (InvalidLevelException ex) {
+			throw ex;
+		}
+		initNewEngineAndAIWithLevel(	l,
 						enableshotspership,
 						speerfeuer,
 						ammocount,
@@ -599,7 +609,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
 		if (!s.finished) return false;
-		initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
+		try {
+			initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
+		} catch (InvalidLevelException ex) {
+			userError(ex.getMessage());
+			return false;
+		}
 		
 		frame.dispose();
 		showFrame();

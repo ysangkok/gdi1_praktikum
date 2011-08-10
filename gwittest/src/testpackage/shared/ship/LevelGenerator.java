@@ -110,7 +110,7 @@ public class LevelGenerator {
 	 * @param p player which should have ships drawn for him
 	 * @param boatCount rules to abide by
 	 */
-	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) {
+	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) throws InvalidLevelException {
 	    Iterator<Entry<Integer, Integer>> it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<Integer, Integer> pairs = (Map.Entry<Integer, Integer>)it.next();
@@ -119,8 +119,7 @@ public class LevelGenerator {
 				try {
 					lg.placeShipLoop((int) pairs.getKey(), p);
 				} catch (LevelGenerationException e) {
-					System.err.println(e.getMessage());
-					return;
+					throw new InvalidLevelException(e.getMessage());
 				}
 				if (!DEBUG) continue;
 				try {
@@ -144,15 +143,19 @@ public class LevelGenerator {
 			boolean alongXAxis = gen.nextBoolean();
 			int x;
 			int y;
-			if (alongXAxis) {
-				 x = gen.nextInt(xwidth - shiplength);
-				 y = gen.nextInt(ywidth);
-			} else {
-				 x = gen.nextInt(xwidth);
-				 y = gen.nextInt(ywidth - shiplength);			
-			}
-
 			try {
+				try {
+					if (alongXAxis) {
+						x = gen.nextInt(xwidth - shiplength);
+						y = gen.nextInt(ywidth);
+					} else {
+						x = gen.nextInt(xwidth);
+						y = gen.nextInt(ywidth - shiplength);
+					}
+				} catch (IllegalArgumentException ex) {
+					throw new PlaceShipRulesViolation();
+				}
+
 				placeShip(shiplength, p, x, y, alongXAxis);
 			} catch (PlaceShipRulesViolation e) {
 				tries++;
@@ -276,7 +279,7 @@ public class LevelGenerator {
 	 * default level getter will check integrity
 	 * @return generated Level
 	 */
-	public Level getLevel() {
+	public Level getLevel() throws InvalidLevelException {
 		return getLevel(true);
 	}
 	
@@ -285,17 +288,18 @@ public class LevelGenerator {
 	 * @param check whether to check ship counts. obviously disabled when manually placing ships since we need to gradually show the level before it's completed
 	 * @return Level instance 
 	 */
-	public Level getLevel(boolean check) {
+	public Level getLevel(boolean check) throws InvalidLevelException {
 		try {
 			return new Level(getLevelString(), check, false);
 		} catch (InvalidLevelException e) {
-			Map2DHelper<Object> helper = new Map2DHelper<Object>();
-			System.err.println(helper.getBoardString(getBoard(0)));
-			System.err.println(helper.getBoardString(getBoard(1)));
+			//Map2DHelper<Object> helper = new Map2DHelper<Object>();
+			//System.err.println(helper.getBoardString(getBoard(0)));
+			//System.err.println(helper.getBoardString(getBoard(1)));
 			
-			e.printStackTrace();
+			//e.printStackTrace();
+			e.setBoards(boards);
+			throw e;
 		}
-		return null;
 	}
 	
 	/**
