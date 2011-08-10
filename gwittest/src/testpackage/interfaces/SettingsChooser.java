@@ -21,6 +21,7 @@ import javax.swing.*;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.GoodAI;
+import testpackage.shared.ship.IntelligentAI;
 import testpackage.shared.ship.Rules;
 import translator.Translator;
 
@@ -93,7 +94,7 @@ class SettingsChooser {
 		ammospinner.setEnabled(ammoenabled);
 		
 		@SuppressWarnings("unchecked")
-		final Class<? extends AI>[] availableAIs = new Class[] {BadAI.class, GoodAI.class};
+		final Class<? extends AI>[] availableAIs = new Class[] {BadAI.class, GoodAI.class, IntelligentAI.class};
 		final JComboBox aidropdown = new JComboBox();
 		for (Class<? extends AI> ai : availableAIs) {
 			String name = ai.getName();

@@ -44,6 +44,8 @@ import javax.swing.ButtonGroup;
 
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
+import testpackage.shared.ship.IntelligentAI;
+import testpackage.shared.ship.GoodAI;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Level;
 import testpackage.shared.ship.Rules;
@@ -201,7 +203,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	
 	private void initDefaultGame() {
 		try {
-			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn);
+			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, IntelligentAI.class, Rules.defaultAllowMultipleShotsPerTurn);
 		} catch (InvalidLevelException ex) {
 			throw new RuntimeException("Default level probably impossible", ex);
 		}
@@ -759,10 +761,13 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	void aiAttackAs(int player) {		
 		int i = 0;
 		while (!engine.getState().isPlayerTurn() && !engine.isFinished()) {
-			System.out.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
+			System.err.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
+			System.err.flush();
 			ai.playAs(player);
 			engine.checkWin();
+			if (i >= 100) throw new RuntimeException("AI broken");
 		}
+
 		panels[Engine.otherPlayer(player)].refresh();
 		
 		if (engine.isFinished()) { GameOver(); return; }

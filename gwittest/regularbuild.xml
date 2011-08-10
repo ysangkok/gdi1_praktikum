@@ -27,7 +27,7 @@
 
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="on" debuglevel="lines,vars,source">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="on" debuglevel="lines,vars,source" source="1.6">
 	  <exclude name="testpackage/highscore/*.java" />
           <classpath refid="project.class.path" />
         </javac>
@@ -54,7 +54,8 @@
     </target>
 
     <target name="alternaterun" depends="jar">
-       <java classname="testpackage.interfaces.SoundStreamPlayer">
+       <java classname="testpackage.interfaces.GUISchiffe" fork="true">
+	 <assertions><enable /></assertions>
          <classpath>
            <pathelement location="${jar.dir}/${ant.project.name}.jar" />
            <path refid="project.class.path" />

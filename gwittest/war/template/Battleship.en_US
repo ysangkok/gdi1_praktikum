@@ -97,6 +97,8 @@ SCAmmoLabel=Ammo per ship field:
 SCAILabel=AI:
 SCAIUncapable=<html>{0} doesn&rsquo;t support ammunition. Choose another AI.</html>
 SCMoreShots=Allow extra shots in when hit
+SCHeightLabel=Width of boards:
+SCWidthLabel=Height of boards:
 
 //Place ships
 POSDN_Ship={0}-ship:
