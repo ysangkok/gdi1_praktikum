@@ -1,78 +1,94 @@
 multi=One {0} two {1} three {2} parameters
 noSuchKeyException=no resource found for {0}!
+hitCounter=You: {0} hits : Computer: {1} hits 
 
-guiFrame=Schiffe Versenken
+guiFrame=Battleship
 
 //LanguageMenu
 languageMenu.label=Language
+languageMenu.toolTipText=choose language
 German.label=German
+German.toolTipText=German
 English.label=English
+English.toolTipText=English
+Russian.label=Russian
+Russian.toolTipText=Russian
+
 
 //file
 fileMenu.label=File
-fileMenu.toolTipText=
+fileMenu.toolTipText=File
 
 //Options
 Options.label=Options
-Options.toolTipText=
+Options.toolTipText=Options
 
 //New
 New.label=New...
-New.toolTipText=
+New.toolTipText=New
 
 //About
 About.label=About us
-About.toolTipText=
+About.toolTipText=About us
 
 //QuickNew
 QuickNew.label=Load built-in level
-QuickNew.toolTipText=
+QuickNew.toolTipText=Load built-in level
 QuickNew.mnemonic=n
 
 //PlaceShips
 PlaceShips.label=Place own ships
-PlaceShips.toolTipText=
+PlaceShips.toolTipText=Place own ships
 PlaceShips.mnemonic=p
 
 //DefaultNewGame
 DefaultNewGame.label=Randomly placed ships
-DefaultNewGame.toolTipText=
+DefaultNewGame.toolTipText=Random
 DefaultNewGame.mnemonic=g
 
 //SaveGame
 saveGame.label=Save game
-saveGame.toolTipText=
+saveGame.toolTipText=Save game
 saveGame.mnemonic=control S
 
 //loadItem
 loadGame.label=Load game
-loadGame.toolTipText=
+loadGame.toolTipText=Load game
 loadGame.mnemonic=control L
 
 quit.label=Quit
+quit.toolTipText=Quit
 
+//Game over
 gameOverDraw=Draw.
 gameOverWinner=Player {0} won!
 gameOverWindowTitle=Game over
+
 // 0 ist hier gameOverWinner/Draw
 gameOverReasonLabel=Game over. {0} Reason: {1}
 gameOverQuit=Quit
 gameOverStartOver=Start over
 
+//Constructor
 constructorShooterSelect=Select a shooter
 constructorJustAttack=Shots per ship is not enabled, just attack a field on the right side.
 
+//Error
 userErrorWindowTitle=Error
 
+//About
 aboutContent=Gruppe 16: Dimitrios, Janus, Alymbek, Yanai
 aboutWindowTitle=About
 
+//Shots
 bombSelectShooter=Selected ({0},{1}): {2} shots remaining
 bombRemainingShots=Remaining shots: {0}
 
+//Buttons
 OK=OK
 Cancel=Cancel
 
+//SC
 SCWindowTitle=Choose game type
 SCSpeerCheckBox=Speerfeuer enabled
 SCAmmoCheckBox=Ammunition enabled
@@ -80,7 +96,9 @@ SCSpeerLabel=Time per turn in seconds:
 SCAmmoLabel=Ammo per ship field:
 SCAILabel=AI:
 SCAIUncapable=<html>{0} doesn&rsquo;t support ammunition. Choose another AI.</html>
+SCMoreShots=Allow extra shots in when hit
 
+//Place ships
 POSDN_Ship={0}-ship:
 POSDPlace=Place 
 POSDWindowTitle=Place your ships
@@ -90,19 +108,17 @@ CRVertical=Vertical
 CRWindowTitle=Click a position
 CRLabel=<html>Choose orientation and click<br>top/left end of ship on board.</html>
 
+//Messages
 RNoMoreAmmo=<html>The selected firing field is out of ammunition. Choose a new firing location before firing.</html>
 RNoShooterDesignated=<html>You did not designate a shooter yet. Click a field on your own board (left) to do that.</html>
 RNotShootable=<html>You can&rsquo;t shoot there. Note, that you can&rsquo;t shoot the same field twice.</html> 
 RNotYourTurn=<html>It&rsquo;s not your turn. Wait.</html>
 
-hitCounter=You: {0} hits : Computer: {1} hits 
-
+//sound
 enableSounds.label=Sounds enabled
+enableSounds.toolTipText=Sounds enabled
 
-SCMoreShots=Allow extra shots in when hit
-SCHeightLabel=Width of boards:
-SCWidthLabel=Height of boards:
-
+//skins 
 skinMenu.label=Skins
-Russian.label=Russian
-skinMenuChoose=Choose {0}
+skinMenu.toolTipText=Skins
+skinMenuChoose=Choose

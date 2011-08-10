@@ -1,12 +1,18 @@
-multi=Eins {0} zwei {1} drei {2} parameters
+﻿multi=Eins {0} zwei {1} drei {2} parameters
 noSuchKeyException=Es gibt keine Ressource f\u00fcr Eintrag {0}!
 
 guiFrame=Schiffe Versenken
 
 //Language Menu
 languageMenu.label=Sprache
+languageMenu.toolTipText=Sprache auswaehlen
 German.label=Deutsch
+German.toolTipText=Deutsch
 English.label=Englisch
+English.toolTipText=Englisch
+Russian.label=Russisch
+Russian.toolTipText=Russisch
+
 
 //file
 fileMenu.label=Datei
@@ -14,38 +20,108 @@ fileMenu.toolTipText=
 
 //Options
 Options.label=Einstellungen
-Options.toolTipText=
+Options.toolTipText=Einstellungen
+
+//skins
+skins.label=Skins
+skins.toolTipText=Skins
 
 //New
 New.label=Neues...
-New.toolTipText=
+New.toolTipText=Neues
 
 //About
-About.label=Über uns
-About.toolTipText=
+About.label=About-Fenster
+About.toolTipText=Ueber uns
 
 //QuickNew
-QuickNew.label=Eingebautes Level
-QuickNew.toolTipText=
+QuickNew.label=Eingebautes Level 
+QuickNew.toolTipText=Spielen mit eingebaitem Level
 QuickNew.mnemonic=n
 
 //PlaceShips
 PlaceShips.label=Schiffe selbst einrichten
-PlaceShips.toolTipText=
+PlaceShips.toolTipText=Schiffe selbst einrichten
 PlaceShips.mnemonic=p
 
 //DefaultNewGame
-DefaultNewGame.label=Standardmässig (generiert)
+DefaultNewGame.label=Spiel mit generiertem Level
 DefaultNewGame.toolTipText=Neues Spiel mit random Schiffen
 DefaultNewGame.mnemonic=g
 
 //SaveGame
 saveGame.label=Speichern
-saveGame.toolTipText=
+saveGame.toolTipText=Speichern
 saveGame.mnemonic=control S
 
 //loadItem
 loadGame.label=Laden
-loadGame.toolTipText=
+loadGame.toolTipText=Laden
 loadGame.mnemonic=control L
+
+
+quit.label=Beenden
+quit.toolTipText=Beenden
+
+//Game over
+gameOverDraw=Unentschieden
+gameOverWinner=Spieler {0} hat gewonnen!
+gameOverWindowTitle=Spiel wurde beendet
+
+// 0 ist hier gameOverWinner/Draw
+gameOverReasonLabel=Spiel wurde beendet. {0} Grund: {1}
+gameOverQuit=Beenden
+gameOverStartOver=Neu starten
+
+
+
+//Constructor
+constructorShooterSelect=den Shiesser waehlen
+constructorJustAttack=Schuesse pro Schiff wurde nicht angeschaltet, einfach auf der rechten Seite attakieren
+
+//Error
+userErrorWindowTitle=Fehler
+
+//About
+aboutContent=Gruppe 16: Dimitrios, Janus, Alymbek, Yanai
+aboutWindowTitle=Ueber uns
+
+//Shots
+bombSelectShooter=({0},{1}) ausgewaehlt. {2} Schuesse sind uebrig
+bombRemainingShots={0} Schuesse sind uebrig
+
+//buttons
+OK=OK
+Cancel=Abbrechen
+
+//SC
+SCWindowTitle=Spieltyp auswaehlen
+SCSpeerCheckBox=Speerfeuer angeschaltet
+SCAmmoCheckBox=Ammunition angeschaltet
+SCSpeerLabel=Zeit pro Zug in sekunden:
+SCAmmoLabel=Ammo pro Schifffield:
+SCAILabel=AI:
+SCAIUncapable=<html>{0} unterschtuetzt ammunition nicht. Eine andere AI auswaehlen.</html>
+
+POSDN_Ship={0}-Schiff:
+
+CRHorizontal=Horizontal
+CRVertical=Vertical
+CRWindowTitle=Position anclicken
+CRLabel=<html>Eine orientation auswaehlen und <br>ganze/linke Seite von Schiff auf den Board anclicken.</html>
+
+//Messages
+RNoMoreAmmo=<html>Das ausgewaehlte Field hat keine Ammution mehr. Vor dem Schiess eine neue zu feuernde Locations auswaehlen.</html>
+RNoShooterDesignated=<html>Sie haben noch keinen Schiff ausgewaehlt. Das Field auf Ihrem Board anclicken (linke Seite).</html>
+RNotShootable=<html>Sie koennen nicht da schiessen. Sie koennen nicht auf das selbe Field zwei mal anschiessen.</html> 
+RNotYourTurn=<html>Bitte auf den anderen Spieler warten.</html>
+
+//sound
+enableSounds.label=Sounds angeschaltet
+enableSounds.toolTipText=Sounds angeschaltet
+
+//skins 
+skinMenu.label=Skin wechseln
+skinMenu.toolTipText=Skin wechseln
+skinMenuChoose=Auswaehlen
 
