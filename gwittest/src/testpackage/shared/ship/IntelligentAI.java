@@ -72,6 +72,10 @@ public class IntelligentAI extends AI {
 	
 	public boolean supportsAmmo() { return false; }
 	
+	private static void Debug(String str) {
+		//System.err.println(str);
+	}
+
 	public IntelligentAI() {
 		doffset = new HashMap<Direction, Offset>();
 		doffset.put(Direction.NORTH, new Offset(-1, 0));
@@ -102,9 +106,8 @@ public class IntelligentAI extends AI {
 
 	@Override
 	public void playAs(int player) {
-		assert !engine.getState().isPlayerTurn();
 		if (randomMode) {
-			System.err.println("  randomMode: TRUE");
+			Debug("  randomMode: TRUE");
 			try {
 				lastX = gen.nextInt(xwidth);
 				lastY = gen.nextInt(ywidth);
@@ -112,7 +115,7 @@ public class IntelligentAI extends AI {
 				char lastChar = engine.attack(player, lastX, lastY);
 
 				if (hitShip(lastChar)) {
-					System.err.println("      hit: TRUE");
+					Debug("      hit: TRUE");
 					randomMode = false;
 					originalShipX = lastX;
 					originalShipY = lastY;
@@ -122,39 +125,45 @@ public class IntelligentAI extends AI {
 				return;
 			}
 		} else {
-			System.err.println("  randomMode: FALSE");
-			System.err.println("    CDir: " + currentDirection);
+			Debug("  randomMode: FALSE");
+			Debug("    CDir: " + currentDirection);
 			if (currentDirection == Direction.UNKNOWN) {
 				assert !triedOtherDirection;
-				if (tried.size() > 4) throw new RuntimeException(Arrays.toString(tried.toArray()));
-				int nextInt = gen.nextInt(4 - tried.size());
+				if (tried.size() >= 4) { randomMode(); return; }
+
+				int nextInt = 0;
+				if (tried.size() < 4) nextInt = gen.nextInt(4 - tried.size());
+
 				Set<Direction> dset = new HashSet<Direction>();
+
 				dset.addAll(new HashSet(Arrays.asList(new Direction[] {Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH})));
 				dset.removeAll(tried);
+
 				Direction chosenDirection = (Direction) (dset.toArray())[nextInt];
 				tried.add(chosenDirection);
+
 				char hit;
 				try {
 					hit = engine.attack(player, lastX+doffset.get(chosenDirection).x, lastY+doffset.get(chosenDirection).y);
 				} catch (InvalidInstruction e) {
-					System.err.println("      hit: COULDNT SHOOT");
-					System.err.println("      lastX: " + lastX);
-					System.err.println("      lastY: " + lastY);
-					System.err.println("      nextInt: " + nextInt);
+					Debug("      hit: COULDNT SHOOT");
+					Debug("      lastX: " + lastX);
+					Debug("      lastY: " + lastY);
+					Debug("      nextInt: " + nextInt);
 					if (tried.size() == 4) {
 						randomMode();
 					} else {
-						System.err.println("        " + Arrays.toString(tried.toArray()));
+						Debug("        " + Arrays.toString(tried.toArray()));
 					}
 					return;
 				}
 				if (hitShip(hit)) {
-					System.err.println("      hit: TRUE");
+					Debug("      hit: TRUE");
 					lastX = lastX+doffset.get(chosenDirection).x;
 					lastY = lastY+doffset.get(chosenDirection).y;
 					currentDirection = chosenDirection;
 				} else {
-					System.err.println("      hit: FALSE");
+					Debug("      hit: FALSE");
 				}
 			} else {
 				char hit;
@@ -163,17 +172,17 @@ public class IntelligentAI extends AI {
 					lastY = lastY+doffset.get(currentDirection).y;
 					hit = engine.attack(player, lastX, lastY);
 				} catch (InvalidInstruction e) {
-					System.err.println(e.getMessage());
+					Debug(e.getMessage());
 					randomMode();
 					return;
 				}
 				if (!hitShip(hit)) {
-					System.err.println("      hit: FALSE");
+					Debug("      hit: FALSE");
 					if (triedOtherDirection) {
-						System.err.println("        tried other: TRUE");
+						Debug("        tried other: TRUE");
 						randomMode();
 					} else {
-						System.err.println("        tried other: FALSE");
+						Debug("        tried other: FALSE");
 						triedOtherDirection = true;
 						currentDirection = Direction.opposite(currentDirection);
 						lastX = originalShipX;
