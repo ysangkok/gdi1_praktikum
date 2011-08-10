@@ -112,15 +112,7 @@ public String getHighscoreString() {
     String highscoreString = "";
 
 
-    //ArrayList<Score> scores;
-    //scores = getScores();
 
-    //int i = 0;
-    //int x = scores.size();
-    //if (x > max) {
-    //    x = max;
-    //}
-   // while (i < x) {
      
     int i = 0;
     for(Score s : scores){
