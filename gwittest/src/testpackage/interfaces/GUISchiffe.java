@@ -492,7 +492,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		languageMenu.add(russianItem);
 		// End Language Menu
 
-		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true, true);
+		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true);
 		soundcb.setActionCommand(actions.soundcb);
 		soundcb.addActionListener(this);
 		
@@ -500,10 +500,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 		JMenu skinMenu = guiBuilder.generateJMenu("skinMenu");
 		ButtonGroup group = new ButtonGroup();
-		skinButtonToSkinName = new HashMap<JRadioButtonMenuItem, String>();
+		skinButtonToSkinName = new HashMap<JMenuItem, String>();
 		for (String skinname : TemplateImages.allSkins) {
-			JRadioButtonMenuItem radioitem = new JRadioButtonMenuItem(translator.translateMessage("skinMenuChoose", skinname));
-			if (currentSkin.equals(skinname)) radioitem.setSelected(true);
+			JMenuItem radioitem = guiBuilder.generateToggleableJMenuItem("skinMenuChoose", new String[] {skinname}, false, currentSkin.equals(skinname));
 			radioitem.setActionCommand(actions.skins);
 			radioitem.addActionListener(this);
 			group.add(radioitem);
@@ -515,7 +514,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	}
 
-	private Map<JRadioButtonMenuItem, String> skinButtonToSkinName;
+	private Map<JMenuItem, String> skinButtonToSkinName;
 	
 	private JPanel setUpBoardPanels() {
 		JPanel boardpanel = new JPanel();

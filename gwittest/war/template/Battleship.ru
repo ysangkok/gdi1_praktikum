@@ -118,4 +118,4 @@ enableSounds.toolTipText=Включить звуки
 //skins 
 skinMenu.label=Цветовое оформление
 skinMenu.toolTipText=Обложки
-skinMenuChoose=Выбрать
+skinMenuChoose.label=Выбрать {0}

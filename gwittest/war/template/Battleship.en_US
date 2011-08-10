@@ -121,4 +121,4 @@ enableSounds.toolTipText=Sounds enabled
 //skins 
 skinMenu.label=Skins
 skinMenu.toolTipText=Skins
-skinMenuChoose=Choose
+skinMenuChoose.label=Choose {0}
