@@ -166,7 +166,7 @@ public class GoodAI extends AI {
 				currentY = lastY;
 			}
 			
-			if (currentChar == 'T'){
+			if (currentChar == 'X'){
 				dirNorth = false;
 				randomMode = true;
 				currentChar = '\0';
@@ -218,7 +218,7 @@ public class GoodAI extends AI {
 				currentChar = lastChar;
 			}
 			
-			if (currentChar == 'L'){
+			if (currentChar == 'X'){
 				dirWest = false;
 				randomMode = true;
 				currentChar = '\0';

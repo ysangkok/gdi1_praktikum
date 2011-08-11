@@ -58,7 +58,10 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 	    group.add(rbutton1);
 	    group.add(rbutton2);
 	    
+		boolean before = engine.getState().shotspershipenabled;
+		engine.getState().shotspershipenabled = false;
 		BoardPanel bpanel = new BoardPanel(this, engine, 0, true);
+		engine.getState().shotspershipenabled = before;
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		//panel.setLayout(new FlowLayout());

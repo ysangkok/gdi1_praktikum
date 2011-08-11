@@ -253,7 +253,13 @@ public class Engine {
 		boolean[][] fog = state.getFog(player);
 		fog[x][y] = false; // this field is not visible
 		
-		return hit;
+		if (Level.isShip(hit)) {
+			Character[][] b = state.getLevel().getPlayerBoard(otherPlayer(player));
+			boolean allshotup = Level.getShipAt(Level.getShips(b), x, y).isAllShotUp(b);
+			System.err.println("hit: " + hit + ", allshotup: " + allshotup);
+			return (allshotup ? 'X' : 'Y');
+		} else
+			return hit;
 	}
 
 	public boolean isShotsPerShipEnabled() {

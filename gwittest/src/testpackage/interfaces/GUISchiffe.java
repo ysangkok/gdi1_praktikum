@@ -77,7 +77,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private final Translator translator;
 	private JLabel statusLabel;
 	private JLabel hitsLabel;
-	private int[] keyboardSelected = {0,0,0}; // player 0, coord 0,0
+	private int[] keyboardSelected = {1,0,0}; // player 0, coord 0,0
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
 	private JCheckBoxMenuItem soundcb;
 	private String currentSkin = "defaultskin";

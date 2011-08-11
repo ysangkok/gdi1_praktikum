@@ -187,10 +187,8 @@ public class BattleshipTestAdapterMinimal {
 		
 		player = Engine.otherPlayer(player);
 		
-		char c = '\0';
 		try {
-			c = engine.attack(player, x, y);
-			System.out.println("Shot result: "+c);
+			System.out.println("Shot result: "+engine.attack(player, x, y));
 		} catch (InvalidInstruction e) {
 			System.err.println(e.getMessage());
 			catched = true;

@@ -42,13 +42,18 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private boolean dontfog;
 	private Vector<JButton> entities;
 	SelectedTriple currentlyselected;
-	private Border standardBorder = getBorder(Color.BLACK);
-	private Border fancyBorder = getBorder(Color.WHITE);
-	private Border selectedShooterBorder = getBorder(Color.RED);
+	private Border standardBorder;
+	private Border fancyBorder;
+	private Border selectedShooterBorder;
 	private List<Border> remainingAmmoBorders;
+	Map<JButton, Border> originalBorders;
 	
 	private Border getBorder(Color c) {
-		return BorderFactory.createMatteBorder(2,2,2,2,c);
+		if (engine.getState().shotspershipenabled)
+			return BorderFactory.createMatteBorder(2,2,2,2,c);
+		else
+			return BorderFactory.createMatteBorder(1,1,1,1,c);
+			
 	}
 
 	public BoardPanel getOtherBoard() {
@@ -66,13 +71,17 @@ public class BoardPanel extends JPanel implements MouseListener {
 		this.player = player;
 		this.dontfog = dontfog;
 
+		standardBorder = getBorder(Color.BLACK);
+		fancyBorder = getBorder(Color.WHITE);
+		selectedShooterBorder = getBorder(Color.RED);
+
 		remainingAmmoBorders = new ArrayList<Border>();
 		int initialAmmoCount = engine.getInitialAmmoCount();
 		for (int i = 0; i <= initialAmmoCount; i++) {
-			float h = 0.66f;
-			float s = 0.75f;
+			float h = 0.10f;
+			float s = 1.00f;
 			float l = ((float) i) / initialAmmoCount;
-			remainingAmmoBorders.add(getBorder(Color.getHSBColor(h, s, l)));
+			remainingAmmoBorders.add(getBorder(Color.getHSBColor(h, s, 0.5f + l/2)));
 		}
 
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
@@ -95,7 +104,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 		addButtons();
 	}
 
-	Map<JButton, Border> originalBorders;
 
 	private void addButtons() {
 		buttons = new JButton[engine.getxWidth()][engine.getyWidth()];
@@ -141,7 +149,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 					if (engine.getState().getFiringX(0) == i && engine.getState().getFiringY(0) == j) {
 						bo = selectedShooterBorder;
 					} else {
-						bo = remainingAmmoBorders.get(engine.remainingShotsFor(0,i,j));
+						if (engine.getState().getLevel().isShipAt(0,i,j))
+						  bo = remainingAmmoBorders.get(engine.remainingShotsFor(0,i,j));
+						else
+						  bo = standardBorder;
 					}
 				}
 				originalBorders.put(buttons[i][j], bo);

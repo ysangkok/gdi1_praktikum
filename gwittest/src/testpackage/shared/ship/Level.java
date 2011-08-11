@@ -454,7 +454,7 @@ public class Level implements Serializable {
 	 * @param y our coord format
 	 * @return true when it is a ship, otherwise false
 	 */
-	boolean isShipAt(int player, int x, int y) {
+	public boolean isShipAt(int player, int x, int y) {
 		return isShip(boards.get(player).get(x).get(y));
 	}
 	
