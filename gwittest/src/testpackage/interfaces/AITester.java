@@ -1,4 +1,4 @@
-package testpackage.shared.ship;
+package testpackage.interfaces;
 
 import java.util.*;
 import testpackage.shared.ship.*;
