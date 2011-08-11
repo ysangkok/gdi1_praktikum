@@ -1,6 +1,7 @@
 package testpackage.shared.ship;
 
 import java.util.*;
+import testpackage.shared.ship.*;
 
 public class AITester {
 Engine engine ;

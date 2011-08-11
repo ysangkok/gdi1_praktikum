@@ -419,10 +419,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //New
 	    JMenu newMenu = guiBuilder.generateJMenu("New");
+	    newMenu.setIcon(TemplateImages.getIcon("New16"));
 	    fileMenu.add(newMenu);
 	    
 	    //About
 	    JMenuItem About = guiBuilder.generateJMenuItem("About");
+	    About.setIcon(TemplateImages.getIcon("About16"));
 	    About.addActionListener(menuListener);
 	    About.setActionCommand(actions.about);
 	    Options.add(About);
@@ -449,6 +451,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //SaveGame
 	    JMenuItem saveItem = guiBuilder.generateJMenuItem("saveGame");
+	    saveItem.setIcon(TemplateImages.getIcon("Save16"));
 	    saveItem.addActionListener(menuListener);
 	    saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
 	    saveItem.setActionCommand(actions.save);
@@ -456,6 +459,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //loadGame
 	    JMenuItem loadItem = guiBuilder.generateJMenuItem("loadGame");
+	    loadItem.setIcon(TemplateImages.getIcon("Load16"));
 	    loadItem.addActionListener(menuListener);
 	    loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
 	    loadItem.setActionCommand(actions.load);
@@ -468,6 +472,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //Language Menu
 	    JMenu languageMenu = guiBuilder.generateJMenu("languageMenu");
+	    languageMenu.setIcon(TemplateImages.getIcon("Language16"));
 		
 	    JMenuItem germanItem = guiBuilder.generateJMenuItem("German");
 		germanItem.addActionListener(new ActionListener() {
@@ -495,6 +500,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		// End Language Menu
 
 		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true);
+	    	soundcb.setIcon(TemplateImages.getIcon("Sound16"));
 		soundcb.setActionCommand(actions.soundcb);
 		soundcb.addActionListener(this);
 		
@@ -505,6 +511,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		skinButtonToSkinName = new HashMap<JMenuItem, String>();
 		for (String skinname : TemplateImages.allSkins) {
 			JMenuItem radioitem = guiBuilder.generateToggleableJMenuItem("skinMenuChoose", new String[] {skinname}, false, currentSkin.equals(skinname));
+			radioitem.setIcon(new javax.swing.ImageIcon(this.getClass().getResource(TemplateImages.imagesdir + skinname + "/ship_top.png")));//LOLOL
 			radioitem.setActionCommand(actions.skins);
 			radioitem.addActionListener(this);
 			group.add(radioitem);

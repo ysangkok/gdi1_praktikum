@@ -52,4 +52,8 @@ public class TemplateImages {
 		}
 		return m.get(c);
 	}
+
+	public static javax.swing.ImageIcon getIcon(String iconName) {
+		return new javax.swing.ImageIcon(TemplateImages.class.getResource("/resources/icons/" + iconName + ".png"));
+	}
 }
