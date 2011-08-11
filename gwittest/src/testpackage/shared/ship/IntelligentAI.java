@@ -73,7 +73,7 @@ public class IntelligentAI extends AI {
 	public boolean supportsAmmo() { return false; }
 	
 	private static void Debug(String str) {
-		System.err.println(str);
+		//System.err.println(str);
 	}
 
 	public IntelligentAI() {
@@ -106,15 +106,16 @@ public class IntelligentAI extends AI {
 
 	@Override
 	public void playAs(int player) {
+		char hit = '\0';
 		if (randomMode) {
 			Debug("  randomMode: TRUE");
 			try {
 				lastX = gen.nextInt(xwidth);
 				lastY = gen.nextInt(ywidth);
 				
-				char lastChar = engine.attack(player, lastX, lastY);
+				hit = engine.attack(player, lastX, lastY);
 
-				if (hitShip(lastChar)) {
+				if (hitShip(hit)) {
 					Debug("      hit: TRUE");
 					randomMode = false;
 					originalShipX = lastX;
@@ -142,7 +143,6 @@ public class IntelligentAI extends AI {
 				Direction chosenDirection = (Direction) (dset.toArray())[nextInt];
 				tried.add(chosenDirection);
 
-				char hit;
 				try {
 					hit = engine.attack(player, lastX+doffset.get(chosenDirection).x, lastY+doffset.get(chosenDirection).y);
 				} catch (InvalidInstruction e) {
@@ -166,7 +166,6 @@ public class IntelligentAI extends AI {
 					Debug("      hit: FALSE");
 				}
 			} else {
-				char hit;
 				try {
 					lastX = lastX+doffset.get(currentDirection).x;
 					lastY = lastY+doffset.get(currentDirection).y;
@@ -189,6 +188,9 @@ public class IntelligentAI extends AI {
 						lastY = originalShipY;
 					}
 				}
+			}
+			if (hit == 'X') {
+				randomMode();
 			}
 		}
 	}
