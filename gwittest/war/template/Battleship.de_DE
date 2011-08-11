@@ -102,6 +102,9 @@ SCSpeerLabel=Zeit pro Zug in sekunden:
 SCAmmoLabel=Ammo pro Schifffield:
 SCAILabel=AI:
 SCAIUncapable=<html>{0} unterschtuetzt ammunition nicht. Eine andere AI auswaehlen.</html>
+SCMoreShots=Schiess nach dem Treffen erlaubt
+SCHeightLabel=Hoehe:
+SCWidthLabel=Breite:
 
 POSDN_Ship={0}-Schiff:
 

@@ -97,6 +97,9 @@ SCSpeerLabel=Время на один ход в секундах:
 SCAmmoLabel=Вооружение:
 SCAILabel=AI:
 SCAIUncapable=<html>{0} unterschtuetzt ammunition nicht. Eine andere AI auswaehlen.</html>
+SCMoreShots=Разрешить выстрел после попадания
+SCHeightLabel=Высота:
+SCWidthLabel=Ширина:
 
 //place ship
 POSDN_Ship={0}-Корабль:
