@@ -326,6 +326,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private void setStatusBarMessage(String message) {
+		setStatusBarMessage(false, message);
+	}
+
+	private void setStatusBarMessage(Boolean isError, String message) {
+		if (isError)	statusLabel.setIcon(TemplateImages.getIcon("Error16"));
+		else		statusLabel.setIcon(TemplateImages.getIcon("Information16"));
 		statusLabel.setText(message);
 	}
 	
@@ -710,6 +716,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 						userError(localizeException(e));
 					}
 				}
+			panels[0].refresh();
 				return;
 			}
 			
@@ -721,7 +728,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 					e.getReason() != testpackage.shared.ship.exceptions.InvalidInstruction.Reason.NOTSHOOTABLE)
 					userError(localizeException(e));
 				else
-					setStatusBarMessage(localizeException(e));
+					setStatusBarMessage(true,localizeException(e));
 				if (speerfeuer) clock.resume();
 				return;
 			}

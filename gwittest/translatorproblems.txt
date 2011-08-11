@@ -1,0 +1,4 @@
+translator
+
+1. how to make apostrophe
+2. how to make reparse arugments

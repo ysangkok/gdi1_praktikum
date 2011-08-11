@@ -42,6 +42,10 @@ public class Engine {
 	
 	private SoundHandler soundhandler = null;
 
+	private int initialAmmoCount;
+
+	public int getInitialAmmoCount() { return initialAmmoCount; }
+
 	public void setSoundHandler(SoundHandler handler) {
 		this.soundhandler = handler;
 	}
@@ -146,7 +150,12 @@ public class Engine {
 	 */
 	public int remainingShotsFor(int player) throws InvalidInstruction {
 		if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
-		return state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
+		return remainingShotsFor(player,state.chosenFiringX[player],state.chosenFiringY[player]);
+	}
+
+	public int remainingShotsFor(int player, int x, int y) {
+		if (state.remainingshots == null) throw new RuntimeException("tried to get remaining shots, but its not enabled");
+		return state.remainingshots[player][x][y];
 	}
 	
 	/**
@@ -154,6 +163,7 @@ public class Engine {
 	 * @param ammocount 
 	 */
 	public void enableShotsPerShip(int ammocount) {
+		this.initialAmmoCount = ammocount;
 		state.initRemainingShots(ammocount);
 	}
 	

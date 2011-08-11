@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Vector;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -41,9 +42,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private boolean dontfog;
 	private Vector<JButton> entities;
 	SelectedTriple currentlyselected;
-	private Border standardBorder = BorderFactory.createLineBorder(Color.black);
-	private Border fancyBorder = BorderFactory.createLineBorder(Color.WHITE);
+	private Border standardBorder = getBorder(Color.BLACK);
+	private Border fancyBorder = getBorder(Color.WHITE);
+	private Border selectedShooterBorder = getBorder(Color.RED);
+	private List<Border> remainingAmmoBorders;
 	
+	private Border getBorder(Color c) {
+		return BorderFactory.createMatteBorder(2,2,2,2,c);
+	}
+
 	public BoardPanel getOtherBoard() {
 		return otherBoard;
 	}
@@ -58,6 +65,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 		this.engine = engine;
 		this.player = player;
 		this.dontfog = dontfog;
+
+		remainingAmmoBorders = new ArrayList<Border>();
+		int initialAmmoCount = engine.getInitialAmmoCount();
+		for (int i = 0; i <= initialAmmoCount; i++) {
+			float h = 0.66f;
+			float s = 0.75f;
+			float l = ((float) i) / initialAmmoCount;
+			remainingAmmoBorders.add(getBorder(Color.getHSBColor(h, s, l)));
+		}
 
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
 		
@@ -78,6 +94,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 			
 		addButtons();
 	}
+
+	Map<JButton, Border> originalBorders;
 
 	private void addButtons() {
 		buttons = new JButton[engine.getxWidth()][engine.getyWidth()];
@@ -102,6 +120,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 				throw new RuntimeException(e);
 			}
 		
+		originalBorders = new HashMap<JButton, Border>();
+
 		for (int i=0; i<engine.getxWidth(); i++) {
 			for (int j=0; j<engine.getyWidth(); j++) {
 				char c = b[i][j];
@@ -113,6 +133,19 @@ public class BoardPanel extends JPanel implements MouseListener {
 					iconname = TemplateImages.fieldToIcon(c);
 				}
 				buttons[i][j] = placeEntity(iconname);
+
+				Border bo;
+				if (!engine.getState().shotspershipenabled || player != 0) {
+					bo = standardBorder;
+				} else {
+					if (engine.getState().getFiringX(0) == i && engine.getState().getFiringY(0) == j) {
+						bo = selectedShooterBorder;
+					} else {
+						bo = remainingAmmoBorders.get(engine.remainingShotsFor(0,i,j));
+					}
+				}
+				originalBorders.put(buttons[i][j], bo);
+				buttons[i][j].setBorder(bo);
 			}
 		}
 		if (currentlyselected != null)
@@ -151,7 +184,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	public void removeSelection() {
 		if (currentlyselected != null) {
-			currentlyselected.button.setBorder(standardBorder);
+			currentlyselected.button.setBorder(originalBorders.get(buttons[currentlyselected.x][currentlyselected.y]));
 			currentlyselected = null;
 		}
 	}
@@ -166,7 +199,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 	
 	private JButton placeEntity(Icon icon){
 		JButton btn = new JButton();
-		btn.setBorder(standardBorder);
 
 		btn.setMargin(
 				new Insets(
@@ -191,28 +223,19 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent evt) {
-
-		//if (player == 0) { evt.consume(); return; } // you can't shoot your own map
-		
+	public void mousePressed(MouseEvent evt) {	
 		JButton refBtn = entities.get(0);
-		int posX = -1 , posY = -1;
 		
-		for (JButton btn : entities) {
-			if (evt.getSource() == btn) {
-				posX = evt.getXOnScreen();
-				posX = posX - (int) this.getLocationOnScreen().getX();
+		int posX = evt.getXOnScreen();
+		posX = posX - (int) this.getLocationOnScreen().getX();
 
-				posY = evt.getYOnScreen();
-				posY = posY - (int) this.getLocationOnScreen().getY();
+		int posY = evt.getYOnScreen();
+		posY = posY - (int) this.getLocationOnScreen().getY();
 				
-				posX /= refBtn.getWidth();
-				posY /= refBtn.getHeight();
+		posX /= refBtn.getWidth();
+		posY /= refBtn.getHeight();
 				
-				evt.consume();
-				break;
-			}
-		}
+		evt.consume();
 		
 		//System.out.println(String.format("%d,%d", posX, posY));
 		app.bomb (player, posX, posY);
