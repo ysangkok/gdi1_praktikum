@@ -55,7 +55,7 @@
 
     <target name="alternaterun" depends="jar">
        <!--java classname="testpackage.interfaces.GUISchiffe" fork="true"-->
-       <java classname="testpackage.shared.ship.AITester" fork="true">
+       <java classname="testpackage.interfaces.AITester" fork="true">
 	 <assertions><enable /></assertions>
          <classpath>
            <pathelement location="${jar.dir}/${ant.project.name}.jar" />

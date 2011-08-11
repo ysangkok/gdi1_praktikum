@@ -73,7 +73,7 @@ public class IntelligentAI extends AI {
 	public boolean supportsAmmo() { return false; }
 	
 	private static void Debug(String str) {
-		System.err.println(str);
+		//System.err.println(str);
 	}
 
 	public IntelligentAI() {
@@ -191,14 +191,14 @@ public class IntelligentAI extends AI {
 				}
 			}
 			if (hit == 'X') {
-				System.err.println("Shot ship");
+				Debug("Shot ship");
 				randomMode();
 			}
 		}
 	}
 	
 	private void tryOtherDirection() {
-		System.err.println("Trying other direction");
+		Debug("Trying other direction");
 		triedOtherDirection = true;
 		currentDirection = Direction.opposite(currentDirection);
 		lastX = originalShipX;
