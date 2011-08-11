@@ -73,7 +73,7 @@ public class IntelligentAI extends AI {
 	public boolean supportsAmmo() { return false; }
 	
 	private static void Debug(String str) {
-		//System.err.println(str);
+		System.err.println(str);
 	}
 
 	public IntelligentAI() {
@@ -172,7 +172,11 @@ public class IntelligentAI extends AI {
 					hit = engine.attack(player, lastX, lastY);
 				} catch (InvalidInstruction e) {
 					Debug(e.getMessage());
-					randomMode();
+					if (triedOtherDirection)
+						randomMode();
+					else
+						tryOtherDirection();
+						//LOLOL
 					return;
 				}
 				if (!hitShip(hit)) {
@@ -182,16 +186,22 @@ public class IntelligentAI extends AI {
 						randomMode();
 					} else {
 						Debug("        tried other: FALSE");
-						triedOtherDirection = true;
-						currentDirection = Direction.opposite(currentDirection);
-						lastX = originalShipX;
-						lastY = originalShipY;
+						tryOtherDirection();
 					}
 				}
 			}
 			if (hit == 'X') {
+				System.err.println("Shot ship");
 				randomMode();
 			}
 		}
+	}
+	
+	private void tryOtherDirection() {
+		System.err.println("Trying other direction");
+		triedOtherDirection = true;
+		currentDirection = Direction.opposite(currentDirection);
+		lastX = originalShipX;
+		lastY = originalShipY;
 	}
 }
