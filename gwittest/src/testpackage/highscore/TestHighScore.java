@@ -12,12 +12,16 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
+import testpackage.highscore.HighscoreManager;
+import testpackage.highscore.Score;
 
 class ColumnSorter implements Comparator {
     int colIndex;
@@ -170,7 +174,31 @@ public class TestHighScore extends JFrame {
 			tableModel.insertRow(i, new Object[]{i+1, score.getName(), score.getScore(), score.getNeededTime(), score.getDate()});
 	 		i++;
 		}
+		
+		
+	
+	    	
 	}
+	
+	
+	/**
+	 * 
+	 * this method opens a dialog window for the player to add his name, after ending the game with a score of the top 10.
+	 * 
+	 * @return name of player
+	 */
+    String SetPlayerName(){
+    	return (String)JOptionPane.showInputDialog(
+    	                    new JFrame(),
+    	                    "Complete the sentence:\n"
+    	                    + "\"Green eggs and...\"",
+    	                    "Customized Dialog",
+    	                    JOptionPane.PLAIN_MESSAGE,
+    	                    null,
+    	                    null,
+    	                  null);
+    	}
+	
 	
 	public static void main(String [] args){
 	HighscoreManager hm;

@@ -2,9 +2,17 @@ package testpackage.highscore;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.awt.Component;
 import java.io.*;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+
+
 public class HighscoreManager {
+	
+
     // An arraylist of the type "score" we will use to work with the scores inside the class
     private List<Score> scores;
 
@@ -32,7 +40,7 @@ public List<Score> getScores() {
     
     
 
-void sort(String criteria, boolean reverse) {
+public void sort(String criteria, boolean reverse) {
      Comparator<Score> comparator = new ScoreComparator(criteria);
      
      if (reverse) comparator = Collections.reverseOrder(comparator);
@@ -177,7 +185,7 @@ String DateFormat;
 
 
 
-	void setScores(List<Score> object) {
+	public void setScores(List<Score> object) {
 		this.scores = object;
 	}
 
