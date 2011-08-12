@@ -1,6 +1,8 @@
 package testpackage.shared.ship;
 
-public class Loser {
+import java.io.Serializable;
+
+public class Loser implements Serializable {
 	public String reason;
 	public int playernr;
 	
@@ -12,4 +14,6 @@ public class Loser {
 	Loser(int playernr) {
 		this.playernr = playernr;
 	}
+	
+	Loser() {}
 }

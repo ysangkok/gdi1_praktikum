@@ -1,6 +1,8 @@
 package testpackage.shared.ship.exceptions;
 
-public class InvalidInstruction extends Exception {
+import java.io.Serializable;
+
+public class InvalidInstruction extends Exception implements Serializable {
 	public static enum Reason {
 		NOTYOURTURN, NOMOREAMMO, NOSHOOTERDESIGNATED, OUTOFBOUNDS, NOTSHOOTABLE, INVALIDSHOOTER
 	}
@@ -23,6 +25,8 @@ public class InvalidInstruction extends Exception {
 	}
 	public Reason getReason() {
 		return this.reason;
+	}
+	public InvalidInstruction() {
 	}
 
 }
