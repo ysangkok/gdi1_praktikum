@@ -42,6 +42,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.ButtonGroup;
 
+import testpackage.highscore.pasteName;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.IntelligentAI;
@@ -130,6 +131,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	 */
 	public void GameOver() {
 		if (speerfeuer) clock.pause();
+		
+		pasteName.maybeAddHighScore("30.02.1999   06:36", 3289, engine.getState().getLevel());
 
 		panels[0].refresh();
 		panels[1].refresh();

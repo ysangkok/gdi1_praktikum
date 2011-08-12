@@ -12,9 +12,12 @@ import javax.swing.JOptionPane;
 
 public class HighscoreManager {
 	
-
+	public int getWorstScore() {
+		sort("score", true);
+		return scores.getLast().getScore();
+	}
     // An arraylist of the type "score" we will use to work with the scores inside the class
-    private List<Score> scores;
+    private LinkedList<Score> scores;
 
     // The name of the file where the highscores will be saved
     private static final String HIGHSCORE_FILE = "scores.dat";
@@ -30,7 +33,7 @@ public class HighscoreManager {
     
    static final int max = 10;
     
-public List<Score> getScores() {
+public LinkedList<Score> getScores() {
         //loadScoreFile();
         //sort();
         return scores;
@@ -51,7 +54,7 @@ public void sort(String criteria, boolean reverse) {
 
 
 
-
+public int getMaxHighScoreListElements() { return max; }
 
 public void addScore(String name, int score, int neededTime, String datestring) {
 	//loadScoreFile();
@@ -67,7 +70,7 @@ public void addScore(String name, int score, int neededTime, String datestring) 
 	sort("score", true);
 
 	if (scores.size() > max) {
-		((LinkedList<Score>) scores).removeLast();
+		scores.removeLast();
 	}
        //updateScoreFile();
 }
@@ -75,7 +78,7 @@ public void addScore(String name, int score, int neededTime, String datestring) 
 public void loadScoreFile() {
     try {
         inputStream = new ObjectInputStream(new FileInputStream(HIGHSCORE_FILE));
-        scores = (List<Score>) inputStream.readObject();
+        scores = (LinkedList<Score>) inputStream.readObject();
     } catch (FileNotFoundException e) {
         System.out.println("[Laad] FNF Error: " + e.getMessage());
     } catch (IOException e) {
@@ -185,7 +188,7 @@ String DateFormat;
 
 
 
-	public void setScores(List<Score> object) {
+	public void setScores(LinkedList<Score> object) {
 		this.scores = object;
 	}
 

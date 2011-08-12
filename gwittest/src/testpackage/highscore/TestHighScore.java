@@ -82,7 +82,7 @@ class DateRender extends DefaultTableCellRenderer{
 
 public class TestHighScore extends JFrame {
 	private static final long serialVersionUID = -2542984839574589527L;
-	private List<Score> highscoreList;
+	private LinkedList<Score> highscoreList;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	
@@ -91,8 +91,8 @@ public class TestHighScore extends JFrame {
 	    Collections.sort(data, new ColumnSorter(colIndex, ascending));
 	    model.fireTableStructureChanged();
 	}
-	
-	public TestHighScore(List<Score> highscores){
+
+	public TestHighScore(LinkedList<Score> highscores){
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.highscoreList = highscores;
@@ -238,6 +238,7 @@ public class TestHighScore extends JFrame {
     System.out.print(hm.getHighscoreString());
 
     TestHighScore ths = new TestHighScore(hm.getScores());
+    System.err.println(hm.getWorstScore());
 }
 
 }

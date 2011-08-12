@@ -32,7 +32,7 @@ public class Level implements Serializable {
 	}
 	
 	private transient static final String unharmedShip = "lrtbvh";
-	private transient static final String   harmedShip = "LRTBVH";
+	public transient static final String   harmedShip = "LRTBVH";
 		
 	private List<List<List<Character>>> boards; // for storing the board of each player
 
