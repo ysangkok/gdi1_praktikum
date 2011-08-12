@@ -1,6 +1,6 @@
 package testpackage.shared.ship;
 
-import testpackage.shared.Util;
+import testpackage.shared.ship.Util;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 
 import java.util.Collections;
@@ -251,10 +251,6 @@ public class LevelGenerator {
 			else
 				boards[p][n][m] = (alongXAxis ? 'v' : 'h');
 		}
-	}
-	
-	private Character[][] getBoard(int player) {
-		return boards[player];
 	}
 	
 	/**

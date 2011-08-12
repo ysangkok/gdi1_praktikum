@@ -3,7 +3,7 @@ package testpackage.interfaces;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Ship;
 import testpackage.shared.ship.Level;
-import testpackage.shared.ship.gui.TemplateImages;
+import testpackage.shared.ship.TemplateImages;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 
 import java.awt.Color;
@@ -181,7 +181,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private HashMap<String, Map<String, ImageIcon>> allskins = null;
 
 	private void registerImage(String skinName, String identifier, URL url) {
-		Map skinMap = allskins.get(skinName);
+		Map<String, ImageIcon> skinMap = allskins.get(skinName);
 		if (skinMap==null) { skinMap = new HashMap<String, ImageIcon>(); allskins.put(skinName, skinMap); }
 		skinMap.put(identifier, new ImageIcon(url));
 		

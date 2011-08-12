@@ -137,7 +137,7 @@ public class IntelligentAI extends AI {
 
 				Set<Direction> dset = new HashSet<Direction>();
 
-				dset.addAll(new HashSet(Arrays.asList(new Direction[] {Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH})));
+				dset.addAll(new HashSet<Direction>(Arrays.asList(new Direction[] {Direction.NORTH, Direction.WEST, Direction.EAST, Direction.SOUTH})));
 				dset.removeAll(tried);
 
 				Direction chosenDirection = (Direction) (dset.toArray())[nextInt];

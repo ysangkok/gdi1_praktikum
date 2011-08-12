@@ -1,4 +1,4 @@
-package testpackage.shared.ship.gui;
+package testpackage.shared.ship;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,35 +25,28 @@ public class TemplateImages {
 		"ship_right", "ship_top", "ship_vertical", "water_hit",
 	"water" };
 
-	private static Map<Character, String> m = null;
-
 	public static String getSoundPath(Sound sound) {
 		return soundspath + "/" + sound.toString().replace('_', '.');
 	}
 
 	public static String fieldToIcon(Character c) {
-		if (m == null) {
-			m = new HashMap<Character, String>();
-			m.put('#', "fogofwar") ;
-			m.put('B', "ship_hit_bottom") ;
-			m.put('b', "ship_bottom") ;
-			m.put('H', "ship_hit_horizontal") ;
-			m.put('h', "ship_horizontal") ;
-			m.put('L', "ship_hit_left") ;
-			m.put('l', "ship_left") ;
-			m.put('R', "ship_hit_right") ;
-			m.put('r', "ship_right") ;
-			m.put('T', "ship_hit_top") ;
-			m.put('t', "ship_top") ;
-			m.put('V', "ship_hit_vertical") ;
-			m.put('v', "ship_vertical") ;
-			m.put('*', "water_hit");
-			m.put('-', "water");
+		switch (c) {
+		case '#': return "fogofwar";
+		case 'B': return "ship_hit_bottom";
+		case 'b': return "ship_bottom";
+		case 'H': return "ship_hit_horizontal";
+		case 'h': return "ship_horizontal";
+		case 'L': return "ship_hit_left";
+		case 'l': return "ship_left";
+		case 'R': return "ship_hit_right";
+		case 'r': return "ship_right";
+		case 'T': return "ship_hit_top";
+		case 't': return "ship_top";
+		case 'V': return "ship_hit_vertical";
+		case 'v': return "ship_vertical";
+		case '*': return "water_hit";
+		case '-': return "water";
+		default: throw new RuntimeException("Don't know char: " + c);
 		}
-		return m.get(c);
-	}
-
-	public static javax.swing.ImageIcon getIcon(String iconName) {
-		return new javax.swing.ImageIcon(TemplateImages.class.getResource("/resources/icons/" + iconName + ".png"));
 	}
 }

@@ -4,7 +4,6 @@ import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Ship.Orientation;
 import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.Ship;
-import testpackage.shared.ship.gui.TemplateImages;
 import translator.Translator;
 
 import java.awt.Container;
@@ -74,7 +73,7 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 				
 				JLabel lab = new JLabel(translator.translateMessage("POSDN_Ship", String.valueOf(shiprules[0])));
 				JButton but = new JButton(translator.translateMessage("POSDPlace"));
-				but.setIcon(TemplateImages.getIcon("ship"));
+				but.setIcon(GUISchiffe.getIcon("ship"));
 				
 				buttolen.put(but,shiprules[0]);
 				g.add(lab);

@@ -1,7 +1,13 @@
 package testpackage.interfaces;
 
-import java.util.*;
-import testpackage.shared.ship.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import testpackage.shared.ship.AI;
+import testpackage.shared.ship.Engine;
+import testpackage.shared.ship.GoodAI;
+import testpackage.shared.ship.IntelligentAI;
 
 public class AITester {
 Engine engine ;

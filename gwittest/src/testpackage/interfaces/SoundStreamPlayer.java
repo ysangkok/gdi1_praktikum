@@ -1,13 +1,17 @@
 package testpackage.interfaces;
 
-import javax.sound.sampled.*;
-
-import testpackage.shared.ship.SoundHandler.Sound;
-import testpackage.shared.ship.gui.TemplateImages;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.SourceDataLine;
+
+import testpackage.shared.ship.SoundHandler.Sound;
+import testpackage.shared.ship.TemplateImages;
 
 public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.html
 	private Object lock = new Object();

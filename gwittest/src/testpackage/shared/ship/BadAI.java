@@ -1,6 +1,6 @@
 package testpackage.shared.ship;
 
-import testpackage.shared.Util;
+import testpackage.shared.ship.Util;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 
 import java.util.Random;

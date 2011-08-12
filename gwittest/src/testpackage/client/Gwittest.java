@@ -8,8 +8,8 @@ import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Loser;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
-import testpackage.shared.ship.gui.TemplateImages;
-import testpackage.shared.Util;
+import testpackage.shared.ship.TemplateImages;
+import testpackage.shared.ship.Util;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -68,11 +68,13 @@ public class Gwittest implements EntryPoint {
 			//if (!engine.getState().isPlayerTurn()) engine.getState().changeTurn();
 			
 			try {
-				c = engine.attack(Engine.otherPlayer(point.p), point.x, point.y);
+				engine.attack(Engine.otherPlayer(point.p), point.x, point.y);
 			} catch (InvalidInstruction e) {
 				userError(e.getMessage());
 				return;
 			}
+			
+			c = engine.getState().getLevel().getPlayerBoard(point.p)[point.x][point.y];
 			
 			updateField(point, c);
 			

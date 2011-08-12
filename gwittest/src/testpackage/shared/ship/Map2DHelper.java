@@ -2,7 +2,7 @@ package testpackage.shared.ship;
 
 import java.util.List;
 
-import testpackage.shared.Util;
+import testpackage.shared.ship.Util;
 
 /**
  * helper for printing the board (debugging)

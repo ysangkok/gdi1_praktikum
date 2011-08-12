@@ -22,6 +22,7 @@ public class InvalidLevelException extends RuntimeException {
 	public String getMessage() {
 		return message + (list == null ? "" : ". Invalid board available. Call InvalidLevelException.printBoard()");
 	}
+	@SuppressWarnings("unchecked")
 	public void printBoard() {
 		if (list == null) {
 			System.err.println("No invalid board available for debugging.");
@@ -30,7 +31,7 @@ public class InvalidLevelException extends RuntimeException {
 			System.err.println(helper.getBoardString(((Character[][][]) list)[0]));
 			System.err.println();
 			System.err.println(helper.getBoardString(((Character[][][]) list)[1]));
-		} else if (list instanceof List) {
+		} else if (list instanceof List<?>) {
 			Map2DHelper<Character> helper = new Map2DHelper<Character>();
 			System.err.println(helper.getBoardString((List<List<Character>>) list));
 		} else {

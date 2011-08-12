@@ -53,9 +53,8 @@ import testpackage.shared.ship.State;
 import testpackage.shared.ship.SoundHandler;
 import testpackage.shared.ship.LevelGenerator;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
-import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
-import testpackage.shared.ship.gui.TemplateImages;
+import testpackage.shared.ship.TemplateImages;
 
 import translator.TranslatableGUIElement;
 import translator.Translator;
@@ -330,8 +329,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 
 	private void setStatusBarMessage(Boolean isError, String message) {
-		if (isError)	statusLabel.setIcon(TemplateImages.getIcon("Error16"));
-		else		statusLabel.setIcon(TemplateImages.getIcon("Information16"));
+		if (isError)	statusLabel.setIcon(GUISchiffe.getIcon("Error16"));
+		else		statusLabel.setIcon(GUISchiffe.getIcon("Information16"));
 		statusLabel.setText(message);
 	}
 	
@@ -425,12 +424,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //New
 	    JMenu newMenu = guiBuilder.generateJMenu("New");
-	    newMenu.setIcon(TemplateImages.getIcon("New16"));
+	    newMenu.setIcon(GUISchiffe.getIcon("New16"));
 	    fileMenu.add(newMenu);
 	    
 	    //About
 	    JMenuItem About = guiBuilder.generateJMenuItem("About");
-	    About.setIcon(TemplateImages.getIcon("About16"));
+	    About.setIcon(GUISchiffe.getIcon("About16"));
 	    About.addActionListener(menuListener);
 	    About.setActionCommand(actions.about);
 	    Options.add(About);
@@ -457,7 +456,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //SaveGame
 	    JMenuItem saveItem = guiBuilder.generateJMenuItem("saveGame");
-	    saveItem.setIcon(TemplateImages.getIcon("Save16"));
+	    saveItem.setIcon(GUISchiffe.getIcon("Save16"));
 	    saveItem.addActionListener(menuListener);
 	    saveItem.setAccelerator(KeyStroke.getKeyStroke("control S"));
 	    saveItem.setActionCommand(actions.save);
@@ -465,7 +464,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //loadGame
 	    JMenuItem loadItem = guiBuilder.generateJMenuItem("loadGame");
-	    loadItem.setIcon(TemplateImages.getIcon("Load16"));
+	    loadItem.setIcon(GUISchiffe.getIcon("Load16"));
 	    loadItem.addActionListener(menuListener);
 	    loadItem.setAccelerator(KeyStroke.getKeyStroke("control L"));
 	    loadItem.setActionCommand(actions.load);
@@ -478,7 +477,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    
 	    //Language Menu
 	    JMenu languageMenu = guiBuilder.generateJMenu("languageMenu");
-	    languageMenu.setIcon(TemplateImages.getIcon("Language16"));
+	    languageMenu.setIcon(GUISchiffe.getIcon("Language16"));
 		
 	    JMenuItem germanItem = guiBuilder.generateJMenuItem("German");
 		germanItem.addActionListener(new ActionListener() {
@@ -506,7 +505,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		// End Language Menu
 
 		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true);
-	    	soundcb.setIcon(TemplateImages.getIcon("Sound16"));
+	    	soundcb.setIcon(GUISchiffe.getIcon("Sound16"));
 		soundcb.setActionCommand(actions.soundcb);
 		soundcb.addActionListener(this);
 		
@@ -895,5 +894,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	public String getSelectedSkin() {
 		return currentSkin;
+	}
+
+	public static javax.swing.ImageIcon getIcon(String iconName) {
+		return new javax.swing.ImageIcon(TemplateImages.class.getResource("/resources/icons/" + iconName + ".png"));
 	}
 }

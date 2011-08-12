@@ -1,6 +1,6 @@
 package testpackage.shared.ship;
 
-import testpackage.shared.Util;
+import testpackage.shared.ship.Util;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
@@ -59,7 +59,8 @@ public class Level implements Serializable {
 	 */
 	Level(String text, boolean check, boolean checkaspectratio) throws InvalidLevelException {
 		if (!check && checkaspectratio) throw new RuntimeException("invalid arguments");
-		int charNum = 0;
+		int charNum;
+		char prevChar = 0;
 		int counter = 0; // for counting lines
 		
 		LinkedList<List<Character>> Player1Board = new LinkedList<List<Character>>();
@@ -74,18 +75,11 @@ public class Level implements Serializable {
 		counter++;
 		boolean IsP1 = true; // the fields at the beginning of the file are always player one's
 		
-		for (;;) {
+		for (charNum = 0; charNum < text.length(); charNum++) {
 			char c = 0; // used for storing read character
-			char prevChar = 0;
 			prevChar = c;
-			try {
-				c = (char) text.charAt(charNum++);
-			} catch (StringIndexOutOfBoundsException e) {
-				if (prevChar == '\n' | prevChar == '|') { // we can only check the boards if the last two lines aren't empty. if the previous character was a newline, they are empty.
-					checkBoards(counter);
-				}
-				break;
-			}
+			
+			c = (char) text.charAt(charNum);
 			if (matchChar(unharmedShip + harmedShip + "-*", c)) {
 				if (IsP1) {
 					p1line.add(c);
@@ -106,9 +100,13 @@ public class Level implements Serializable {
 				p2line = Player2Board.get(counter);
 				counter++;
 			} else {
-				throw new InvalidLevelException("Invalid character: " + c + "\n" + text);
+				throw new InvalidLevelException(Util.format("Invalid character: %s (%s, charnum: %s, prevchar: %s)\nLevel:%s", c, ((int) c), charNum, prevChar, text));
 			}
 		}
+		if (prevChar == '\n' | prevChar == '|') { // we can only check the boards if the last two lines aren't empty. if the previous character was a newline, they are empty.
+			checkBoards(counter);
+		}
+		
 		if (p1line.size() == 0 && p2line.size() == 0) { // file had trailing newline
 			Player1Board.removeLast();
 			Player2Board.removeLast();

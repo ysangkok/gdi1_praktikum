@@ -1,12 +1,14 @@
 package testpackage.interfaces;
 
-import testpackage.shared.ship.Rules;
-
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.*;
+import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import testpackage.shared.ship.Rules;
 
 /**
  * panel handles display AND logic
