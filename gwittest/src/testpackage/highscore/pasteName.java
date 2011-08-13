@@ -75,17 +75,17 @@ public class pasteName {
 		int neededTime=3289;
 		Level level = new Level("**-T**T***|*T-T**T***\n--*V**V***|*V*V**V-**\nT**V**V-**|*V*V**B-**\nV**V**B**-|*V*B**-T*T\nB-*B***LR*|*B**LR*V*B\n**T*T*****|**-****B**\n*-B*V-LHR*|T***-*****\n***-V****-|V***LHHR*T\nLHR*B**LR-|B----*---B\n-*-**lR*-*|**-**LR***");
 		
-		maybeAddHighScore(date, neededTime, level);
+		maybeAddHighScore(new Frame(), date, neededTime, level);
 
 	}
 
 
 
-	public static void maybeAddHighScore(String date, int neededTime, Level level) {
-		Character[][] playerboard = level.getPlayerBoard(0);
+	public static void maybeAddHighScore(Frame frame, String date, int neededTime, Level level) {
+		//Character[][] playerboard = level.getPlayerBoard(0);
 		//System.err.println(level.toString());
 		
-		int score = calculateScore(level);
+		int score = (int) calculateScore(level);
 		
 		HighscoreManager hm = new HighscoreManager();
 		hm.setDateFormat("dd.MM.yyyy   HH:mm");
@@ -99,7 +99,7 @@ public class pasteName {
 			System.err.println("Score war zu schlecht.");
 		}
 		hm.updateScoreFile();
-		TestHighScore ths = new TestHighScore(hm.getScores());
+		new TestHighScore(frame, hm.getScores());
 	    
 	}
 
@@ -108,10 +108,9 @@ public class pasteName {
 	
 	
 
-	private static int gethitsofharmedship(Level level) {
+	public static int gethitsofharmedship(Level level) {
 	
-		Character[][] board = level.getPlayerBoard(1);
-		Character[][] board2 = level.getPlayerBoard(0);
+		Character[][] board = level.getPlayerBoard(1);;
 
 		
 		
@@ -129,10 +128,9 @@ public class pasteName {
 		return hits;	
 		}
 	
-	private static int gethitsofwater(Level level) {
+	public static int gethitsofwater(Level level) {
 
 		Character[][] board = level.getPlayerBoard(1);
-		Character[][] board2 = level.getPlayerBoard(0);
 
 		
 	int hitwater = 0 ;
@@ -147,6 +145,19 @@ public class pasteName {
 	System.err.println(hitwater);
 	return hitwater;
 	}
+	
+	private static double calculateScore(Level level){
+	Character[][] board3 = level.getPlayerBoard(1);
+
+	//if (gethitsofwater(level) + gethitsofharmedship(level) <= board3.length*board3[0].length){
+		double callculatescore = (double)(1000 * gethitsofharmedship(level)) / (gethitsofharmedship(level)+ gethitsofwater(level)) ;
+		System.err.println(callculatescore);
+		return callculatescore	;
+	//}
+	//	return 0;
+	}
+	
+	
 }
 
 
