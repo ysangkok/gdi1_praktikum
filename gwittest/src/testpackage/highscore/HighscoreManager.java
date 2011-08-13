@@ -192,8 +192,5 @@ String DateFormat;
 		this.scores = object;
 	}
 
-
-
-
-
 }
+//compare object with last object in sorted table and call frame for entering name

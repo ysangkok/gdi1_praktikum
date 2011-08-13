@@ -2,6 +2,8 @@ package testpackage.highscore;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -80,7 +83,7 @@ class DateRender extends DefaultTableCellRenderer{
  }
 }
 
-public class TestHighScore extends JFrame {
+public class TestHighScore extends JDialog {
 	private static final long serialVersionUID = -2542984839574589527L;
 	private LinkedList<Score> highscoreList;
 	private JTable table;
@@ -92,15 +95,16 @@ public class TestHighScore extends JFrame {
 	    model.fireTableStructureChanged();
 	}
 
-	public TestHighScore(LinkedList<Score> highscores){
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public TestHighScore(Frame frame, LinkedList<Score> highscores){
+		super (frame, "High scores", Dialog.ModalityType.DOCUMENT_MODAL);
+		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.highscoreList = highscores;
 		
-		this.setLayout(null);
+		//this.setLayout(null);
 		//this.setSize(300, 320);
 
-		this.getContentPane().setBackground(Color.white);
+		//this.getContentPane().setBackground(Color.white);
 		
 		String[] columnNames = {"#", "Name", "Score", "Needed time",  "Date"};
 		tableModel = new DefaultTableModel(null, columnNames){
@@ -237,7 +241,7 @@ public class TestHighScore extends JFrame {
     System.out.println("===");
     System.out.print(hm.getHighscoreString());
 
-    TestHighScore ths = new TestHighScore(hm.getScores());
+    TestHighScore ths = new TestHighScore(new Frame(), hm.getScores());
     System.err.println(hm.getWorstScore());
 }
 
