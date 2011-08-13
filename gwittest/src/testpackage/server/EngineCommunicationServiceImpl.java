@@ -1,7 +1,9 @@
 package testpackage.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,40 +22,72 @@ public class EngineCommunicationServiceImpl  extends RemoteServiceServlet implem
 EngineCommunicationService {
 
 	private static final long serialVersionUID = 1L;
-	private Engine engine;
-	private BadAI ai;
-	private List<Game> games;
+	private Map<String,Game> games;
 	private List<Player> waiting;
 
 	public EngineCommunicationServiceImpl() {
-		games = new ArrayList<Game>();
+		games = new HashMap<String,Game>();
 		waiting = new ArrayList<Player>();
+		
+		new Thread(new Runnable(){public void run() {
+			for (;;) {
+			System.err.println("===");
+			System.err.println("Games:");
+			for (Game g : games.values()) {
+				System.err.println(g.toString());
+			}
+			System.err.println("Waiting:");
+			for (Player p : waiting) {
+				System.err.println(p.toString());
+			}
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			}
+		}}).start();
 	}
 	
-	@Override
 	public Loser getWinner() {
 		return getEngine().checkWin();
 	}
+	
+	private boolean isMultiplayer() {
+		return getGame().isMultiplayer();
+	}
 
+	private Game getGame() {
+		return games.get(this.getThreadLocalRequest().getSession(true).getId());
+	}
+	
 	private Engine getEngine() {
-		return (Engine) get("engine");
+		return getGame().getEngine();
 	}
 	private AI getAI() {
-		return (AI) get("ai");
-	}
-	private Object get(String ting) {
-		return this.getThreadLocalRequest().getSession().getAttribute(ting);
+		//if (isMultiplayer()) throw new RuntimeException("cant get ai, not multiplayer");
+		return ((SinglePlayerGame) getGame()).getAI();
 	}
 	
 	@Override
 	public Character[][] getVisibleOpponentArray() {
-		return ((Engine) get("engine")).getVisibleOpponentArray();
+		if (!isMultiplayer())
+			return getEngine().getVisibleOpponentArray();
+		else
+			return getUserBoards()[1];
 	}
 
 	@Override
 	public Character[][] getPlayerArray() {
 		Engine engine = getEngine();
-		return engine.getPlayerArray();
+		if (!isMultiplayer())
+			return engine.getPlayerArray();
+		else
+			return getUserBoards()[0];
+	}
+	
+	private Character[][][] getUserBoards() {
+		return getEngine().getCurrentBoards(((MultiPlayerGame) getGame()).getPlayerNum(this.getThreadLocalRequest().getSession(true)),true);
 	}
 
 	@Override
@@ -63,27 +97,31 @@ EngineCommunicationService {
 
 	@Override
 	public void tryAttackPoint(int x, int y) throws InvalidInstruction {
-		if ((Boolean) get("multiplayer")) {
-			getEngine().attack((Integer) get("player"), x, y);
+		if (isMultiplayer()) {
+			getEngine().attack(((MultiPlayerGame) getGame()).getPlayerNum(this.getThreadLocalRequest().getSession(true)), x, y);
 		} else {
 			getEngine().attack(0, x, y);
 			getAI().playAs(1);
 		}
-		
 	}
 
 	@Override
 	public Integer[] initEngine(boolean multiplayer) {
 		HttpSession session = this.getThreadLocalRequest().getSession(true);
 		
+		Game game;
+		
 		if (multiplayer) {
 			if (waiting.size() > 0) {
 				Player p = waiting.get(0);
+				waiting.remove(0);
+				Player thisplayer = new Player(session.getId());
+				game = new MultiPlayerGame(p, thisplayer);
+				p.setGame(game);
+				thisplayer.setGame(game);
 				synchronized (p) {
 					p.notify();
 				}
-				games.add(new Game(p, new Player(session.getId())));
-				session.setAttribute("player", 1);
 			} else {
 				Player p = new Player(session.getId());
 				waiting.add(p);
@@ -94,36 +132,92 @@ EngineCommunicationService {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				session.setAttribute("player", 0);
+				game = p.getGame();
 			}
-			engine = new Engine();
 		} else {
-			engine = new Engine();
-			ai = new BadAI();
-			ai.setEngine(engine);
-			session.setAttribute("ai", ai);
-			games.add(new Game(new Player(session.getId())));
+			game = new SinglePlayerGame(new Player(session.getId()));
+			
 		}
-		session.setAttribute("multiplayer", multiplayer);
-		session.setAttribute("engine", engine);
-		return new Integer[] {engine.getxWidth(), engine.getyWidth()};
+		
+		games.put(session.getId(),game);
+		return new Integer[] {game.getEngine().getxWidth(), game.getEngine().getyWidth()};
 	}
 
-	class Game {
-		public Game(Player p, Player player) {
-			System.err.println("New game");
+	interface Game {
+		Engine getEngine();
+		boolean isMultiplayer();
+	}
+	
+	class SinglePlayerGame implements Game {
+
+		AI ai;
+		Engine engine;
+		
+		public boolean isMultiplayer() { return false; }
+		
+		public SinglePlayerGame(Player player) {
+			engine = new Engine();
+			ai = new BadAI();
+			ai.setEngine(engine);	
 		}
 
-		public Game(Player player) {
-			//single player
+		public AI getAI() {
+			return ai;
+		}
+
+		public Engine getEngine() {
+			return engine;
+		}
+		
+	}
+	
+	class MultiPlayerGame implements Game {
+		Engine engine;
+		Player p1;
+		Player p2;
+		
+		public boolean isMultiplayer() { return true; }
+		
+		public Engine getEngine() { return engine; }
+		
+		public MultiPlayerGame(Player p1, Player p2) {
+			System.err.println("New game");
+			this.engine = new Engine();
+			this.p1 = p1;
+			this.p2 = p2;
+		}
+		
+		public int getPlayerNum(HttpSession session) {
+			String id = session.getId();
+			if (id == this.p1.id)
+				return 0;
+			else if (id == this.p2.id)
+				return 1;
+			else
+				throw new RuntimeException("player not in game");
+		}
+		public String toString() {
+			return getClass().getName() + ": " + p1.toString() + " vs " + p2.toString() + ". Turn: " + engine.getState().getTurn();
 		}
 	}
 	class Player {
-		Player() {
-		}
+		public String id;
+		public Game game;
 		
 		public Player(String id) {
 			System.err.println("New Player: " + id);
+			this.id = id;
+		}
+
+		public void setGame(Game game) {
+			this.game = game;
+		}
+
+		public Game getGame() {
+			return game;
+		}
+		public String toString() {
+			return "Player(" + id + ")";
 		}
 	}
 }

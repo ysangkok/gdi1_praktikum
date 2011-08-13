@@ -3,12 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="war/template"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="C:/Users/yanai/workspace/jars/acm.jar"/>
-	<classpathentry kind="lib" path="C:/Users/yanai/workspace/jars/commons-io-2.0.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/yanai/workspace/jars/gwt-user.jar"/>
-	<classpathentry kind="lib" path="C:/Users/yanai/workspace/jars/jl1.0.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk"/>
+	<classpathentry kind="lib" path="/home/janus/workspace/gwittest/jars/acm.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

@@ -390,7 +390,7 @@ public class Engine {
 		return getCurrentBoards(0,false)[1];
 	}
 	
-	private Character[][][] getCurrentBoards(int i, boolean fogboard) {
+	public Character[][][] getCurrentBoards(int i, boolean fogboard) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);
 		

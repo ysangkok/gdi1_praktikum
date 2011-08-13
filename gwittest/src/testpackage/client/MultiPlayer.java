@@ -18,12 +18,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class MultiPlayer implements EntryPoint {
 	
@@ -35,7 +37,7 @@ public class MultiPlayer implements EntryPoint {
 			.create(EngineCommunicationService.class);
 	
 	public MultiPlayer() {
-
+		((ServiceDefTarget) ecs).setServiceEntryPoint( GWT.getModuleBaseURL() + "/ECS");
 	}
 	
 	private Label lbl = new Label();
@@ -105,6 +107,15 @@ public class MultiPlayer implements EntryPoint {
 				MultiPlayer.ywidth = dimensions[1];
 				userError(Arrays.toString(dimensions));
 				initGUI();
+				
+				Timer t = new Timer() {
+					public void run() {
+						GWT.log("Updating boards");
+						updateBoards();
+					}
+				};
+
+				t.scheduleRepeating(1000);
 			}});
 	}
 	

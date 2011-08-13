@@ -47,6 +47,8 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	private int turn;
 	private boolean finished;
 	
+	public int getTurn() { return turn; }
+	
 	/**
 	 * used by engine to mark state as finished
 	 * @param finished true for finished, false for not finished
