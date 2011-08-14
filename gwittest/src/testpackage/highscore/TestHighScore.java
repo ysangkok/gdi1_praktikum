@@ -73,7 +73,7 @@ class ColumnSorter implements Comparator {
     }
 }
 
-//Ein Renderer für java.awt.Point
+//Ein Renderer fÃ¼r java.awt.Point
 class DateRender extends DefaultTableCellRenderer{
  @Override
  public Component getTableCellRendererComponent( JTable table, Object value, 

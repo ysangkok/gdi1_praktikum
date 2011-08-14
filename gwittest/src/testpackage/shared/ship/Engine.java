@@ -315,7 +315,7 @@ public class Engine {
 		hit = newState.getLevel().attack(player, x, y);
 		whoMadeLastShot = player;
 		
-		maybePlaySoundOneOf(new Sound[] {SoundHandler.Sound.Boom1_wav, SoundHandler.Sound.Boom2_wav, SoundHandler.Sound.Boom3_wav}, otherPlayer(player));
+		if (player == 0) maybePlaySoundOneOf(new Sound[] {SoundHandler.Sound.Boom1_wav, SoundHandler.Sound.Boom2_wav, SoundHandler.Sound.Boom3_wav}, otherPlayer(player));
 		
 		if (state.shotspershipenabled) {
 			if (Level.isShip(hit)) state.remainingshots[Engine.otherPlayer(player)][x][y] = 0;
