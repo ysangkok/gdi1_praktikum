@@ -1,17 +1,19 @@
-﻿multi=Eins {0} zwei {1} drei {2} parameters
+\ufeffmulti=Eins {0} zwei {1} drei {2} parameters
 noSuchKeyException=Es gibt keine Ressource f\u00fcr Eintrag {0}!
 
 guiFrame=Schiffe Versenken
 
 //Language Menu
 languageMenu.label=Sprache
-languageMenu.toolTipText=Sprache auswaehlen
+languageMenu.toolTipText=Sprache ausw\u00e4hlen
 German.label=Deutsch
 German.toolTipText=Deutsch
 English.label=Englisch
 English.toolTipText=Englisch
 Russian.label=Russisch
 Russian.toolTipText=Russisch
+Danish.label=D\u00e4nisch
+Greek.label=Griechisch
 
 
 //file
@@ -32,11 +34,11 @@ New.toolTipText=Neues
 
 //About
 About.label=About-Fenster
-About.toolTipText=Ueber uns
+About.toolTipText=\u00dcber uns
 
 //QuickNew
 QuickNew.label=Eingebautes Level 
-QuickNew.toolTipText=Spielen mit eingebaitem Level
+QuickNew.toolTipText=Spielen mit eingebautem Level
 QuickNew.mnemonic=n
 
 //PlaceShips
@@ -76,34 +78,34 @@ gameOverStartOver=Neu starten
 
 
 //Constructor
-constructorShooterSelect=den Shiesser waehlen
-constructorJustAttack=Schuesse pro Schiff wurde nicht angeschaltet, einfach auf der rechten Seite attakieren
+constructorShooterSelect=den Schiesser w\u00e4hlen
+constructorJustAttack=<html>Sch\u00fcsse pro Schiff wurde nicht angeschaltet, einfach auf der rechten Seite attakieren</html>
 
 //Error
 userErrorWindowTitle=Fehler
 
 //About
 aboutContent=Gruppe 16: Dimitrios, Janus, Alymbek, Yanai
-aboutWindowTitle=Ueber uns
+aboutWindowTitle=LOLOL
 
 //Shots
-bombSelectShooter=({0},{1}) ausgewaehlt. {2} Schuesse sind uebrig
-bombRemainingShots={0} Schuesse sind uebrig
+bombSelectShooter=({0},{1}) ausgew\u00e4hlt. {2} Sch\u00fcsse sind \u00fcbrig
+bombRemainingShots={0} Sch\u00fcsse sind \u00fcbrig
 
 //buttons
 OK=OK
 Cancel=Abbrechen
 
 //SC
-SCWindowTitle=Spieltyp auswaehlen
+SCWindowTitle=Spieltyp ausw\u00e4hlen
 SCSpeerCheckBox=Speerfeuer angeschaltet
 SCAmmoCheckBox=Ammunition angeschaltet
-SCSpeerLabel=Zeit pro Zug in sekunden:
-SCAmmoLabel=Ammo pro Schifffield:
+SCSpeerLabel=Zeit pro Zug in Sekunden:
+SCAmmoLabel=Ammo pro Schifffeld:
 SCAILabel=AI:
-SCAIUncapable=<html>{0} unterschtuetzt ammunition nicht. Eine andere AI auswaehlen.</html>
+SCAIUncapable=<html>{0} unterst\u00fctzt Ammunition nicht. Eine andere AI ausw\u00e4hlen.</html>
 SCMoreShots=Schiess nach dem Treffen erlaubt
-SCHeightLabel=Hoehe:
+SCHeightLabel=H\u00f6he:
 SCWidthLabel=Breite:
 SCRange=Reichweite von Schiffen angeschaltet
 
@@ -111,13 +113,13 @@ POSDN_Ship={0}-Schiff:
 
 CRHorizontal=Horizontal
 CRVertical=Vertical
-CRWindowTitle=Position anclicken
-CRLabel=<html>Eine orientation auswaehlen und <br>ganze/linke Seite von Schiff auf den Board anclicken.</html>
+CRWindowTitle=Position anklicken
+CRLabel=<html>Eine Orientation ausw\u00e4hlen und <br>obere/linke Ende von Schiff auf den Board anklicken.</html>
 
 //Messages
-RNoMoreAmmo=<html>Das ausgewaehlte Field hat keine Ammution mehr. Vor dem Schiess eine neue zu feuernde Locations auswaehlen.</html>
-RNoShooterDesignated=<html>Sie haben noch keinen Schiff ausgewaehlt. Das Field auf Ihrem Board anclicken (linke Seite).</html>
-RNotShootable=<html>Sie koennen nicht da schiessen. Sie koennen nicht auf das selbe Field zwei mal anschiessen.</html> 
+RNoMoreAmmo=<html>Das ausgew\u00e4hlte Field hat keine Ammunition mehr. Vor dem Schiess eine neue zu feuernde Locations ausw\u00e4hlen.</html>
+RNoShooterDesignated=<html>Sie haben noch keinen Schiff ausgew\u00e4hlt. Das Field auf Ihrem Board anklicken (linke Seite).</html>
+RNotShootable=<html>Sie k\u00f6nnen nicht da schiessen. Sie k\u00f6nnen nicht auf das selbe Field zwei mal anschiessen.</html> 
 RNotYourTurn=<html>Bitte auf den anderen Spieler warten.</html>
 
 //sound
@@ -127,5 +129,6 @@ enableSounds.toolTipText=Sounds angeschaltet
 //skins 
 skinMenu.label=Skin wechseln
 skinMenu.toolTipText=Skin wechseln
-skinMenuChoose.label=Auswaehlen {0}
+skinMenuChoose.label=Ausw\u00e4hlen {0}
 
+hitCounter=Dich: {0} Treffer : Rechner: {1} Treffer 

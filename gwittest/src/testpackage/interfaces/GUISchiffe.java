@@ -575,7 +575,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 
 	public static void main(String[] args) {
-		new GUISchiffe(Locale.US);
+		new GUISchiffe(Locale.GERMANY);
 	}
 
 	/**

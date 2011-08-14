@@ -6,8 +6,8 @@ package testpackage.shared.ship;
 public class Rules {
 	public static final int standardSpeerfeuerTime = 5000;
 
-	public static final boolean enableShotsPerShip = true;
-	public static final boolean defaultReichweiteVonSchiffenEnabled = true;
+	public static final boolean enableShotsPerShip = false;
+	public static final boolean defaultReichweiteVonSchiffenEnabled = false;
 	/**
 	 * Necessary for test compliance
 	 */
