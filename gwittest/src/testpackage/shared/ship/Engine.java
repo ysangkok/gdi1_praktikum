@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Random;
 
 //import com.google.common.base.Predicate;
 //import com.google.common.base.Predicates;
@@ -57,6 +58,11 @@ public class Engine {
 		if (soundhandler != null) {
 			soundhandler.playSound(sound, player);
 		}
+	}
+	private void maybePlaySoundOneOf(Sound[] sounds, int player) {
+		Random g = new Random();
+		int pos = g.nextInt(sounds.length-1);
+		maybePlaySound(sounds[pos], player);
 	}
 	private void maybePlaySound(Sound sound) {
 		if (soundhandler != null) {
@@ -308,6 +314,8 @@ public class Engine {
 		
 		hit = newState.getLevel().attack(player, x, y);
 		whoMadeLastShot = player;
+		
+		maybePlaySoundOneOf(new Sound[] {SoundHandler.Sound.Boom1_wav, SoundHandler.Sound.Boom2_wav, SoundHandler.Sound.Boom3_wav}, otherPlayer(player));
 		
 		if (state.shotspershipenabled) {
 			if (Level.isShip(hit)) state.remainingshots[Engine.otherPlayer(player)][x][y] = 0;
