@@ -143,8 +143,7 @@ class SettingsChooser {
 			public void actionPerformed(ActionEvent evt) {
 				h = (Integer) heightspinner.getValue();
 				w = (Integer) widthspinner.getValue();
-
-				finished = true;
+				
 				moreshotsenabled = moreshotscb.isSelected();
 				speerfeuerenabled = speerfeuercb.isSelected();
 				ammoenabled = ammocb.isSelected();
@@ -160,10 +159,12 @@ class SettingsChooser {
 						}
 						if (rangeenabled && !chosenAI.getConstructor().newInstance().supportsRange()) {
 							javax.swing.JOptionPane.showMessageDialog(d, "Selected AI doesn't support range", translator.translateMessage("userErrorWindowTitle"), 0);
+							return;
 						}
 					}
 				} catch (Exception ex) {
 				}
+				finished = true;
 				d.dispose();
 			}
 		});

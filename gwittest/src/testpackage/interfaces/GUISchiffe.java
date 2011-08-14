@@ -791,7 +791,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			System.err.flush();
 			ai.playAs(player);
 			engine.checkWin();
-			if (i >= 100) throw new RuntimeException("AI broken");
+			if (i >= 500) throw new RuntimeException("AI broken");
 		}
 
 		panels[Engine.otherPlayer(player)].refresh();
