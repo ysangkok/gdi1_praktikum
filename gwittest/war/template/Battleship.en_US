@@ -13,7 +13,8 @@ English.label=English
 English.toolTipText=English
 Russian.label=Russian
 Russian.toolTipText=Russian
-
+Greek.label=Greek
+Danish.label = Danish
 
 //file
 fileMenu.label=File

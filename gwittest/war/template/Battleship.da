@@ -1,0 +1,107 @@
+multi=One {0} two {1} three {2} parameters
+noSuchKeyException=no resource found for {0}!
+hitCounter=Dig: {0} ramt : Computer: {1} ramt 
+
+guiFrame=Battleship
+
+//LanguageMenu
+languageMenu.label=Sprog
+German.label=Tysk
+English.label=Engelsk
+Russian.label=Russisk
+Greek.label=Græsk
+Danish.label=Dansk
+
+//file
+fileMenu.label=Fil
+
+//Options
+Options.label=Indstillinger
+
+//New
+New.label=Nyt...
+
+//About
+About.label=Om
+
+//QuickNew
+QuickNew.label=Indlæs indbygget bane
+
+//PlaceShips
+PlaceShips.label=Placér egne skibe
+
+//DefaultNewGame
+DefaultNewGame.label=Tilfældigt placerede skibe
+
+//SaveGame
+saveGame.label=Gem...
+
+//loadItem
+loadGame.label=Indlæs...
+
+quit.label=Luk
+
+//Game over
+gameOverDraw=Uafgjort.
+gameOverWinner=Spiller {0} vandt!
+gameOverWindowTitle=Spil ovre
+
+// 0 ist hier gameOverWinner/Draw
+gameOverReasonLabel=Spil ovre. {0} Grund: {1}
+gameOverQuit=Luk
+gameOverStartOver=Genstart
+
+//Constructor
+constructorShooterSelect=Vælg skydende skib
+constructorJustAttack=Skydende skibe er ikke slået til, bare angrib et skib i højre side.
+
+//Error
+userErrorWindowTitle=Fejl
+
+//About
+aboutContent=Gruppe 16: Dimitrios, Janus, Alymbek, Yanai
+aboutWindowTitle=Om os
+
+//Shots
+bombSelectShooter=Valgte ({0},{1}): {2} skud tilbage
+bombRemainingShots=Skud tilbage: {0}
+
+//Buttons
+OK=OK
+Cancel=Annullér
+
+//SC
+SCWindowTitle=Vælg spil modus
+SCSpeerCheckBox=Begrænset tur-tid
+SCAmmoCheckBox=Begrænset ammunition
+SCSpeerLabel=Tid per tur i sekunder:
+SCAmmoLabel=Ammunition per skib-felt:
+SCAILabel=Kunstig intelligens:
+SCAIUncapable=<html>{0} understøtter ikke ammunition. Vælg en anden kunstig intelligens.</html>
+SCMoreShots=Tillad ekstra skud når man rammer
+SCHeightLabel=Spilbrættets højde:
+SCWidthLabel=Spilbrættets bredde:
+SCRange=Begræns hvor langt skibe kan skyde
+
+//Place ships
+POSDN_Ship=Skib som er {0} felter langt:
+POSDPlace=Placér
+POSDWindowTitle=Placér dine skibe
+
+CRHorizontal=Vandret
+CRVertical=Lodret
+CRWindowTitle=Vælg en position
+CRLabel=<html>Vælg orientering og klik<br>øverste/venstre skibsende på brættet.</html>
+
+//Messages
+RNoMoreAmmo=<html>Det valgte felt har ikke mere ammuntion. Vælg et nyt felt.</html>
+RNoShooterDesignated=<html>Du har ikke angivet en skyder endnu. Klik et felt i venstre side for at gøre det.</html>
+RNotShootable=<html>Du kan ikke skyde dér. Du kan ikke skyde det samme felt to gange.</html> 
+RNotYourTurn=<html>Det er ikke din tur; vent.</html>
+
+//sound
+enableSounds.label=Lyd
+
+//skins 
+skinMenu.label=Spilbrætgrafik
+skinMenuChoose.label=Vælg {0}
