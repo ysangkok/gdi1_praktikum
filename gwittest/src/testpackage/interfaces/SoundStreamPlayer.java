@@ -131,7 +131,7 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 			
 		}
 		catch(Exception e) {
-			throw new RuntimeException(e);
+			System.err.println(getClass().getName() + ": " + e.toString());
 		}
 		finally {
 			if(din != null) {

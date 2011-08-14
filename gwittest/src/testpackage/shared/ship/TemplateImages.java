@@ -15,6 +15,8 @@ public class TemplateImages {
 	
 	public static final String weblevelspath = "template/" + levelspath;
 	public static final String webimagesdir = "template/" + imagesdir + "defaultskin/";
+
+	public static final String iconsdir = "/resources/icons/";
 	
 	public static String[] allSkins = {"defaultskin", "smallskin"};
 

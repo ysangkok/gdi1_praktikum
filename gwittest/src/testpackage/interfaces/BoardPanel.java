@@ -45,6 +45,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private Border standardBorder;
 	private Border fancyBorder;
 	private Border selectedShooterBorder;
+	private Border targetBorder;
 	private List<Border> remainingAmmoBorders;
 	Map<JButton, Border> originalBorders;
 	
@@ -74,6 +75,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		standardBorder = getBorder(Color.BLACK);
 		fancyBorder = getBorder(Color.WHITE);
 		selectedShooterBorder = getBorder(Color.RED);
+		targetBorder = getBorder(new Color(255,255,0));
 
 		remainingAmmoBorders = new ArrayList<Border>();
 		int initialAmmoCount = engine.getInitialAmmoCount();
@@ -104,6 +106,30 @@ public class BoardPanel extends JPanel implements MouseListener {
 		addButtons();
 	}
 
+	public void markTargets(Boolean[][] targets) {
+		
+		for (int i = 0; i < targets.length; i++) {
+			for (int j = 0; j < targets[i].length; j++) {
+				if (targets[i][j]) {
+					
+					buttons[i][j].setBorder(targetBorder);
+				}
+			}
+		}
+		
+		for (int i = 0; i < targets.length; i++) {
+			for (int j = 0; j < targets[i].length; j++) {
+				Border bo;
+				if (targets[i][j]) {
+					bo = targetBorder;
+				} else {
+					bo = standardBorder;
+				}
+				buttons[i][j].setBorder(bo);
+				originalBorders.put(buttons[i][j], bo);
+			}
+		}
+	}
 
 	private void addButtons() {
 		buttons = new JButton[engine.getxWidth()][engine.getyWidth()];
@@ -259,27 +285,18 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-
-		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-
-		
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-
-		
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-
-		
+	public void mouseReleased(MouseEvent arg0) {	
 	}
-
 	
 }

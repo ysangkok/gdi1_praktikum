@@ -15,6 +15,7 @@ public class BadAI extends AI {
 	}
 
 	public boolean supportsAmmo() { return true; }
+	public boolean supportsRange() { return true; }
 
 	/**
 	 * random generator used for finding coordinates to shoot at
@@ -64,22 +65,28 @@ public class BadAI extends AI {
 			//System.err.println(e.getMessage());
 			if (e.getReason() == InvalidInstruction.Reason.NOTYOURTURN) return;
 			if (e.getReason() == InvalidInstruction.Reason.NOSHOOTERDESIGNATED || e.getReason() == InvalidInstruction.Reason.NOMOREAMMO) {
-				int num = (shooterx*xwidth + shootery);
-				num++;
-				if (!(num <= xwidth*ywidth-1)) return; // no more usable fields, will run out next turn
-				shooterx = (int) Math.floor( (double) num / xwidth);
-				shootery = num % xwidth;
-				
-				try {
-					engine.chooseFiringXY(player, shooterx, shootery);
-				} catch (InvalidInstruction e1) {
-					throw new RuntimeException(Util.format("ran out, should have been caught by win detector: %d %d %d",shooterx,shootery,num) );
-				}
-
+				chooseNewShooter(player);
+			} else if (e.getReason() == InvalidInstruction.Reason.WATERCANTSHOOT || e.getReason() == InvalidInstruction.Reason.OUTOFSHOOTERRANGE) {
+				if (!engine.canShootAnythingWithCurrentShip(player))
+					chooseNewShooter(player);
 			}
-			playAs(player);
+			System.err.println("BadAI: " + e.getMessage());
+			//playAs(player);
 		}
 		
+	}
+	private void chooseNewShooter(int player) {
+		int num = (shooterx*xwidth + shootery);
+		num++;
+		if (!(num <= xwidth*ywidth-1)) return; // no more usable fields, will run out next turn
+		shooterx = (int) Math.floor( (double) num / xwidth);
+		shootery = num % xwidth;
+		
+		try {
+			engine.chooseFiringXY(player, shooterx, shootery);
+		} catch (InvalidInstruction e1) {
+			throw new RuntimeException(Util.format("can't choose firing (x,y): %d %d",shooterx,shootery) );
+		}
 	}
 
 	

@@ -13,4 +13,5 @@ abstract public class AI {
 	abstract public void playAs(int player);
 
 	abstract public boolean supportsAmmo();
+	abstract public boolean supportsRange();
 }

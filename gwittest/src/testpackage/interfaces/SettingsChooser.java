@@ -35,6 +35,7 @@ class SettingsChooser {
 	boolean speerfeuerenabled = false;
 	boolean ammoenabled = false;
 	boolean moreshotsenabled = false;
+	boolean rangeenabled = false;
 	int ammospinnervalue;
 	int speerfeuerspinnervalue;
 	int w;
@@ -58,6 +59,8 @@ class SettingsChooser {
 		SpinnerModel wboarddimensionmodel = new SpinnerNumberModel(Rules.defaultWidth, 4, 100 ,1);
 		SpinnerModel hboarddimensionmodel = new SpinnerNumberModel(Rules.defaultHeight, 4, 100 ,1);
 		
+		final JCheckBox rangecb = new JCheckBox(translator.translateMessage("SCRange"));
+		
 		final JSpinner ammospinner = new JSpinner(ammomodel);
 		final JSpinner speerfeuerspinner = new JSpinner(speerfeuermodel);
 		final JSpinner heightspinner = new JSpinner(hboarddimensionmodel);
@@ -72,6 +75,7 @@ class SettingsChooser {
 
 				if (arg0.getActionCommand().equals("munition")) {
 					ammospinner.setEnabled(checked);
+					rangecb.setEnabled(checked);
 				} else if (arg0.getActionCommand().equals("speerfeuer")) {
 					speerfeuerspinner.setEnabled(checked);					
 				}
@@ -93,6 +97,9 @@ class SettingsChooser {
 		ammocb.setSelected(ammoenabled);
 		ammocb.addActionListener(listener);
 		ammocb.setActionCommand("munition");
+		
+		rangecb.setEnabled(ammoenabled);
+		rangecb.setSelected(rangeenabled);
 		
 		speerfeuerspinner.setEnabled(speerfeuerenabled);
 		ammospinner.setEnabled(ammoenabled);
@@ -143,11 +150,17 @@ class SettingsChooser {
 				ammoenabled = ammocb.isSelected();
 				speerfeuerspinnervalue = (int) (1000 * ((Double)speerfeuerspinner.getValue()));
 				ammospinnervalue = (Integer) ammospinner.getValue();
+				rangeenabled = ammoenabled && rangecb.isSelected();
 				chosenAI = availableAIs[aidropdown.getSelectedIndex()];
 				try {
-					if (!chosenAI.getConstructor().newInstance().supportsAmmo() && ammoenabled) {
-						javax.swing.JOptionPane.showMessageDialog(d, translator.translateMessage("SCAIUncapable",(String) aidropdown.getSelectedItem()), translator.translateMessage("userErrorWindowTitle"), 0);
-						return;
+					if (ammoenabled) {
+						if (!chosenAI.getConstructor().newInstance().supportsAmmo()) {
+							javax.swing.JOptionPane.showMessageDialog(d, translator.translateMessage("SCAIUncapable",(String) aidropdown.getSelectedItem()), translator.translateMessage("userErrorWindowTitle"), 0);
+							return;
+						}
+						if (rangeenabled && !chosenAI.getConstructor().newInstance().supportsRange()) {
+							javax.swing.JOptionPane.showMessageDialog(d, "Selected AI doesn't support range", translator.translateMessage("userErrorWindowTitle"), 0);
+						}
 					}
 				} catch (Exception ex) {
 				}
@@ -169,6 +182,7 @@ class SettingsChooser {
 		box.add(ammocb);
 		box.add(ammolabel);
 		box.add(ammospinner);
+		box.add(rangecb);
 		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(ailabel);
 		box.add(aidropdown);

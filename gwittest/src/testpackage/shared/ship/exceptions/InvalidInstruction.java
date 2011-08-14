@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class InvalidInstruction extends Exception implements Serializable {
 	public static enum Reason {
-		NOTYOURTURN, NOMOREAMMO, NOSHOOTERDESIGNATED, OUTOFBOUNDS, NOTSHOOTABLE, INVALIDSHOOTER
+		NOTYOURTURN, NOMOREAMMO, NOSHOOTERDESIGNATED, OUTOFBOUNDS, NOTSHOOTABLE, INVALIDSHOOTER, OUTOFSHOOTERRANGE, WATERCANTSHOOT
 	}
 	
 	private static final long serialVersionUID = 1L;
@@ -26,7 +26,9 @@ public class InvalidInstruction extends Exception implements Serializable {
 	public Reason getReason() {
 		return this.reason;
 	}
-	public InvalidInstruction() {
+	public InvalidInstruction(Reason r, String message) {
+		this(r);
+		this.message = message;
 	}
 
 }

@@ -6,6 +6,8 @@ import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidInstruction.Reason;
 import testpackage.shared.ship.SoundHandler.Sound;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,8 @@ import java.util.ArrayList;
  * class for game core logic
  */
 public class Engine {
-	private boolean allowMultipleShotsPerTurn = Rules.defaultAllowMultipleShotsPerTurn;
+	private boolean allowMultipleShotsPerTurn = false;
+	private boolean reichweite = false;
 
 	public boolean getMoreShots() {
 		return allowMultipleShotsPerTurn;
@@ -166,6 +169,83 @@ public class Engine {
 		this.initialAmmoCount = ammocount;
 		state.initRemainingShots(ammocount);
 	}
+
+	public void enableRange() {
+		if (!isShotsPerShipEnabled()) throw new RuntimeException("Can't enable range without shots per ship!");
+		System.err.println("Enabling range");
+		this.reichweite = true;
+	}
+	
+
+	public static String getTargetString(Boolean[][] targets) {
+		Map2DHelper<Boolean> helper = new Map2DHelper<Boolean>();
+		
+		return helper.getCustomPaddedBoardString(targets, 6);
+	}
+	
+	public Boolean[][] getTargets(int shootingPlayer, int x, int y) throws InvalidInstruction {
+		if (!reichweite) throw new RuntimeException("Range not enabled!");
+		
+		Boolean[][] shootable = new Boolean[xWidth][yWidth*2];
+		
+		for (int i=0; i<shootable.length; i++)
+			for (int j=0; j<shootable[i].length; j++)
+				shootable[i][j] = false;
+		
+		List<Ship> ships = Level.getShips(getCurrentBoards(shootingPlayer, false)[0]);
+		
+		Ship s = Level.getShipAt(ships, x, y);
+		if (s == null)
+			throw new InvalidInstruction(Reason.WATERCANTSHOOT, Util.format("No ship at %d,%d,%d\n" + new Map2DHelper<Character>().getBoardString(state.getLevel().getPlayerBoard(shootingPlayer)),shootingPlayer,x,y));
+		for (Integer[] coord : s.getAllOccupiedCoords()) {
+			for (int[] ruleset : Rules.ships) {
+				if (s.len == ruleset[0]) {
+					drawCircle(shootable, coord[0], coord[1], ruleset[2]);
+				}
+			}
+		}
+		
+		Boolean[][] shootableAtOpponent = new Boolean[xWidth][yWidth];
+		for (int i = 0; i < shootable.length; i++) {
+				int j2 = 0;
+				for (int j = shootable[i].length/2; j < shootable[i].length; j++) {
+					shootableAtOpponent[i][j2++] = shootable[i][j];
+				}
+				if (shootingPlayer == 1) reverse(shootableAtOpponent[i]);
+		}	
+		
+		return shootableAtOpponent;
+		
+	}
+    private static Object[] reverse(Object[] arr) {
+        List < Object > list = Arrays.asList(arr);
+        Collections.reverse(list);
+        return list.toArray();
+    }
+	private static void drawCircle(Boolean[][] b, int CircCenterX, int CircCenterY, int radius) {
+		double rstep = 1/(((double) radius)*2);//set rstep to something like 1/radius, something that draws quickly but doesn't skip pixels
+		for (double r=0; r<Math.PI*.5; r=r+rstep) //1 to 1/2pi
+		{
+			int y1 = (int) Math.ceil(CircCenterY + Math.sin(r) * radius);
+			int x2 = (int) Math.ceil(CircCenterX - Math.cos(r) * radius);
+			int y2 = (int) Math.ceil(CircCenterY - Math.sin(r) * radius);
+			int x3 = (int) Math.ceil(CircCenterX + Math.cos(r) * radius);
+			int y3 = (int) Math.ceil(CircCenterY - Math.sin(r) * radius);
+			int y4 = (int) Math.ceil(CircCenterY + Math.sin(r) * radius);
+
+			
+			for (int k=y2; k<=y4; k++) {
+				try {
+					b[x2][k] = true;
+				} catch (ArrayIndexOutOfBoundsException e) {}
+			}
+			for (int k=y3; k<=y1; k++) {
+				try {
+					b[x3][k] = true;
+				} catch (ArrayIndexOutOfBoundsException e) {}
+			}
+		}
+	}
 	
 	/**
 	 * quick cheat to make it easier to code AI. shouldn't be used. YOU STILL NEED TO CHOOSE SHOOTER AFTER DOING THIS
@@ -208,14 +288,19 @@ public class Engine {
 		this.state = newState;
 		
 		if (state.shotspershipenabled) {
-			
 			if (state.chosenFiringX[player] == -1 || state.chosenFiringY[player] == -1) throw new InvalidInstruction(Reason.NOSHOOTERDESIGNATED);
+			if (reichweite) {
+				Boolean[][] targets = getTargets(player, state.chosenFiringX[player], state.chosenFiringY[player]);
+				if (!targets[x][y]) throw new InvalidInstruction(Reason.OUTOFSHOOTERRANGE);
+			}
 			Integer field = state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]];
 			if (field == 0) {
 				throw new InvalidInstruction(Reason.NOMOREAMMO);
 			}
 			field -= 1;
 			state.remainingshots[player][state.chosenFiringX[player]][state.chosenFiringY[player]] = field;
+			
+			//System.err.println(Engine.getTargetString(getTargets(player, x, y)));
 			
 			//Map2DHelper<Integer> helper = new Map2DHelper<Integer>();
 			//System.err.println(helper.getBoardString(remainingshots[player]));
@@ -451,5 +536,22 @@ public class Engine {
 		} else {
 			return attack(i, y, x);
 		}
+	}
+	public boolean canShootAnythingWithCurrentShip(int shootingPlayer) {
+		Boolean[][] shootable;
+		try {
+			shootable = getTargets(shootingPlayer, state.getFiringX(shootingPlayer), state.getFiringY(shootingPlayer));
+		} catch (InvalidInstruction e) {
+			return false; // not even a ship
+		}
+		
+		for (int i = 0; i < shootable.length; i++)
+			for (int j = 0; j < shootable[i].length; j++)
+				if (shootable[i][j])
+					return true;
+		return false;
+	}
+	public boolean isRangeEnabled() {
+		return reichweite;
 	}
 }

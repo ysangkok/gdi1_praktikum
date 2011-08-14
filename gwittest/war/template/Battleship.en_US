@@ -99,6 +99,7 @@ SCAIUncapable=<html>{0} doesn&rsquo;t support ammunition. Choose another AI.</ht
 SCMoreShots=Allow extra shots in when hit
 SCHeightLabel=Height of boards:
 SCWidthLabel=Width of boards:
+SCRange=Range of ships enabled
 
 //Place ships
 POSDN_Ship={0}-ship:

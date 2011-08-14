@@ -105,6 +105,7 @@ SCAIUncapable=<html>{0} unterschtuetzt ammunition nicht. Eine andere AI auswaehl
 SCMoreShots=Schiess nach dem Treffen erlaubt
 SCHeightLabel=Hoehe:
 SCWidthLabel=Breite:
+SCRange=Reichweite von Schiffen angeschaltet
 
 POSDN_Ship={0}-Schiff:
 

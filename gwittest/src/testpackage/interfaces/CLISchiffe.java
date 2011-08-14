@@ -28,9 +28,13 @@ public class CLISchiffe extends ConsoleProgram {
 	 * ACM JTF entry point
 	 */
 	public void run() {
-		boolean shotspership = readBoolean("Limit shots per ship?");
-		boolean moreshots = readBoolean("Extra shot when hit?");
-		if (shotspership) engine.enableShotsPerShip(Rules.shotsPerShipPart);
+		boolean shotspership = readBoolean("Choose shooting ships?");
+		boolean moreshots = readBoolean("Extra shot when hitting opponent?");
+		if (shotspership) {
+			engine.enableShotsPerShip(Rules.shotsPerShipPart);
+			boolean reichweite = readBoolean("Limit ship range?");
+			if (reichweite) engine.enableRange();
+		}
 		engine.setMoreShots(moreshots);
 		
 		int winner = -1;
@@ -50,6 +54,7 @@ public class CLISchiffe extends ConsoleProgram {
 						int shooterx = readInt("Shooter Y Koordinate:");
 						try {
 							engine.chooseFiringXY(0, shooterx, shootery);
+							println(Engine.getTargetString(engine.getTargets(0, shooterx, shootery)));
 						} catch (InvalidInstruction e) {
 							showErrorMessage(e.getMessage());
 							continue;

@@ -31,7 +31,7 @@ public class GoodAI extends AI {
 	
 
 	public boolean supportsAmmo() { return false; }
-	
+	public boolean supportsRange() { return false; }
 	
 	
 	public void setEngine(Engine engine) {

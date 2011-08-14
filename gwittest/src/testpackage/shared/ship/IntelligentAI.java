@@ -71,6 +71,7 @@ public class IntelligentAI extends AI {
 
 	
 	public boolean supportsAmmo() { return false; }
+	public boolean supportsRange() { return false; }
 	
 	private static void Debug(String str) {
 		//System.err.println(str);

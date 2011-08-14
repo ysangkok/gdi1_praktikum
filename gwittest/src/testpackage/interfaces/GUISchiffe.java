@@ -42,7 +42,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.ButtonGroup;
 
-import testpackage.highscore.pasteName;
+//import testpackage.highscore.pasteName;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.IntelligentAI;
@@ -132,7 +132,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	public void GameOver() {
 		if (speerfeuer) clock.pause();
 		
-		pasteName.maybeAddHighScore("30.02.1999   06:36", 3289, engine.getState().getLevel());
+		//pasteName.maybeAddHighScore("30.02.1999   06:36", 3289, engine.getState().getLevel());
 
 		panels[0].refresh();
 		panels[1].refresh();
@@ -205,7 +205,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	
 	private void initDefaultGame() {
 		try {
-			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, false, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, IntelligentAI.class, Rules.defaultAllowMultipleShotsPerTurn);
+			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, Rules.enableShotsPerShip, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn, Rules.defaultReichweiteVonSchiffenEnabled);
 		} catch (InvalidLevelException ex) {
 			throw new RuntimeException("Default level probably impossible", ex);
 		}
@@ -221,6 +221,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		speerfeuer = s.speerfeuerenabled;
 		if (s.ammoenabled) {
 			newengine.enableShotsPerShip(s.ammospinnervalue);
+			if (s.rangeenabled)
+				newengine.enableRange();
 		}
 		newengine.setMoreShots(s.moreshotsenabled);
 
@@ -341,7 +343,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
-		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 16));
+		statusPanel.setPreferredSize(new Dimension(frame.getWidth(), 32));
 		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
 		statusLabel = new JLabel();
 		if (engine.isShotsPerShipEnabled()) {
@@ -589,24 +591,24 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			throw new RuntimeException(String.format("Template level corrupted: %s",chosenLvl),e);
 		}
 		
-		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass(), Rules.defaultAllowMultipleShotsPerTurn);
+		initNewEngineAndAIWithLevel(level, false, false, Rules.shotsPerShipPart, speerfeuertime, ai.getClass(), false, false);
 		
 		frame.dispose();
 		showFrame();
 	}
 
-	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) {
+	private void initNewEngineAndAIWithLevel(Level level, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots, boolean rangeenabled) {
 		engine = new Engine(level);
 		engine.setSoundHandler(this);
 		
 		this.speerfeuer = speerfeuer;
 		this.speerfeuertime = time;
-		if (enableshotspership) engine.enableShotsPerShip(ammocount);
+		if (enableshotspership) { engine.enableShotsPerShip(ammocount); if (rangeenabled) engine.enableRange(); }
 		engine.setMoreShots(moreshots);
 		instantiateAndSetAI(chosenAI);
 	}
 	
-	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots) throws InvalidLevelException {
+	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots, boolean rangeenabled) throws InvalidLevelException {
 		Level l;
 		try {
 			l = new LevelGenerator(w, h).getLevel();
@@ -618,7 +620,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 						speerfeuer,
 						ammocount,
 						time,
-						chosenAI, moreshots);
+						chosenAI, moreshots, rangeenabled);
 	}
 	
 	private boolean generatedNewGame() {
@@ -626,7 +628,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		s.askForSettings(frame);
 		if (!s.finished) return false;
 		try {
-			initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled);
+			initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled, s.rangeenabled);
 		} catch (InvalidLevelException ex) {
 			userError(ex.getMessage());
 			return false;
@@ -714,11 +716,16 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 					try {
 						int shots = engine.chooseFiringXY(player, y, x);
 						setStatusBarMessage(translator.translateMessage("bombSelectShooter", String.valueOf(x),String.valueOf(y),String.valueOf(shots)));
+						
+						if (engine.isRangeEnabled()) {
+							panels[1].refresh();
+							if (engine.remainingShotsFor(0) > 0) panels[1].markTargets(engine.getTargets(0, y, x));
+						}
 					} catch (InvalidInstruction e) {
 						userError(localizeException(e));
 					}
 				}
-			panels[0].refresh();
+				panels[0].refresh();
 				return;
 			}
 			
@@ -736,17 +743,20 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			}
 			//System.err.println(engine.getState().isPlayerTurn());
 			
-			if (engine.isShotsPerShipEnabled() && player == 1)
+			panels[player].refresh();
+			
+			if (engine.isShotsPerShipEnabled() && player == 1) {
 				try {
 					setStatusBarMessage(translator.translateMessage("bombRemainingShots", String.valueOf(engine.remainingShotsFor(0))));
+					if (engine.isRangeEnabled() && engine.remainingShotsFor(0) > 0)
+						panels[1].markTargets(engine.getTargets(0, engine.getState().getFiringX(0), engine.getState().getFiringY(0)));
 				} catch (InvalidInstruction e) {
 				}
-				
+			}
+			
 			if (engine.isFinished()) { GameOver(); return; }
 
 			aiAttackAs(player);
-			
-			panels[player].refresh();
 			
 			updateHitCounter();
 	}
@@ -900,6 +910,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 
 	public static javax.swing.ImageIcon getIcon(String iconName) {
-		return new javax.swing.ImageIcon(TemplateImages.class.getResource("/resources/icons/" + iconName + ".png"));
+		return new javax.swing.ImageIcon(TemplateImages.class.getResource(TemplateImages.iconsdir + iconName + ".png"));
 	}
 }
