@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Frame;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -83,7 +85,7 @@ class DateRender extends DefaultTableCellRenderer{
  }
 }
 
-public class TestHighScore extends JDialog {
+public class TestHighScore extends JDialog implements ComponentListener {
 	private static final long serialVersionUID = -2542984839574589527L;
 	private LinkedList<Score> highscoreList;
 	private JTable table;
@@ -100,8 +102,9 @@ public class TestHighScore extends JDialog {
 		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.highscoreList = highscores;
-		
-		//this.setLayout(null);
+		 Component c =  getContentPane();
+		 c.addComponentListener(this);
+		this.setLayout(null);
 		//this.setSize(300, 320);
 
 		//this.getContentPane().setBackground(Color.white);
@@ -158,7 +161,7 @@ public class TestHighScore extends JDialog {
 		this.add(table);
 
 		setTableData();
-		this.setSize(500,500);
+		this.setSize(370, 330);
 		this.setVisible(true);
 	}
 
@@ -244,6 +247,30 @@ public class TestHighScore extends JDialog {
     TestHighScore ths = new TestHighScore(new Frame(), hm.getScores());
     System.err.println(hm.getWorstScore());
 }
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		table.getTableHeader().setBounds(0, 0, ((Component) e.getSource()).getWidth(), 20);
+		table.setBounds(0, 20, ((Component) e.getSource()).getWidth(), ((Component) e.getSource()).getHeight()-20);
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
 

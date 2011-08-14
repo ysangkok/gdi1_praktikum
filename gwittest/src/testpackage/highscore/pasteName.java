@@ -13,6 +13,8 @@ public class pasteName {
 	
 	
 	
+private static final int Hits = 0;
+
 //	private static final int ResultScore = 0;
 //	private LinkedList<Score> scores;
 //    private int Score;
@@ -105,8 +107,29 @@ public class pasteName {
 
 
 	
+	/**
+	 * calculate the scores of each level
+	 * 
+	 * 
+	 */
 	
-	
+	public static void  calculateScore(Level level){
+		int hits = 0 ;	
+		int hitwater = 0;
+		
+		gethitsofwater().hitwatter
+		
+
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+
 
 	public static int gethitsofharmedship(Level level) {
 	

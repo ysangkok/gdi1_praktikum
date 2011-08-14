@@ -19,6 +19,8 @@ import java.util.Date;
  */
 public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtended2 {
 
+	private static final String HighscoreManager = null;
+
 	/**
 	 * Use this constructor to initialize everything you need.
 	 */
@@ -41,7 +43,8 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * @see #getDateAtHighscorePosition(int)
 	 */
 	public void addHighscoreEntry(String playername, double needed_time, Date creation_date, int shots ) {
-		//TODO implement this stub
+        
+		
 	}
 	
 	/** 
