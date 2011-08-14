@@ -1,8 +1,5 @@
 package testpackage.shared.ship;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import testpackage.shared.ship.SoundHandler.Sound;
 
 public class TemplateImages {

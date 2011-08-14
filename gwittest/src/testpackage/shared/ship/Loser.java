@@ -3,6 +3,7 @@ package testpackage.shared.ship;
 import java.io.Serializable;
 
 public class Loser implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public String reason;
 	public int playernr;
 	

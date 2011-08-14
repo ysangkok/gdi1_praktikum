@@ -265,7 +265,7 @@ public class BattleshipTestAdapterMinimal {
 	public void doAIShot() {
 		if (engine.getState().isPlayerTurn()) { engine.getState().changeTurn(); }
 		//System.err.println(engine.getLevelStringForPlayer(0));
-		ai.playAs(1);
+		while (!engine.getState().isPlayerTurn()) ai.playAs(1);
 		//System.err.println(engine.getLevelStringForPlayer(0));
 		if (!engine.getState().isPlayerTurn()) { engine.getState().changeTurn(); }
 	}
