@@ -56,15 +56,21 @@ public void sort(String criteria, boolean reverse) {
 
 public int getMaxHighScoreListElements() { return max; }
 
+
+
 public void addScore(String name, int score, int neededTime, String datestring) {
-	//loadScoreFile();
-	//Score(String naam, int score, int neededTime, String date) 
-	Score s;
 	try {
-		s = new Score(name, score, neededTime, new SimpleDateFormat(DateFormat).parse(datestring));
+		addScore(name, score, neededTime, new SimpleDateFormat(DateFormat).parse(datestring));
 	} catch (ParseException e) {
 		throw new RuntimeException("Invalid date format: " + e.getMessage());
 	}
+}
+
+public void addScore(String name, int score, int neededTime, Date date) {
+	//loadScoreFile();
+	//Score(String naam, int score, int neededTime, String date) 
+	Score s = new Score(name, score, neededTime, date);
+
 	scores.add(s);
 
 	sort("score", true);

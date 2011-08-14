@@ -2,6 +2,8 @@ package tests.adapters;
 
 import java.util.Date;
 
+import testpackage.highscore.HighscoreManager;
+
 
 
 /**
@@ -19,13 +21,15 @@ import java.util.Date;
  */
 public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtended2 {
 
-	private static final String HighscoreManager = null;
+	private static  HighscoreManager hm;
 
 	/**
 	 * Use this constructor to initialize everything you need.
 	 */
 	public BattleshipTestAdapterExtended3() {
 		super();
+		
+		hm= new HighscoreManager();
 	}
 	
 	/**
@@ -43,9 +47,12 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * @see #getDateAtHighscorePosition(int)
 	 */
 	public void addHighscoreEntry(String playername, double needed_time, Date creation_date, int shots ) {
-        
+        hm.addScore(playername, score, neededTime, datestring)
 		
 	}
+	
+	
+	
 	
 	/** 
 	 * Return the number of highscore entries in your highscore store.

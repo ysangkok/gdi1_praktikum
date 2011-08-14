@@ -106,27 +106,12 @@ private static final int Hits = 0;
 	}
 
 
-	
-	/**
-	 * calculate the scores of each level
-	 * 
-	 * 
-	 */
-	
-	public static void  calculateScore(Level level){
-		int hits = 0 ;	
-		int hitwater = 0;
-		
-		gethitsofwater().hitwatter
-		
 
 			
 			
 			
 			
-			
-		}
-		
+	
 		
 		
 
