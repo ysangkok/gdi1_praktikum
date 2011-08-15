@@ -26,15 +26,8 @@ public class Engine {
 	private boolean allowMultipleShotsPerTurn = false;
 	private boolean reichweite = false;
 
-	public boolean getMoreShots() {
-		return allowMultipleShotsPerTurn;
-	}
-	public void setMoreShots(boolean enabled) {
-		//System.err.format("Set allow: %s", enabled);
-		allowMultipleShotsPerTurn = enabled;
-	}
-
 	private List<Map<Ship,Boolean>> shotships;
+	private List<List<Ship>> ships;
 
 	private List<State> undoLog;
 	private State state;
@@ -48,8 +41,34 @@ public class Engine {
 
 	private int initialAmmoCount;
 
+	private List<Map<Ship,Boolean[][]>> shipToTargets;
+	
+	
+	/**
+	 * 
+	 * @return true if multiple shots per turn are enabled
+	 */
+	public boolean getMoreShots() {
+		return allowMultipleShotsPerTurn;
+	}
+	/**
+	 * set multiple shots per turn enabled or disabled.
+	 * @param enabled true if enabled
+	 */
+	public void setMoreShots(boolean enabled) {
+		//System.err.format("Set allow: %s", enabled);
+		allowMultipleShotsPerTurn = enabled;
+	}
+	
+	/**
+	 * @return the ammo count for all fields when engine was initialized or state set
+	 */
 	public int getInitialAmmoCount() { return initialAmmoCount; }
 
+	/**
+	 * set sound handler so sounds can be played. only GUISchiffe currently handles
+	 * @param handler handler to play sounds with
+	 */
 	public void setSoundHandler(SoundHandler handler) {
 		this.soundhandler = handler;
 	}
@@ -59,19 +78,31 @@ public class Engine {
 			soundhandler.playSound(sound, player);
 		}
 	}
+	/**
+	 * choose a random sound and play it, if sound handler set
+	 * @param sounds sounds to choose from
+	 * @param player relevant player board number
+	 */
 	private void maybePlaySoundOneOf(Sound[] sounds, int player) {
 		Random g = new Random();
 		int pos = g.nextInt(sounds.length-1);
 		maybePlaySound(sounds[pos], player);
 	}
+	/**
+	 * play sound with no modifications if sound handler set
+	 * @param sound sound to play
+	 */
 	private void maybePlaySound(Sound sound) {
 		if (soundhandler != null) {
 			soundhandler.playSound(sound);
 		}
 	}
 	
+	/**
+	 * detect ship locations and store. initialize map for detecting shot ships
+	 */
 	private void detectShips() {
-		List<List<Ship>> ships = new ArrayList<List<Ship>>();
+		ships = new ArrayList<List<Ship>>();
 		try {
 			ships.add(Level.getShips(state.getLevel().getPlayerBoard(0)));
 			ships.add(Level.getShips(state.getLevel().getPlayerBoard(1)));
@@ -85,6 +116,41 @@ public class Engine {
 			shotships.add(map);
 			for (Ship s : ships.get(p)) {
 				map.put(s, false);
+			}
+		}
+		
+		if (reichweite) {
+			shipToTargets = new ArrayList<Map<Ship,Boolean[][]>>();
+			
+			for (int shootingPlayer : new int[]{0,1}) {
+				HashMap<Ship, Boolean[][]> map = new HashMap<Ship, Boolean[][]>();
+				shipToTargets.add(map);
+				for (Ship s : ships.get(shootingPlayer)) {
+					Boolean[][] shootable = new Boolean[xWidth][yWidth*2];
+
+					for (int i=0; i<shootable.length; i++)
+						for (int j=0; j<shootable[i].length; j++)
+							shootable[i][j] = false;
+
+					for (Integer[] coord : s.getAllOccupiedCoords()) {
+						for (int[] ruleset : Rules.ships) {
+							if (s.len == ruleset[0]) {
+								drawCircle(shootable, coord[0], coord[1], ruleset[2]);
+							}
+						}
+					}
+
+					Boolean[][] shootableAtOpponent = new Boolean[xWidth][yWidth];
+					for (int i = 0; i < shootable.length; i++) {
+						int j2 = 0;
+						for (int j = shootable[i].length/2; j < shootable[i].length; j++) {
+							shootableAtOpponent[i][j2++] = shootable[i][j];
+						}
+						if (shootingPlayer == 1) reverse(shootableAtOpponent[i]);
+					}	
+
+					map.put(s, shootableAtOpponent);
+				}
 			}
 		}
 	}
@@ -178,56 +244,62 @@ public class Engine {
 
 	public void enableRange() {
 		if (!isShotsPerShipEnabled()) throw new RuntimeException("Can't enable range without shots per ship!");
-		System.err.println("Enabling range");
+		//System.err.println("Enabling range");
 		this.reichweite = true;
+		detectShips();
 	}
 	
 
+	/**
+	 * for usage in CLISchiffe
+	 * @param targets in format from getTargets
+	 * @return string for outputting
+	 */
 	public static String getTargetString(Boolean[][] targets) {
 		Map2DHelper<Boolean> helper = new Map2DHelper<Boolean>();
 		
 		return helper.getCustomPaddedBoardString(targets, 6);
 	}
 	
+	/**
+	 * get boolean map of shootable fields in opponents board from x,y in players board. if player is 1, the opponent is left (i.e. lower y position), if player is 0, the opponent is right (i.e. higher y position). that means the results are mirrored on one dimension.
+	 * @param shootingPlayer player number who is shooting
+	 * @param x x coord (our format, i.e. y/x reversed)
+	 * @param y y coord (our format, i.e. y/x reversed)
+	 * @return boolean 2d array
+	 * @throws InvalidInstruction when shooter invalid
+	 */
 	public Boolean[][] getTargets(int shootingPlayer, int x, int y) throws InvalidInstruction {
 		if (!reichweite) throw new RuntimeException("Range not enabled!");
+	
+		//List<Ship> ships = Level.getShips(getCurrentBoards(shootingPlayer, false)[0]);
 		
-		Boolean[][] shootable = new Boolean[xWidth][yWidth*2];
+		Ship s = Level.getShipAt(ships.get(shootingPlayer), x, y);
 		
-		for (int i=0; i<shootable.length; i++)
-			for (int j=0; j<shootable[i].length; j++)
-				shootable[i][j] = false;
-		
-		List<Ship> ships = Level.getShips(getCurrentBoards(shootingPlayer, false)[0]);
-		
-		Ship s = Level.getShipAt(ships, x, y);
-		if (s == null)
+		Boolean[][] targets = shipToTargets.get(shootingPlayer).get(s);
+		if (targets == null)
 			throw new InvalidInstruction(Reason.WATERCANTSHOOT, Util.format("No ship at %d,%d,%d\n" + new Map2DHelper<Character>().getBoardString(state.getLevel().getPlayerBoard(shootingPlayer)),shootingPlayer,x,y));
-		for (Integer[] coord : s.getAllOccupiedCoords()) {
-			for (int[] ruleset : Rules.ships) {
-				if (s.len == ruleset[0]) {
-					drawCircle(shootable, coord[0], coord[1], ruleset[2]);
-				}
-			}
-		}
-		
-		Boolean[][] shootableAtOpponent = new Boolean[xWidth][yWidth];
-		for (int i = 0; i < shootable.length; i++) {
-				int j2 = 0;
-				for (int j = shootable[i].length/2; j < shootable[i].length; j++) {
-					shootableAtOpponent[i][j2++] = shootable[i][j];
-				}
-				if (shootingPlayer == 1) reverse(shootableAtOpponent[i]);
-		}	
-		
-		return shootableAtOpponent;
+
+		return targets;
 		
 	}
+	/**
+	 * generic. reverse an array
+	 * @param arr array to reverse
+	 * @return reversed array. different object
+	 */
     private static Object[] reverse(Object[] arr) {
         List < Object > list = Arrays.asList(arr);
         Collections.reverse(list);
         return list.toArray();
     }
+    /**
+     * generic circle drawing algorithm. used for range of ships
+     * @param b boolean array to draw in
+     * @param CircCenterX circle center coord
+     * @param CircCenterY circle center coord
+     * @param radius radius of circle
+     */
 	private static void drawCircle(Boolean[][] b, int CircCenterX, int CircCenterY, int radius) {
 		double rstep = 1/(((double) radius)*2);//set rstep to something like 1/radius, something that draws quickly but doesn't skip pixels
 		for (double r=0; r<Math.PI*.5; r=r+rstep) //1 to 1/2pi
@@ -276,6 +348,8 @@ public class Engine {
 	 * @throws InvalidInstruction if you shoot at field that was already hit. also throws when out of range.
 	 */
 	public char attack(int player, int x, int y) throws InvalidInstruction {
+		State oldState = this.state;
+		try {
 		char hit;
 		
 		if (player < 0 || player > 1) {
@@ -347,12 +421,15 @@ public class Engine {
 		fog[x][y] = false; // this field is not visible
 		
 		if (Level.isShip(hit)) {
-			Character[][] b = state.getLevel().getPlayerBoard(otherPlayer(player));
-			boolean allshotup = Level.getShipAt(Level.getShips(b), x, y).isAllShotUp(b);
+			boolean allshotup = Level.getShipAt(state.getLevel().getShips(otherPlayer(player)), x, y).isAllShotUp(state.getLevel().getPlayerBoard(otherPlayer(player)));
 			//System.err.println("hit: " + hit + ", allshotup: " + allshotup);
 			return (allshotup ? 'X' : 'Y');
 		} else
 			return hit;
+		} catch (InvalidLevelException e) {
+			e.addText(oldState.toString());
+			return '?';
+		}
 	}
 
 	public boolean isShotsPerShipEnabled() {
@@ -483,6 +560,12 @@ public class Engine {
 		return getCurrentBoards(0,false)[1];
 	}
 	
+	/**
+	 * shouldnt normally be used, use getOpponentArrayWithoutFog/getVisibleOpponentArray/getPlayerArray
+	 * @param i player perspective (playing player)
+	 * @param fogboard wheather to fog opponents board
+	 * @return board layout relative to i
+	 */
 	public Character[][][] getCurrentBoards(int i, boolean fogboard) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);
@@ -504,7 +587,7 @@ public class Engine {
 
 	
 	/**
-	 * restart level by reverting to first undo position
+	 * restart level by reverting to first undo position. not tested, and not available anywhere.
 	 */
 	public void restartLevel() {
 		state = undoLog.get(0);

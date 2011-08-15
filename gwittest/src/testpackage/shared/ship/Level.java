@@ -58,6 +58,7 @@ public class Level implements Serializable {
 	 * @throws InvalidLevelException
 	 */
 	Level(String text, boolean check, boolean checkaspectratio) throws InvalidLevelException {
+		try {
 		if (!check && checkaspectratio) throw new RuntimeException("invalid arguments");
 		int charNum;
 		char prevChar = 0;
@@ -120,8 +121,22 @@ public class Level implements Serializable {
 		
 		checkShips(0, getPlayerBoard(0), check);
 		checkShips(1, getPlayerBoard(1), check);
+		} catch (InvalidLevelException e) {
+			e.addText(text);
+		}
 	}
 	
+	List<Ship> ships = null;
+	
+	public List<Ship> getShips(int player) {
+		if (ships == null) {
+			Character[][] b = getPlayerBoard(player);
+			ships = getShips(b);
+		}
+		
+		return ships;
+	}
+		
 	public static List<Ship> getShips(Character[][] b) throws InvalidLevelException {
 		List<Ship> ships = new ArrayList<Ship>();
 		
@@ -147,6 +162,7 @@ public class Level implements Serializable {
 	}
 	
 	public static Ship getShipAt(Iterable<Ship> ships, int x, int y) {
+		if (ships == null) throw new RuntimeException("can't iterate null");
 		for (Ship s : ships) {
 			for (Integer[] coord : s.getAllOccupiedCoords()) {
 				if (x == coord[0] && y == coord[1]) return s;
@@ -245,7 +261,7 @@ public class Level implements Serializable {
 	private static int countShipLength(int x, int y, Direction d, Character[][] b, int akku) throws InvalidLevelException {
 		if (d == Direction.DOWN) {
 			if (matchChar("bB", b[x][y])) return akku + 1;
-			if (!matchChar("tTvV", b[x][y])) throw new InvalidLevelException(Util.format("Expected ship at (%d,%d) direction %s",x,y,d));
+			if (!matchChar("tTvV", b[x][y])) throw new InvalidLevelException(Util.format("Expected ship at (%d,%d) direction %s",x,y,d),b);
 			try {
 				return countShipLength(x+1, y, d, b, akku + 1);
 			} catch (ArrayIndexOutOfBoundsException e) {
@@ -323,7 +339,11 @@ public class Level implements Serializable {
 	}
 	
 	public static boolean matchChar(String chars, char c) {
-		return chars.indexOf(new String(new char[] {c})) != -1;
+		//return chars.indexOf(new String(new char[] {c})) != -1;
+		for (int i = 0; i < chars.length(); i++) {
+			if (chars.charAt(i) == c) return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -371,7 +391,7 @@ public class Level implements Serializable {
 		Character[][] board = getPlayerBoard(p);
 		
 		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board.length; j++) {
+			for (int j = 0; j < board[i].length; j++) {
 				if (matchChar(unharmedShip, board[i][j])) {
 					//System.err.println("matched on " + i + ","+ j + "," + board[i][j]);
 					return false; // if we have just one field of unharmed ship, we didn't lose yet

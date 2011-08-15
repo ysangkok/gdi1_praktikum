@@ -10,65 +10,84 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
 
-enum Direction {
-	NORTH, EAST, WEST, SOUTH, UNKNOWN;
-
-	static Direction randomAngular(Random gen, Direction d) {
-		boolean b = gen.nextBoolean();
-		switch (d) {
-			case NORTH:
-			case SOUTH:
-				d = Direction.EAST;
-				break;
-			case EAST:
-			case WEST:
-				d = Direction.NORTH;
-				break;
-		}
-		return (b ? opposite(d) : d);
-	}
-
-	static Direction opposite(Direction d) {
-		switch (d) {
-			case NORTH:
-				return Direction.SOUTH;
-			case SOUTH:
-				return Direction.NORTH;
-			case EAST:
-				return Direction.WEST;
-			case WEST:
-				return Direction.EAST;
-			default:
-				throw new RuntimeException("can't make opposite of " + d);
-		}
-	}
-
-}
-
-class Offset {
-	int x, y;
-	Offset(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-}
-
+/**
+ * AI that tries to shoot ships until they die. doesn't support ammo. tries to avoid code duplication like in GoodAI. TODO: prefer shooting fields that aren't adjacent to ships, or in front/behind.
+ */
 public class IntelligentAI extends AI {
-	Set<Direction> tried ;
+	/**
+	 * for representing an offset relative to a coordinate
+	 */
+	static class Offset {
+		int x, y;
+		Offset(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 
-	Random gen;
-	Engine engine;
-	boolean randomMode;
-	boolean triedOtherDirection;
-	Direction currentDirection;
+	/**
+	 * for representing the direction in which the AI is moving on the map (to try and shoot a ship until it's completely sunken)
+	 */
+	static enum Direction {
+		NORTH, EAST, WEST, SOUTH, UNKNOWN; // unknown is used when a ship is hit but we don't know which orientation (not direction!) it is yet
 	
-	int xwidth;
-	int ywidth;
+		/**
+		 * gets a random direction that is 90 degrees left or right of given direction. currently unused, but could be useful.
+		 * @param gen random gen to use
+		 * @param d direction is consider
+		 * @return east/west when d=north/south, and reverse
+		 */
+		static Direction randomAngular(Random gen, Direction d) {
+			boolean b = gen.nextBoolean();
+			switch (d) {
+				case NORTH:
+				case SOUTH:
+					d = Direction.EAST;
+					break;
+				case EAST:
+				case WEST:
+					d = Direction.NORTH;
+					break;
+			}
+			return (b ? opposite(d) : d);
+		}
+	
+		/**
+		 * get opposite direction
+		 * @param d direction to consider 
+		 * @return opposite direction of d
+		 */
+		static Direction opposite(Direction d) {
+			switch (d) {
+				case NORTH:
+					return Direction.SOUTH;
+				case SOUTH:
+					return Direction.NORTH;
+				case EAST:
+					return Direction.WEST;
+				case WEST:
+					return Direction.EAST;
+				default:
+					throw new RuntimeException("can't make opposite of " + d);
+			}
+		}
+	
+	}
 
-	int originalShipX, originalShipY, lastX, lastY = -1;
+	private Set<Direction> tried ;
 
-	Map<Direction, Offset> doffset;
+	private Random gen;
+	private Engine engine;
+	private boolean randomMode;
+	private boolean triedOtherDirection;
+	private Direction currentDirection;
+	
+	private int xwidth;
+	private int ywidth;
 
+	private int originalShipX, originalShipY, lastX, lastY = -1;
+
+	private Map<Direction, Offset> doffset;
 	
 	public boolean supportsAmmo() { return false; }
 	public boolean supportsRange() { return false; }
@@ -95,9 +114,12 @@ public class IntelligentAI extends AI {
 	}
 
 	private static boolean hitShip(char c) {
-		return Character.isUpperCase(c);
+		return Character.isUpperCase(c); // only uppercase characters used are ships anyway, we dont need the same level of correctness as in Level.java
 	}
 
+	/**
+	 * go in random mode, i.e. shoot randomly until we hit something
+	 */
 	private void randomMode() {
 		tried.clear();
 		triedOtherDirection = false;
@@ -198,6 +220,9 @@ public class IntelligentAI extends AI {
 		}
 	}
 	
+	/**
+	 * when a ship is found and completely shot in one direction, we still need to shoot the other direction from the initial hit coord, since the ship continues in that direction too.
+	 */
 	private void tryOtherDirection() {
 		Debug("Trying other direction");
 		triedOtherDirection = true;

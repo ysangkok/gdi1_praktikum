@@ -11,6 +11,10 @@ import testpackage.shared.ship.exceptions.InvalidLevelException;
 public class State implements Cloneable, Serializable { //  Cloneable for undoing. Serializable for saving
 	private static final long serialVersionUID = 1L;
 	
+	public String toString() {
+		return "State: has level: " + level.toString();
+	}
+	
 	/**
 	 * shots per ship disabled by default
 	 */
@@ -123,6 +127,12 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	 */
 	//@Override
 	public State clone(boolean check) {
+		try {
+			super.clone();
+		} catch (CloneNotSupportedException e1) {
+			throw new RuntimeException(e1);
+		}
+		
 		State newState;
 		try {
 			//System.out.println(level.toString());

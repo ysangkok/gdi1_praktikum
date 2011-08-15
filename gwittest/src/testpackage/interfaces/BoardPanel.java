@@ -26,8 +26,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
+/**
+ * originally from the template, but modified a lot
+ */
 public class BoardPanel extends JPanel implements MouseListener {
-	private class SelectedTriple {
+	static private class SelectedTriple {
 		int x;
 		int y;
 		JButton button;
@@ -41,13 +44,14 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private int player;
 	private boolean dontfog;
 	private Vector<JButton> entities;
-	SelectedTriple currentlyselected;
+	private SelectedTriple currentlyselected;
 	private Border standardBorder;
-	private Border fancyBorder;
+	private Border cursorBorder;
 	private Border selectedShooterBorder;
-	private Border targetBorder;
-	private List<Border> remainingAmmoBorders;
-	Map<JButton, Border> originalBorders;
+	private Border targetBorder; // reichweite von schiffen
+	private List<Border> remainingAmmoBorders; // for grading when ammo depletes
+	private Map<JButton, Border> originalBorders; // for restoring original border after cursor moves
+	private HashMap<String, Map<String, ImageIcon>> allskins = null;
 	
 	private Border getBorder(Color c) {
 		if (engine.getState().shotspershipenabled)
@@ -57,6 +61,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 			
 	}
 
+	/**
+	 * @return the other boardpanel in use. can return null when i.e. placing ships
+	 */
 	public BoardPanel getOtherBoard() {
 		return otherBoard;
 	}
@@ -65,6 +72,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 		this.otherBoard = otherBoard;
 	}
 
+	/**
+	 * @param app for calling into on events
+	 * @param engine for probing about game state
+	 * @param player for use when notifying about events
+	 * @param dontfog would be true when showing own board or placing ships
+	 */
 	public BoardPanel(BoardUser app, Engine engine, int player, boolean dontfog) {
 		super();
 		this.app = app;
@@ -73,7 +86,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		this.dontfog = dontfog;
 
 		standardBorder = getBorder(Color.BLACK);
-		fancyBorder = getBorder(Color.WHITE);
+		cursorBorder = getBorder(Color.WHITE);
 		selectedShooterBorder = getBorder(Color.RED);
 		targetBorder = getBorder(new Color(255,255,0));
 
@@ -83,7 +96,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 			float h = 0.10f;
 			float s = 1.00f;
 			float l = ((float) i) / initialAmmoCount;
-			remainingAmmoBorders.add(getBorder(Color.getHSBColor(h, s, 0.5f + l/2)));
+			remainingAmmoBorders.add(getBorder(Color.getHSBColor(h, s, 0.5f + l/2))); // HSB == HSL
 		}
 
 		setLayout(new GridLayout(engine.getxWidth(),engine.getyWidth()));
@@ -106,6 +119,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 		addButtons();
 	}
 
+	/**
+	 * for marking targets when reichweite von schiffen is enabled. takes array of format from Engine.getTargets
+	 * @param targets true when in range, false when not. only object because of generics
+	 */
 	public void markTargets(Boolean[][] targets) {
 		
 		for (int i = 0; i < targets.length; i++) {
@@ -149,7 +166,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		
 		if (player == 1)
 			try {
-				ships = Level.getShips(engine.getOpponentArrayWithoutFog());
+				ships = engine.getState().getLevel().getShips(1);
 			} catch (InvalidLevelException e) {
 				throw new RuntimeException(e);
 			}
@@ -161,6 +178,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 				char c = b[i][j];
 				String iconname;
 				
+				// TODO, this should be in Engine
 				if (Level.isShip(c) && player == 1 && !Level.getShipAt(ships, i, j).isAllShotUp(engine.getOpponentArrayWithoutFog())) {
 					iconname = "ship_hit";
 				} else {
@@ -204,8 +222,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 			return;
 	}
 
-	private HashMap<String, Map<String, ImageIcon>> allskins = null;
-
+	/**
+	 * from template
+	 */
 	private void registerImage(String skinName, String identifier, URL url) {
 		Map<String, ImageIcon> skinMap = allskins.get(skinName);
 		if (skinMap==null) { skinMap = new HashMap<String, ImageIcon>(); allskins.put(skinName, skinMap); }
@@ -214,11 +233,17 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 
+	/**
+	 * from template
+	 */
 	private JButton placeEntity(String imageIdentifier) {
 		return placeEntity(allskins.get(app.getSelectedSkin()).get(imageIdentifier)	);
 	}
 	
 
+	/**
+	 * when moving cursor
+	 */
 	public void removeSelection() {
 		if (currentlyselected != null) {
 			currentlyselected.button.setBorder(originalBorders.get(buttons[currentlyselected.x][currentlyselected.y]));
@@ -231,9 +256,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 		currentlyselected.x = x;
 		currentlyselected.y = y;
 		currentlyselected.button = buttons[x][y];
-		currentlyselected.button.setBorder(fancyBorder);
+		currentlyselected.button.setBorder(cursorBorder);
 	}
 	
+	/**
+	 * from template
+	 */
 	private JButton placeEntity(Icon icon){
 		JButton btn = new JButton();
 
@@ -259,6 +287,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 		return( btn );
 	}
 
+	/**
+	 * from template, but removed useless loop. was mouseClicked in template, but pressed is better since clicked doesnt fire when mouse moves too much before button goes up
+	 */
 	@Override
 	public void mousePressed(MouseEvent evt) {	
 		JButton refBtn = entities.get(0);
@@ -278,6 +309,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 		app.bomb (player, posX, posY);
 	}
 	
+	/**
+	 * remake buttons from engine state
+	 */
 	public void refresh() {
 		removeButtons();
 		addButtons();

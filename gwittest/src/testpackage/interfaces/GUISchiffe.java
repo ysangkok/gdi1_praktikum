@@ -82,10 +82,16 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private Map<Sound,SoundStreamPlayer>[] soundPlayerMaps;
 	private JCheckBoxMenuItem soundcb;
 	private String currentSkin = "defaultskin";
-	public static String getResourceAsString(String path) {
+	private Map<JMenuItem, String> skinButtonToSkinName;
+	
+	
+	private static String getResourceAsString(String path) {
 		return new Scanner(GUISchiffe.class.getResourceAsStream(path)).useDelimiter("\\A").next();
 	}
 
+	/**
+	 * initialize 3 soundstreamplayers for each sound
+	 */
 	private void initSound() {
 		soundPlayerMaps = new Map[3];
 		for (int p : new int[] {0, 1, 2}) { // 2 ist stereo
@@ -100,6 +106,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 	
+	/**
+	 * kill players from initSound
+	 */
 	private void uninitSound() {
 		for (int p : new int[] {0, 1, 2}) {
 			for (SoundStreamPlayer ssp : soundPlayerMaps[p].values()) {
@@ -108,12 +117,12 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 	
-	private class GameoverKeyHandler implements KeyListener {
+	private static class GameoverKeyHandler implements KeyListener {
 
 		@Override
 		public void keyPressed(KeyEvent arg0) {
 			//System.err.println(arg0.toString());
-			if (arg0.getKeyCode() == KeyEvent.VK_SPACE) arg0.consume();
+			if (arg0.getKeyCode() == KeyEvent.VK_SPACE) arg0.consume(); // to prevent people from accidentally closing the gameover window when they use keyboard controls
 			
 		}
 
@@ -130,7 +139,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	/**
 	 * call this when game is over to notify user of winning player and shut down
 	 */
-	public void GameOver() {
+	public void gameOver() {
 		if (speerfeuer) clock.pause();
 		
 		//pasteName.maybeAddHighScore("30.02.1999   06:36", 3289, engine.getState().getLevel());
@@ -205,6 +214,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 	}
 	
+	/**
+	 * this is the game initialized on startup
+	 */
 	private void initDefaultGame() {
 		try {
 			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, Rules.enableShotsPerShip, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn, Rules.defaultReichweiteVonSchiffenEnabled);
@@ -213,6 +225,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 	
+	/**
+	 * ask for settings and then shows the placeOwnShipsDialog
+	 * @return true if both steps complete
+	 */
 	private boolean placeOwnShipsWizard() {
 		SettingsChooser s = new SettingsChooser(translator);
 		s.askForSettings(frame);
@@ -247,33 +263,18 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		return false;
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void instantiateAndSetAI(Class<?> chosenAI) {
-		Constructor<?> c;
 		try {
-			c = chosenAI.getConstructor(new Class[] {});
-			ai = (AI) c.newInstance(new Object[] {});
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-			System.err.println("OTHER CONSTRUCTORS:");
-			for (Constructor otherc : chosenAI.getConstructors()) {
-				System.err.println(otherc.toString());
-			}
-			
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
+			ai = (AI) chosenAI.getConstructor().newInstance();
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		ai.setEngine(engine);
 	}
 
+	/**
+	 * for making all the gui actions type safe and type static. actioncommands can only be strings.
+	 */
 	private static class actions {
 		static enum actionnames {
 			quicknewgame, save, load, newplaceownships, newgenerated, about, skins, soundcb, quit
@@ -335,12 +336,20 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		setStatusBarMessage(false, message);
 	}
 
+	/**
+	 * show statusbarmessage
+	 * @param isError if true an error icon will be shown
+	 * @param message text to display. must be html if line-wrapping is needed
+	 */
 	private void setStatusBarMessage(Boolean isError, String message) {
 		if (isError)	statusLabel.setIcon(GUISchiffe.getIcon("Error16"));
 		else		statusLabel.setIcon(GUISchiffe.getIcon("Information16"));
 		statusLabel.setText(message);
 	}
 	
+	/**
+	 * initialize status panel. used below
+	 */
 	private JPanel makeStatusPanel() {
 		JPanel statusPanel = new JPanel();
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -417,6 +426,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 
+	/**
+	 * fill menu bar with items
+	 * @param guiBuilder
+	 * @param menuBar
+	 */
 	private void fillMenuBar(TranslatableGUIElement guiBuilder, JMenuBar menuBar) {
 		ActionListener menuListener = this;
 		
@@ -526,7 +540,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		// End Language Menu
 
 		soundcb = (JCheckBoxMenuItem) guiBuilder.generateToggleableJMenuItem("enableSounds", new Object[] {} , true, true);
-	    	soundcb.setIcon(GUISchiffe.getIcon("Sound16"));
+	    soundcb.setIcon(GUISchiffe.getIcon("Sound16"));
 		soundcb.setActionCommand(actions.soundcb);
 		soundcb.addActionListener(this);
 		
@@ -537,7 +551,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		skinButtonToSkinName = new HashMap<JMenuItem, String>();
 		for (String skinname : TemplateImages.allSkins) {
 			JMenuItem radioitem = guiBuilder.generateToggleableJMenuItem("skinMenuChoose", new String[] {skinname}, false, currentSkin.equals(skinname));
-			radioitem.setIcon(new javax.swing.ImageIcon(this.getClass().getResource(TemplateImages.imagesdir + skinname + "/ship_top.png")));//LOLOL
+			radioitem.setIcon(new javax.swing.ImageIcon(this.getClass().getResource(TemplateImages.imagesdir + skinname + "/" + TemplateImages.fieldToIcon('t') + ".png")));
 			radioitem.setActionCommand(actions.skins);
 			radioitem.addActionListener(this);
 			group.add(radioitem);
@@ -549,8 +563,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 	}
 
-	private Map<JMenuItem, String> skinButtonToSkinName;
-	
 	private JPanel setUpBoardPanels() {
 		JPanel boardpanel = new JPanel();
 		
@@ -566,11 +578,14 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		return boardpanel;
 	}
 
-	protected void shutdown() {
-		System.err.println("Shutting down");
+	/**
+	 * procedure for clean shutdown so the threads dont just keep running
+	 */
+	private void shutdown() {
+		//System.err.println("Shutting down");
 		frame.dispose();
 		uninitSound();
-		System.err.println("Done");
+		//System.err.println("Done");
 		System.exit(0);
 	}
 
@@ -668,7 +683,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			    translator.translateMessage("aboutWindowTitle"), JOptionPane.PLAIN_MESSAGE);
 	}
 	
-	
+	/**
+	 * asks for name and saves. blocks
+	 */
 	private void save() {
 		String saveGameName;
 		
@@ -692,6 +709,9 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 	
+	/**
+	 * asks for name and loads. blocks
+	 */
 	private void load() {
 		String saveGameName;
 		
@@ -770,7 +790,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 				}
 			}
 			
-			if (engine.isFinished()) { GameOver(); return; }
+			if (engine.isFinished()) { gameOver(); return; }
 
 			aiAttackAs(player);
 			
@@ -781,6 +801,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		hitsLabel.setText(translator.translateMessage("hitCounter", String.valueOf(engine.getState().getHits()[0]), String.valueOf(engine.getState().getHits()[1])));
 	}
 	
+	/**
+	 * localize most common user errors (relating to board handling). engine errors aren't very user friendly, the localized versions feature suggestions.
+	 * @param e exception to localize
+	 * @return localized message
+	 */
 	private String localizeException(InvalidInstruction e) {
 		switch (e.getReason()) {
 		case NOMOREAMMO:
@@ -803,7 +828,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	void aiAttackAs(int player) {		
 		int i = 0;
 		while (!engine.getState().isPlayerTurn() && !engine.isFinished()) {
-			System.err.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
+			//System.err.println(i++ + " AI plays as " + player); // debug output to detect runaway AI
 			System.err.flush();
 			ai.playAs(player);
 			engine.checkWin();
@@ -812,7 +837,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 
 		panels[Engine.otherPlayer(player)].refresh();
 		
-		if (engine.isFinished()) { GameOver(); return; }
+		if (engine.isFinished()) { gameOver(); return; }
 
 		updateHitCounter();
 		

@@ -6,13 +6,9 @@ import testpackage.shared.ship.exceptions.InvalidInstruction;
 import java.util.Random;
 
 /**
- * stupid AI that randomly chooses target fields
+ * stupid AI that randomly chooses target fields. only AI that supports shooting ships and ranged ships
  */
 public class BadAI extends AI {
-	
-	class NoMoreMovesAvailableException extends RuntimeException {
-		private static final long serialVersionUID = 1L;	
-	}
 
 	public boolean supportsAmmo() { return true; }
 	public boolean supportsRange() { return true; }
@@ -70,8 +66,7 @@ public class BadAI extends AI {
 				if (!engine.canShootAnythingWithCurrentShip(player))
 					chooseNewShooter(player);
 			}
-			System.err.println("BadAI: " + e.getMessage());
-			//playAs(player);
+			//System.err.println("BadAI: " + e.getMessage());
 		}
 		
 	}
@@ -83,9 +78,9 @@ public class BadAI extends AI {
 		shootery = num % xwidth;
 		
 		try {
-			engine.chooseFiringXY(player, shooterx, shootery);
+			engine.chooseFiringXY(player, shootery, shooterx);
 		} catch (InvalidInstruction e1) {
-			throw new RuntimeException(Util.format("can't choose firing (x,y): %d %d",shooterx,shootery) );
+			throw new RuntimeException(Util.format("can't choose firing (x,y): %d %d",shooterx,shootery), e1 );
 		}
 	}
 

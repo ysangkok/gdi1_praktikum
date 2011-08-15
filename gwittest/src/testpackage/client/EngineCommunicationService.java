@@ -12,7 +12,7 @@ public interface EngineCommunicationService extends RemoteService {
 	Loser getWinner();
 	Character[][] getVisibleOpponentArray();
 	Character[][] getPlayerArray();
-	Level getCurrentLevel();
+	//Level getCurrentLevel();
 	void tryAttackPoint(int x, int y) throws InvalidInstruction;
 	Integer[] initEngine(boolean multiplayer);
 }

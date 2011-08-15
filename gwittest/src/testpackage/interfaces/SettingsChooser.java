@@ -29,17 +29,20 @@ import testpackage.shared.ship.IntelligentAI;
 import testpackage.shared.ship.Rules;
 import translator.Translator;
 
+/**
+ * class for choosing game settings with guischiffe
+ */
 class SettingsChooser {
 
-	boolean finished = false;
-	boolean speerfeuerenabled = false;
+	boolean finished = false; // is set to true if the user confirmed his choices by clicking ok and validation passed
+	boolean speerfeuerenabled = false; // these next attributes store the results and are set by the ok button handler and read outside this class
 	boolean ammoenabled = false;
 	boolean moreshotsenabled = false;
 	boolean rangeenabled = false;
 	int ammospinnervalue;
 	int speerfeuerspinnervalue;
-	int w;
-	int h;
+	int w; //board width
+	int h; //board height
 	Class<? extends AI> chosenAI;
 	Translator translator;
 	
@@ -48,11 +51,6 @@ class SettingsChooser {
 	}
 	
 	void askForSettings(JFrame parent) {
-		
-		/* TODO
-		 * 3. board size vælger
-		 * 4. multiple shots
-		 */
 		
 		SpinnerModel ammomodel = new SpinnerNumberModel(Rules.shotsPerShipPart, 1, 20, 1);
 		SpinnerModel speerfeuermodel = new SpinnerNumberModel(((double) Rules.standardSpeerfeuerTime)/1000, 0.1, 30.0, 0.1);
@@ -141,8 +139,8 @@ class SettingsChooser {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				h = (Integer) heightspinner.getValue();
-				w = (Integer) widthspinner.getValue();
+				w = (Integer) heightspinner.getValue(); // swap w/h because of our coord format
+				h = (Integer) widthspinner.getValue();
 				
 				moreshotsenabled = moreshotscb.isSelected();
 				speerfeuerenabled = speerfeuercb.isSelected();
@@ -162,7 +160,7 @@ class SettingsChooser {
 							return;
 						}
 					}
-				} catch (Exception ex) {
+				} catch (Exception ex) { // for the getConstructor().newInstance() which should never fail
 				}
 				finished = true;
 				d.dispose();

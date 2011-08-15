@@ -7,6 +7,7 @@ public class Util {
 
 	public static String format(final String format, final Object... args) {
 //		try {
+		
 			final RegExp regex = RegExp.compile("%[a-z]");
 			final SplitResult split = regex.split(format);
 			final StringBuffer msg = new StringBuffer();
@@ -16,6 +17,7 @@ public class Util {
 			}
 			msg.append(split.get(split.length() - 1));
 			return msg.toString();
+		
 //		} catch (NoClassDefFoundError ex)  {
 //			return String.format(format, args);
 //		}

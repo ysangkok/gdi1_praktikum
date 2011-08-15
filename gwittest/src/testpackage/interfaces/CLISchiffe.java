@@ -1,5 +1,6 @@
 package testpackage.interfaces;
 
+import sun.reflect.generics.visitor.Reifier;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
@@ -30,9 +31,10 @@ public class CLISchiffe extends ConsoleProgram {
 	public void run() {
 		boolean shotspership = readBoolean("Choose shooting ships?");
 		boolean moreshots = readBoolean("Extra shot when hitting opponent?");
+		boolean reichweite = false;
 		if (shotspership) {
 			engine.enableShotsPerShip(Rules.shotsPerShipPart);
-			boolean reichweite = readBoolean("Limit ship range?");
+			reichweite = readBoolean("Limit ship range?");
 			if (reichweite) engine.enableRange();
 		}
 		engine.setMoreShots(moreshots);
@@ -54,7 +56,7 @@ public class CLISchiffe extends ConsoleProgram {
 						int shooterx = readInt("Shooter Y Koordinate:");
 						try {
 							engine.chooseFiringXY(0, shooterx, shootery);
-							println(Engine.getTargetString(engine.getTargets(0, shooterx, shootery)));
+							if (reichweite) println(Engine.getTargetString(engine.getTargets(0, shooterx, shootery)));
 						} catch (InvalidInstruction e) {
 							showErrorMessage(e.getMessage());
 							continue;

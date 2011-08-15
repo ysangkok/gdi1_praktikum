@@ -31,7 +31,6 @@ public class MultiPlayer implements EntryPoint {
 	
 	static int xwidth;
 	static int ywidth;
-	Level level;
 	
 	private final EngineCommunicationServiceAsync ecs = GWT
 			.create(EngineCommunicationService.class);
@@ -45,7 +44,7 @@ public class MultiPlayer implements EntryPoint {
 	private Map<Image, Coord> buttocoord;
 	private Image[][][] buttons;
 	
-	class Coord {
+	static class Coord {
 		int x;
 		int y;
 		int p;
@@ -163,7 +162,7 @@ public class MultiPlayer implements EntryPoint {
 
 				@Override
 				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
+					userError(caught.getMessage());
 
 				}
 

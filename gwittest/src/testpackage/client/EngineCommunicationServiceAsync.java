@@ -14,7 +14,7 @@ public interface EngineCommunicationServiceAsync {
 
 	void getPlayerArray(AsyncCallback<Character[][]> callback);
 
-	void getCurrentLevel(AsyncCallback<Level> callback);
+	//void getCurrentLevel(AsyncCallback<Level> callback);
 
 	void tryAttackPoint(int x, int y, AsyncCallback<Void> callback) throws InvalidInstruction;
 

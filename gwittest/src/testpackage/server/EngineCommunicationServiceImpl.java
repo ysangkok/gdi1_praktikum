@@ -90,10 +90,10 @@ EngineCommunicationService {
 		return getEngine().getCurrentBoards(((MultiPlayerGame) getGame()).getPlayerNum(this.getThreadLocalRequest().getSession(true)),true);
 	}
 
-	@Override
-	public Level getCurrentLevel() {
-		return getEngine().getState().getLevel();
-	}
+//	@Override
+//	public Level getCurrentLevel() {
+//		return getEngine().getState().getLevel();
+//	}
 
 	@Override
 	public void tryAttackPoint(int x, int y) throws InvalidInstruction {
@@ -189,9 +189,9 @@ EngineCommunicationService {
 		
 		public int getPlayerNum(HttpSession session) {
 			String id = session.getId();
-			if (id == this.p1.id)
+			if (id.equals(this.p1.id))
 				return 0;
-			else if (id == this.p2.id)
+			else if (id.equals(this.p2.id))
 				return 1;
 			else
 				throw new RuntimeException("player not in game");

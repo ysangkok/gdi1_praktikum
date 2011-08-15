@@ -56,7 +56,8 @@ public class Map2DHelper<T> {
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
 				//System.err.println(a[i][j]);
-				sb.append(Util.format("%d ", a[i][j]));
+				sb.append(a[i][j]);
+				sb.append(" ");
 			}
 			sb.append("\n");
 		}

@@ -13,6 +13,11 @@ import javax.sound.sampled.SourceDataLine;
 import testpackage.shared.ship.SoundHandler.Sound;
 import testpackage.shared.ship.TemplateImages;
 
+/**
+ * class for playing a single sound. supports restarting the sound, which the jlayer doesn't do alone. therefore this class.
+ * 
+ * supports mp3 with mp3spi but we don't use mp3's since we can't pan with them
+ */
 public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.html
 	private Object lock = new Object();
 
@@ -140,6 +145,10 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 		}
 	}
 
+	/**
+	 * for testing
+	 * @param args not used
+	 */
 	public static void main( String[] args ) {
 		SoundStreamPlayer ssp = new SoundStreamPlayer(Sound.shipAllShotUp_mp3, 1);
 		ssp.play();
@@ -155,12 +164,19 @@ public class SoundStreamPlayer { // http://www.javalobby.org/java/forums/t18465.
 
 	}
 
+	/**
+	 * only used for testing in main
+	 * @param count milliseconds to sleep
+	 */
 	private static void sleep(int count) {
 		try {
 			Thread.sleep(count);
 		} catch (Exception e) {}
 	}
 
+	/**
+	 * interrupts the thread and thereby frees resources gracefully because the loop handles the exception and exits
+	 */
 	public void kill() {
 		pause();
 		pt.interrupt();

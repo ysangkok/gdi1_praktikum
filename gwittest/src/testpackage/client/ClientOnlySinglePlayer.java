@@ -38,7 +38,7 @@ public class ClientOnlySinglePlayer implements EntryPoint {
 	private Map<Image, Coord> buttocoord;
 	private Image[][][] buttons;
 	
-	class Coord {
+	static class Coord {
 		int x;
 		int y;
 		int p;

@@ -26,6 +26,9 @@ public class InvalidLevelException extends RuntimeException {
 	public void printBoard() {
 		if (list == null) {
 			System.err.println("No invalid board available for debugging.");
+		} else if (list instanceof Character[][]) {
+			Map2DHelper<Character> helper = new Map2DHelper<Character>();
+			System.err.println(helper.getBoardString(((Character[][]) list)));
 		} else if (list instanceof Character[][][]) {
 			Map2DHelper<Character> helper = new Map2DHelper<Character>();
 			System.err.println(helper.getBoardString(((Character[][][]) list)[0]));
@@ -40,4 +43,8 @@ public class InvalidLevelException extends RuntimeException {
 	}
 
 	private static final long serialVersionUID = 1L;
+
+	public void addText(String text) {
+		message += "Text given: " + text;
+	}
 }

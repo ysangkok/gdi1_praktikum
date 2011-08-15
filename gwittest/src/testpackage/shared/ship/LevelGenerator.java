@@ -17,7 +17,7 @@ import testpackage.shared.ship.Ship.Orientation;
  * class for generating levels
  */
 public class LevelGenerator {
-	private class PlaceShipRulesViolation extends Exception {
+	private static class PlaceShipRulesViolation extends Exception {
 		private static final long serialVersionUID = 1L;
 		
 		private String message = "";
@@ -32,7 +32,7 @@ public class LevelGenerator {
 		}
 	}
 	
-	private class LevelGenerationException extends Exception {
+	private static class LevelGenerationException extends Exception {
 		private static final long serialVersionUID = 1L;
 		
 		private String message;
