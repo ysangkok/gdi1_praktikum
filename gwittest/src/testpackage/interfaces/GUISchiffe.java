@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.FieldPosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
@@ -43,8 +44,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.ButtonGroup;
-
-import com.ibm.icu.text.SimpleDateFormat;
 
 //import testpackage.highscore.pasteName;
 import testpackage.highscore.pasteName;
