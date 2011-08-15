@@ -17,6 +17,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.FieldPosition;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Map;
@@ -41,6 +43,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.ButtonGroup;
+
+import com.ibm.icu.text.SimpleDateFormat;
 
 //import testpackage.highscore.pasteName;
 import testpackage.highscore.pasteName;
@@ -83,6 +87,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	private JCheckBoxMenuItem soundcb;
 	private String currentSkin = "defaultskin";
 	private Map<JMenuItem, String> skinButtonToSkinName;
+	private long starttime;
 	
 	
 	private static String getResourceAsString(String path) {
@@ -142,8 +147,6 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	public void gameOver() {
 		if (speerfeuer) clock.pause();
 		
-		//pasteName.maybeAddHighScore("30.02.1999   06:36", 3289, engine.getState().getLevel());
-
 		panels[0].refresh();
 		panels[1].refresh();
 		
@@ -154,7 +157,13 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		if (winner == -1) {
 			winnerstr = translator.translateMessage("gameOverDraw");
 		} else {
-			pasteName.maybeAddHighScore(frame, "30.02.1999   06:36", 3289, engine.getState().getLevel());
+			String format = "dd.MM.yyyy   HH:mm";
+		    SimpleDateFormat sdf = new SimpleDateFormat(format); 
+		    FieldPosition pos = new FieldPosition(0);
+		    StringBuffer buf = new StringBuffer();
+		    StringBuffer date = sdf.format(new Date(), buf, pos);
+		    String datestring = buf.toString();
+			pasteName.maybeAddHighScore(frame, datestring, (int) Math.round((System.currentTimeMillis() - starttime) / 1000) , engine.getState().getLevel());
 			winnerstr = translator.translateMessage("gameOverWinner", String.valueOf(winner+1));
 		}
 		
@@ -258,6 +267,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			
 			frame.dispose();
 			showFrame();
+			
+			if (engine.isFinished()) {
+				gameOver();
+			}
 			return true;
 		}
 		return false;
@@ -637,6 +650,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		if (enableshotspership) { engine.enableShotsPerShip(ammocount); if (rangeenabled) engine.enableRange(); }
 		engine.setMoreShots(moreshots);
 		instantiateAndSetAI(chosenAI);
+		
+		if (engine.isFinished()) {
+			gameOver();
+		}
 	}
 	
 	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots, boolean rangeenabled) throws InvalidLevelException {
@@ -664,6 +681,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			userError(ex.getMessage());
 			return false;
 		}
+		
+		starttime = System.currentTimeMillis();
 		
 		frame.dispose();
 		showFrame();

@@ -123,6 +123,7 @@ public class Level implements Serializable {
 		checkShips(1, getPlayerBoard(1), check);
 		} catch (InvalidLevelException e) {
 			e.addText(text);
+			throw e;
 		}
 	}
 	

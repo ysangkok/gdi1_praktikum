@@ -179,6 +179,8 @@ public class Engine {
 		
 		undoLog = new LinkedList<State>(); // list for storing all states since last new game
 		undoLog.add(state);
+		
+		checkWin();
 	}
 	
 	private void updateWidth(Level level) {
@@ -240,6 +242,7 @@ public class Engine {
 	public void enableShotsPerShip(int ammocount) {
 		this.initialAmmoCount = ammocount;
 		state.initRemainingShots(ammocount);
+		checkWin();
 	}
 
 	public void enableRange() {
@@ -247,6 +250,7 @@ public class Engine {
 		//System.err.println("Enabling range");
 		this.reichweite = true;
 		detectShips();
+		checkWin();
 	}
 	
 
@@ -462,6 +466,31 @@ public class Engine {
 						}
 					}
 				}
+				if (reichweite) {
+					boolean foundShootable = false; 
+					outer: for (Ship s : ships.get(i)) {
+						for (Integer[] coord : s.getAllOccupiedCoords()) {
+							if (remainingShotsFor(i, coord[0], coord[1]) == 0) continue;
+							
+							Boolean[][] shipTargets;
+							try {
+								shipTargets = getTargets(i, coord[0], coord[1]);
+							} catch (InvalidInstruction e) {
+								throw new RuntimeException(Util.format("Couldn't get targets for %s", s.toString()), e);
+							}
+
+							for (int j=0; j<shipTargets.length; j++) {
+								for (int k=0; k<shipTargets[j].length; k++) {
+									if (shipTargets[j][k] && state.getFog(i)[j][k]) { foundShootable = true; break outer; }
+								}
+							}
+						}
+					}
+					if (!foundShootable) {
+						this.state.setFinished(true);
+						return new Loser("No available targets", otherPlayer(i));
+					}
+				}
 			}
 			if (state.getLevel().isPlayerLoser(i)) {
 				this.state.setFinished(true);
@@ -653,5 +682,15 @@ public class Engine {
 	}
 	public boolean isRangeEnabled() {
 		return reichweite;
+	}
+	public static void main(String[] args) {
+		//Currently for testing lost level because of nothing shootable
+		String text ="lhhhr---lr--------------------|-----lr-lr-----------t---t----\n-----lhr--lr------------------|------------lhhhr----v---v----\nlhhr----lr--------------------|---lhr---------------b---b----\n----lhr---lr------------------|lr--------------------lr------\nlhhr---lhr--------------------|----lhhr-------lhhr-----------\n";
+		
+		Engine engine = new Engine(new Level(text));
+		engine.enableShotsPerShip(1);
+		engine.enableRange();
+		
+		System.err.println(engine.isFinished());
 	}
 }

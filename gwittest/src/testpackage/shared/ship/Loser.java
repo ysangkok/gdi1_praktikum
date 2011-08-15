@@ -10,11 +10,20 @@ public class Loser implements Serializable {
 	public String reason;
 	public int playernr;
 	
+	/**
+	 * represent a game result
+	 * @param reason reason for terminating game
+	 * @param playernr number of WINNING player
+	 */
 	Loser(String reason, int playernr) {
 		this.reason = reason;
 		this.playernr = playernr;
 	}
 	
+	/**
+	 * 
+	 * @param playernr number of WINNING player
+	 */
 	Loser(int playernr) {
 		this.playernr = playernr;
 	}
