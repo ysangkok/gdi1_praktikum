@@ -1,8 +1,10 @@
 package tests.adapters;
 
 import java.util.Date;
+import java.util.LinkedList;
 
 import testpackage.highscore.HighscoreManager;
+import testpackage.highscore.Score;
 
 
 
@@ -30,6 +32,7 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 		super();
 		
 		hm= new HighscoreManager();
+		hm.loadScoreFile();
 	}
 	
 	/**
@@ -47,7 +50,8 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * @see #getDateAtHighscorePosition(int)
 	 */
 	public void addHighscoreEntry(String playername, double needed_time, Date creation_date, int shots ) {
-        hm.addScore(playername, score, neededTime, datestring)
+
+		hm.addScore(playername, shots ,(int)needed_time, creation_date);
 		
 	}
 	
@@ -60,15 +64,15 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * @return the number of highscore entries
 	 */
 	public int getHighscoreCount() {
-		//TODO implement this stub
-		return -1;
+		return hm.getScores().size();
+
 	}
 	
 	/** 
 	 * Clear the highscore store and delete all entries.
 	 */
 	public void resetHighscore() {
-		//TODO implement this stub
+		hm.setScores(new LinkedList<Score>());
 	}
 	
 	/** 
@@ -83,9 +87,14 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or null if the position is invalid 
 	 */
 	public String getPlayernameAtHighscorePosition(int position) {
-		//TODO implement this stub
-		return null;
+	 if(hm.getScores().get(position) == null){
+		
+	return null;
+	
+	 }
+	 else return hm.getScores().get(position).getName();
 	}
+	
 	
 	/** 
 	 * Get the needed time of a highscore entry at a given position.
@@ -99,8 +108,10 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or -1 if the position is invalid 
 	 */
 	public double getTimeAtHighscorePosition(int position) {
-		//TODO implement this stub
+	if(hm.getScores().get(position).getNeededTime() == 0){	
 		return -1;
+		}
+	else return hm.getScores().get(position).getNeededTime() ;
 	}
 
 	/**
@@ -115,10 +126,14 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or -1 if the position is invalid 
 	 */
 	public int getShotsAtHighscorePosition(int position) {
-		//TODO implement this stub
-		return -1;
+	if(hm.getScores().get(position).getScore() = null){
+		
+	
+		return -1 ; 
+				
 	}
-
+else return  hm.getScores().get(position).getScore();
+	}
 	/**
 	 * Get the date of a highscore entry at a given position. <strong>Note:</strong> The position counting starts at
 	 * zero. The first entry should contain the <i>best</i> result.
@@ -131,8 +146,8 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * @return the date of the highscore entry at the specified position or null if the position is invalid
 	 */
 	public Date getDateAtHighscorePosition(int position) {
-		//TODO implement this stub
-		return null;
+		return hm.getScores().get(position).getDate();
+		
 	}
 
 }
