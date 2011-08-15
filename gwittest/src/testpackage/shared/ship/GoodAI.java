@@ -35,6 +35,7 @@ public class GoodAI extends AI {
 	
 	
 	public void setEngine(Engine engine) {
+		super.setEngine(engine);
 		gen = new Random();
 		xwidth = engine.getxWidth();
 		ywidth = engine.getyWidth();

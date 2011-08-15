@@ -110,6 +110,8 @@ SCWidthLabel=Breite:
 SCRange=Reichweite von Schiffen angeschaltet
 
 POSDN_Ship={0}-Schiff:
+POSDPlace=Setze
+POSDWindowTitle=Setze deine Schiffe
 
 CRHorizontal=Horizontal
 CRVertical=Vertical

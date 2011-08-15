@@ -39,6 +39,7 @@ public class BadAI extends AI {
 	 */
 	@Override
 	public void setEngine(Engine engine) {
+		super.setEngine(engine);
 		gen = new Random();
 		xwidth = engine.getxWidth();
 		ywidth = engine.getyWidth();

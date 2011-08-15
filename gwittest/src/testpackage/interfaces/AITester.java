@@ -1,10 +1,13 @@
 package testpackage.interfaces;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import testpackage.shared.ship.AI;
@@ -48,22 +51,14 @@ public class AITester {
 		
 		System.err.format("Time taken: %d\n", System.currentTimeMillis() - start);
 	}
+	
+	class CallableImpl implements Callable<Integer> {
 
-	private void run2() {
-		int ai1wins = 0;
-		int ai2wins = 0;
-		for (int i = 0; i<40; i++) {
-		int winner = doMatch();
-		if (winner == 0)
-			ai1wins++;
-		else if (winner == 1)
-			ai2wins++;
-		else
-			System.err.println("Draw!");
+		@Override
+		public Integer call() throws Exception {
+            return doMatch();
 		}
-		System.err.println(competitors.get(0).getName() + ": " + ai1wins);
-		System.err.println(competitors.get(1).getName() + ": " + ai2wins);
-		System.err.flush();
+		
 	}
 	
 	/**
@@ -73,24 +68,26 @@ public class AITester {
 		//System.err.println(doMatch());
 		//return;
 		
+		List<Future<Integer>> results;
+		results = new ArrayList<Future<Integer>>();
+		
 		ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	    try {
-	        for (int i = 1; i <= 50; i++) {
-	            exec.submit(new Runnable() {
-	                @Override
-	                public void run() {
-	            		int winner = doMatch();
-	            		if (winner == 0)
-	            			System.err.println("AI1 win!");
-	            		else if (winner == 1)
-	            			System.err.println("AI2 win!");
-	            		else
-	            			System.err.println("Draw!");
-	            		System.err.flush();
-
-	                }
-	            });
+	        for (int i = 1; i <= 30; i++) {
+	            results.add(exec.submit(new CallableImpl()));
 	        }
+	        Integer[] counts = {0,0,0};
+	        for (Future<Integer> res : results) {
+	        	int winnernum;
+	        	try {
+					winnernum = res.get();
+				} catch (Exception e) {
+					e.printStackTrace();
+					return;
+				}
+	        	counts[winnernum+1]++;
+	        }
+	        System.err.println(Arrays.toString(counts));
 	    } finally {
 	        exec.shutdown();
 	    }
@@ -150,6 +147,7 @@ public class AITester {
 		//new AITester(GoodAI.class, BadAI.class);
 		new AITester(true, true, BadAI.class, BadAI.class);
 		new AITester(false, false, BadAI.class, IntelligentAI.class);
+		new AITester(false, false, GoodAI.class, IntelligentAI.class);
 	}
 
 }

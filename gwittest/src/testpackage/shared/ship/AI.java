@@ -4,7 +4,10 @@ package testpackage.shared.ship;
  * mother class for implementing AI's
  */
 abstract public class AI {
-	abstract public void setEngine(Engine engine);
+	public void setEngine(Engine engine) {
+		if (engine.isShotsPerShipEnabled() && !supportsAmmo()) throw new RuntimeException("Incapable AI assigned to engine with shots per ship enabled!");
+		if (engine.isRangeEnabled() && !supportsRange()) throw new RuntimeException("Incapable AI assign to engine with range enabled!");
+	}
 	
 	/**
 	 * called when the AI should make a move
