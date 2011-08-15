@@ -23,7 +23,7 @@ import testpackage.highscore.Score;
  */
 public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtended2 {
 
-	private static  HighscoreManager hm;
+	private HighscoreManager hm;
 
 	/**
 	 * Use this constructor to initialize everything you need.
@@ -31,7 +31,7 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	public BattleshipTestAdapterExtended3() {
 		super();
 		
-		hm= new HighscoreManager();
+		hm = new HighscoreManager();
 		hm.loadScoreFile();
 	}
 	
@@ -52,7 +52,13 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	public void addHighscoreEntry(String playername, double needed_time, Date creation_date, int shots ) {
 
 		hm.addScore(playername, shots ,(int)needed_time, creation_date);
+		//hm.sort("name", false);
 		
+		System.err.format("Adding: shots: %d, neededtime: %f\n", shots, needed_time);
+		
+		System.err.println("===");
+		int i = 0;
+		for (Score s : hm.getScores()) System.err.println(i++ + ": " + s.toString());
 	}
 	
 	
@@ -87,12 +93,11 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or null if the position is invalid 
 	 */
 	public String getPlayernameAtHighscorePosition(int position) {
-	 if(hm.getScores().get(position) == null){
-		
-	return null;
-	
-	 }
-	 else return hm.getScores().get(position).getName();
+	  try {
+		  return hm.getScores().get(position).getName();
+	  } catch (IndexOutOfBoundsException e) {
+		  return null;
+	  }
 	}
 	
 	
@@ -108,10 +113,11 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or -1 if the position is invalid 
 	 */
 	public double getTimeAtHighscorePosition(int position) {
-	if(hm.getScores().get(position).getNeededTime() == 0){	
-		return -1;
+		try {
+			return  hm.getScores().get(position).getNeededTime();
+		} catch (IndexOutOfBoundsException e) {
+			  return -1;
 		}
-	else return hm.getScores().get(position).getNeededTime() ;
 	}
 
 	/**
@@ -126,13 +132,11 @@ public class BattleshipTestAdapterExtended3 extends BattleshipTestAdapterExtende
 	 * or -1 if the position is invalid 
 	 */
 	public int getShotsAtHighscorePosition(int position) {
-	if(hm.getScores().get(position).getScore() = null){
-		
-	
-		return -1 ; 
-				
-	}
-else return  hm.getScores().get(position).getScore();
+		try {
+			return  hm.getScores().get(position).getScore();
+		} catch (IndexOutOfBoundsException e) {
+			  return -1;
+		}
 	}
 	/**
 	 * Get the date of a highscore entry at a given position. <strong>Note:</strong> The position counting starts at
@@ -146,8 +150,11 @@ else return  hm.getScores().get(position).getScore();
 	 * @return the date of the highscore entry at the specified position or null if the position is invalid
 	 */
 	public Date getDateAtHighscorePosition(int position) {
-		return hm.getScores().get(position).getDate();
-		
+		try {
+			return  hm.getScores().get(position).getDate();
+		} catch (IndexOutOfBoundsException e) {
+			  return null;
+		}
 	}
 
 }

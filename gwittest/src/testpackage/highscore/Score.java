@@ -43,9 +43,8 @@ public class Score  implements Serializable {
         this.date= date;   
     }
 
-	
-	
-    
-    
+	public boolean isEqual(String name, int score, int neededTime, Date date) {
+		return name.equals(this.name) && score == this.score && neededTime == this.neededTime && date.equals(this.date);
+	}
 }
  

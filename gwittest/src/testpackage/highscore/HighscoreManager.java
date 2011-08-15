@@ -72,9 +72,12 @@ public void addScore(String name, int score, int neededTime, Date date) {
 	Score s = new Score(name, score, neededTime, date);
 
 	scores.add(s);
-
-	sort("score", true);
-
+	
+	sort("name", false);
+	sort("date", false);
+	sort("neededTime", false);
+	sort("score", false);
+	
 	if (scores.size() > max) {
 		scores.removeLast();
 	}
