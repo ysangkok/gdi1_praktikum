@@ -301,15 +301,15 @@ public class Engine {
      * @param radius radius of circle
      */
 	private static void drawCircle(Boolean[][] b, int CircCenterX, int CircCenterY, int radius) {
-		double rstep = 1/(((double) radius)*2);//set rstep to something like 1/radius, something that draws quickly but doesn't skip pixels
+		double rstep = 1.0/(((double) radius)*4);//set rstep to something like 1/radius, something that draws quickly but doesn't skip pixels
 		for (double r=0; r<Math.PI*.5; r=r+rstep) //1 to 1/2pi
 		{
-			int y1 = (int) Math.ceil(CircCenterY + Math.sin(r) * radius);
-			int x2 = (int) Math.ceil(CircCenterX - Math.cos(r) * radius);
-			int y2 = (int) Math.ceil(CircCenterY - Math.sin(r) * radius);
-			int x3 = (int) Math.ceil(CircCenterX + Math.cos(r) * radius);
-			int y3 = (int) Math.ceil(CircCenterY - Math.sin(r) * radius);
-			int y4 = (int) Math.ceil(CircCenterY + Math.sin(r) * radius);
+			int y1 = (int) Math.round(((double) CircCenterY) + Math.sin(r) * ((double) radius));
+			int x2 = (int) Math.round(((double) CircCenterX) - Math.cos(r) * ((double) radius));
+			int y2 = (int) Math.round(((double) CircCenterY) - Math.sin(r) * ((double) radius));
+			int x3 = (int) Math.round(((double) CircCenterX) + Math.cos(r) * ((double) radius));
+			int y3 = (int) Math.round(((double) CircCenterY) - Math.sin(r) * ((double) radius));
+			int y4 = (int) Math.round(((double) CircCenterY) + Math.sin(r) * ((double) radius));
 
 			
 			for (int k=y2; k<=y4; k++) {
@@ -561,22 +561,31 @@ public class Engine {
 	}
 	
 	/**
-	 * shouldnt normally be used, use getOpponentArrayWithoutFog/getVisibleOpponentArray/getPlayerArray
+	 * Shouldn't normally be used, use getOpponentArrayWithoutFog/getVisibleOpponentArray/getPlayerArray
 	 * @param i player perspective (playing player)
-	 * @param fogboard wheather to fog opponents board
+	 * @param fogBoardAndObscureShips whether to fog opponents board and obscure non-sunken ships
 	 * @return board layout relative to i
 	 */
-	public Character[][][] getCurrentBoards(int i, boolean fogboard) {
+	public Character[][][] getCurrentBoards(int i, boolean fogBoardAndObscureShips) {
 		Character[][] opponent	= state.getLevel().getPlayerBoard(otherPlayer(i)	);
 		Character[][] our		= state.getLevel().getPlayerBoard(i					);
 		
-		if (fogboard) {
+		if (fogBoardAndObscureShips) {
 			boolean[][] ourFog = state.getFog(i);
 		
 			for (int j = 0; j < ourFog.length; j++) {
 				for (int k = 0; k < ourFog[j].length; k++) {
 					if (ourFog[j][k])
 						opponent[j][k] = '#';
+				}
+			}
+			
+			for (int j = 0; j < opponent.length; j++) {
+				for (int k = 0; k < opponent[j].length; k++) {
+					char c = opponent[j][k];
+					if (Level.isShip(c) && !Level.getShipAt(ships.get(otherPlayer(i)), j, k).isAllShotUp(getOpponentArrayWithoutFog())) {
+						opponent[j][k] = 'Y';
+					}
 				}
 			}
 		}

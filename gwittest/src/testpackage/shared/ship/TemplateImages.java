@@ -45,6 +45,7 @@ public class TemplateImages {
 		case 'v': return "ship_vertical";
 		case '*': return "water_hit";
 		case '-': return "water";
+		case 'Y': return "ship_hit";
 		default: throw new RuntimeException("Don't know char: " + c);
 		}
 	}

@@ -162,28 +162,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 			}
 		}
 		
-		List<Ship> ships = null;
-		
-		if (player == 1)
-			try {
-				ships = engine.getState().getLevel().getShips(1);
-			} catch (InvalidLevelException e) {
-				throw new RuntimeException(e);
-			}
-		
 		originalBorders = new HashMap<JButton, Border>();
 
 		for (int i=0; i<engine.getxWidth(); i++) {
 			for (int j=0; j<engine.getyWidth(); j++) {
-				char c = b[i][j];
-				String iconname;
-				
-				// TODO, this should be in Engine
-				if (Level.isShip(c) && player == 1 && !Level.getShipAt(ships, i, j).isAllShotUp(engine.getOpponentArrayWithoutFog())) {
-					iconname = "ship_hit";
-				} else {
-					iconname = TemplateImages.fieldToIcon(c);
-				}
+				String iconname = TemplateImages.fieldToIcon(b[i][j]);
+
 				buttons[i][j] = placeEntity(iconname);
 
 				Border bo;
