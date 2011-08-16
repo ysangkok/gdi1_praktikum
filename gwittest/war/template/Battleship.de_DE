@@ -133,4 +133,4 @@ skinMenu.label=Skin wechseln
 skinMenu.toolTipText=Skin wechseln
 skinMenuChoose.label=Ausw\u00e4hlen {0}
 
-hitCounter=Dich: {0} Treffer : Rechner: {1} Treffer 
+hitCounter=Du: {0} Treffer : Rechner: {1} Treffer 

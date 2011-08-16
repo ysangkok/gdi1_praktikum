@@ -1,6 +1,5 @@
 package testpackage.interfaces;
 
-import sun.reflect.generics.visitor.Reifier;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
