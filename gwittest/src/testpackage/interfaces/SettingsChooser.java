@@ -83,9 +83,9 @@ class SettingsChooser {
 		        	count.setValue(new Integer(0));
 		        }
 
-		        line.add(new JLabel("Ship length:"));
+		        line.add(new JLabel(translator.translateMessage("SCShipLength")));
 		        line.add(type);
-		        line.add(new JLabel("Ship count:"));
+		        line.add(new JLabel(translator.translateMessage("SCShipCount")));
 		        line.add(count);
 		        panel.add(line);
 		        shiptypes.add(new JFormattedTextField[] {type, count});
@@ -132,7 +132,7 @@ class SettingsChooser {
 		final JPanel customizepanel = new JPanel();
 		customizepanel.setLayout(new BoxLayout(customizepanel, BoxLayout.PAGE_AXIS));
 		final JPanel shipspanel = new JPanel();
-		shipspanel.setBorder(BorderFactory.createTitledBorder("Ship types"));
+		shipspanel.setBorder(BorderFactory.createTitledBorder(translator.translateMessage("SCShipTypes")));
 		shipspanel.setLayout(new BoxLayout(shipspanel, BoxLayout.PAGE_AXIS));
 		shipspanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
@@ -140,13 +140,13 @@ class SettingsChooser {
 		shipcountmodel.addChangeListener(sc);
 		
 		final JCheckBox rangecb = new JCheckBox(translator.translateMessage("SCRange"));
-		final JCheckBox customizeshipscb = new JCheckBox("Customize ship properties"); //
+		final JCheckBox customizeshipscb = new JCheckBox(translator.translateMessage("SCCustomizeShips")); //
 		
 		final JSpinner shipcountspinner = new JSpinner(shipcountmodel);
 		shipcountspinner.setMaximumSize(shipcountspinner.getPreferredSize());
 		shipcountspinner.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
-		customizepanel.add(new JLabel("Number of different ship lengths:"));
+		customizepanel.add(new JLabel(translator.translateMessage("SCDifferentShipLengthCount")));
 		customizepanel.add(shipcountspinner);
 		customizepanel.add(shipspanel);
 		customizepanel.setVisible(customizeshipscb.isSelected());
@@ -256,12 +256,12 @@ class SettingsChooser {
 						count = ((Number)pair[1].getValue()).intValue();
 						
 						if (type <= 0 || count <= 0) {
-							javax.swing.JOptionPane.showMessageDialog(d, "Numbers must be positive.", "Error", 0);
+							javax.swing.JOptionPane.showMessageDialog(d, translator.translateMessage("SCMustBePositiveError"), translator.translateMessage("userErrorWindowTitle"), 0);
 							return;
 						}
 						
 						if (mapLengthToCount.containsKey(type)) {
-							javax.swing.JOptionPane.showMessageDialog(d, "You can't specify the same ship type count more than once.", "Error", 0);
+							javax.swing.JOptionPane.showMessageDialog(d, translator.translateMessage("SCEachShipTypeOnlyOnce"), translator.translateMessage("userErrorWindowTitle"), 0);
 							return;
 						}
 						mapLengthToCount.put(type, count);

@@ -126,3 +126,11 @@ enableSounds.toolTipText=Sounds enabled
 skinMenu.label=Skins
 skinMenu.toolTipText=Skins
 skinMenuChoose.label=Choose {0}
+
+SCShipLength=Ship length:
+SCShipCount=Ship count:
+SCShipTypes=Ship types
+SCCustomizeShips=Customize ship properties
+SCDifferentShipLengthCount=Number of different ship lengths:
+SCMustBePositiveError=Numbers must be positive.
+SCEachShipTypeOnlyOnce=You can't specify the same ship type count more than once.
