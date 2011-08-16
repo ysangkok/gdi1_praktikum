@@ -35,7 +35,7 @@ public class BattleshipTestAdapterExtended2 extends BattleshipTestAdapterExtende
 	public
 	void createGameUsingLevelString(String levelstring) {
 		try {
-			engine.setState(new State(new Level(levelstring)));
+			engine.setState(new State(new Level(levelstring, Rules.ships)));
 		} catch (InvalidLevelException e) {
 			// according to specification in Minimal adapter we should just ignore invalid levels and keep the last. Since this Test Level doesn't test level validity, no record is kept
 		}

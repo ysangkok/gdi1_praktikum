@@ -108,7 +108,7 @@ public class AITester {
 		AI ai1;
 		AI ai2;
 		
-		engine = new Engine(new LevelGenerator(Rules.defaultHeight+20,Rules.defaultWidth-5).getLevel());
+		engine = new Engine(new LevelGenerator(Rules.defaultHeight+20,Rules.defaultWidth-5, Rules.ships).getLevel());
 		if (ammo) engine.enableShotsPerShip(5);
 		if (range) engine.enableRange();
 		try {

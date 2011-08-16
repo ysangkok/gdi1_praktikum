@@ -6,6 +6,11 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -15,25 +20,89 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
+import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.GoodAI;
 import testpackage.shared.ship.IntelligentAI;
 import testpackage.shared.ship.Rules;
 import translator.Translator;
+
+
 
 /**
  * class for choosing game settings with guischiffe
  */
 class SettingsChooser {
 
+	class ShipConfigrator implements ChangeListener {
+		
+		private JPanel panel;
+		private SpinnerModel model;
+		List<JFormattedTextField[]> shiptypes;
+
+		ShipConfigrator(JPanel panel, SpinnerModel model) {
+			this.model = model;
+			this.panel = panel;
+			redrawPanel(true);
+		}
+		
+		private void redrawPanel(boolean first) {
+			panel.removeAll();
+			shiptypes = new ArrayList<JFormattedTextField[]>();
+			for (int i = 1; i <= (Integer) model.getValue(); i++) {
+				JPanel line = new JPanel();
+				line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
+				
+		        JFormattedTextField type = new JFormattedTextField();
+		        //numPeriodsField.setValue(new Integer(numPeriods));
+		        type.setColumns(2);
+		        //type.addPropertyChangeListener("value", this);
+				
+		        JFormattedTextField count = new JFormattedTextField();
+		        count.setColumns(2);
+		        
+		        type.setMaximumSize(type.getPreferredSize());
+		        count.setMaximumSize(count.getPreferredSize());
+		        
+		        if (first) {
+		        	type.setValue(new Integer(Rules.ships[i-1][0]));
+		        	count.setValue(new Integer(Rules.ships[i-1][1]));
+		        } else {
+		        	type.setValue(new Integer(0));
+		        	count.setValue(new Integer(0));
+		        }
+
+		        line.add(new JLabel("Ship length:"));
+		        line.add(type);
+		        line.add(new JLabel("Ship count:"));
+		        line.add(count);
+		        panel.add(line);
+		        shiptypes.add(new JFormattedTextField[] {type, count});
+
+			}
+			d.pack();
+		}
+
+		@Override
+		public void stateChanged(ChangeEvent arg0) {
+			//System.err.println(((SpinnerModel) arg0.getSource()).getValue());
+			redrawPanel(false);
+		}
+	}
+	
+	JDialog d;
+	int[][] shiprules;
 	boolean finished = false; // is set to true if the user confirmed his choices by clicking ok and validation passed
 	boolean speerfeuerenabled = false; // these next attributes store the results and are set by the ok button handler and read outside this class
 	boolean ammoenabled = false;
@@ -52,12 +121,35 @@ class SettingsChooser {
 	
 	void askForSettings(JFrame parent) {
 		
+		d = new JDialog(parent, translator.translateMessage("SCWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
+		
 		SpinnerModel ammomodel = new SpinnerNumberModel(Rules.shotsPerShipPart, 1, 20, 1);
 		SpinnerModel speerfeuermodel = new SpinnerNumberModel(((double) Rules.standardSpeerfeuerTime)/1000, 0.1, 30.0, 0.1);
 		SpinnerModel wboarddimensionmodel = new SpinnerNumberModel(Rules.defaultWidth, 4, 100 ,1);
 		SpinnerModel hboarddimensionmodel = new SpinnerNumberModel(Rules.defaultHeight, 4, 100 ,1);
+		SpinnerModel shipcountmodel = new SpinnerNumberModel(Rules.ships.length, 1, 25, 1);
+		
+		final JPanel customizepanel = new JPanel();
+		customizepanel.setLayout(new BoxLayout(customizepanel, BoxLayout.PAGE_AXIS));
+		final JPanel shipspanel = new JPanel();
+		shipspanel.setBorder(BorderFactory.createTitledBorder("Ship types"));
+		shipspanel.setLayout(new BoxLayout(shipspanel, BoxLayout.PAGE_AXIS));
+		shipspanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		final ShipConfigrator sc = new ShipConfigrator(shipspanel, shipcountmodel);
+		shipcountmodel.addChangeListener(sc);
 		
 		final JCheckBox rangecb = new JCheckBox(translator.translateMessage("SCRange"));
+		final JCheckBox customizeshipscb = new JCheckBox("Customize ship properties"); //
+		
+		final JSpinner shipcountspinner = new JSpinner(shipcountmodel);
+		shipcountspinner.setMaximumSize(shipcountspinner.getPreferredSize());
+		shipcountspinner.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		customizepanel.add(new JLabel("Number of different ship lengths:"));
+		customizepanel.add(shipcountspinner);
+		customizepanel.add(shipspanel);
+		customizepanel.setVisible(customizeshipscb.isSelected());
 		
 		final JSpinner ammospinner = new JSpinner(ammomodel);
 		final JSpinner speerfeuerspinner = new JSpinner(speerfeuermodel);
@@ -75,12 +167,14 @@ class SettingsChooser {
 					ammospinner.setEnabled(checked);
 					rangecb.setEnabled(checked);
 				} else if (arg0.getActionCommand().equals("speerfeuer")) {
-					speerfeuerspinner.setEnabled(checked);					
+					speerfeuerspinner.setEnabled(checked);
+				} else if (arg0.getActionCommand().equals("customizeships")) {
+					customizepanel.setVisible(customizeshipscb.isSelected());
+					d.pack();
 				}
 			}
 		};
 		
-		final JDialog d = new JDialog(parent, translator.translateMessage("SCWindowTitle"), Dialog.ModalityType.DOCUMENT_MODAL);
 		Box box = Box.createVerticalBox();
 
 		final JCheckBox moreshotscb = new JCheckBox(translator.translateMessage("SCMoreShots"));
@@ -95,6 +189,8 @@ class SettingsChooser {
 		ammocb.setSelected(ammoenabled);
 		ammocb.addActionListener(listener);
 		ammocb.setActionCommand("munition");
+		customizeshipscb.addActionListener(listener);
+		customizeshipscb.setActionCommand("customizeships");
 		
 		rangecb.setEnabled(ammoenabled);
 		rangecb.setSelected(rangeenabled);
@@ -149,6 +245,35 @@ class SettingsChooser {
 				ammospinnervalue = (Integer) ammospinner.getValue();
 				rangeenabled = ammoenabled && rangecb.isSelected();
 				chosenAI = availableAIs[aidropdown.getSelectedIndex()];
+				if (customizeshipscb.isSelected()) {
+					Map<Integer,Integer> mapLengthToCount = new HashMap<Integer,Integer>();
+					for (JFormattedTextField[] pair : sc.shiptypes) {
+						System.err.println(pair[0].getValue());
+						System.err.println(pair[1].getValue());
+						int type, count;
+
+						type = ((Number)pair[0].getValue()).intValue();
+						count = ((Number)pair[1].getValue()).intValue();
+						
+						if (type <= 0 || count <= 0) {
+							javax.swing.JOptionPane.showMessageDialog(d, "Numbers must be positive.", "Error", 0);
+							return;
+						}
+						
+						if (mapLengthToCount.containsKey(type)) {
+							javax.swing.JOptionPane.showMessageDialog(d, "You can't specify the same ship type count more than once.", "Error", 0);
+							return;
+						}
+						mapLengthToCount.put(type, count);
+					}
+					shiprules = new int[mapLengthToCount.size()][3];
+					int i = 0;
+					for (Entry<Integer, Integer> entry : mapLengthToCount.entrySet()) {
+						shiprules[i++] = new int[] {entry.getKey(), entry.getValue(), Engine.decideShipRange(w, h, entry.getKey(), entry.getValue())};
+					}
+				} else {
+					shiprules = Rules.ships;
+				}
 				try {
 					if (ammoenabled) {
 						if (!chosenAI.getConstructor().newInstance().supportsAmmo()) {
@@ -185,6 +310,9 @@ class SettingsChooser {
 		box.add(Box.createRigidArea(new Dimension(0,15)));
 		box.add(ailabel);
 		box.add(aidropdown);
+		box.add(Box.createRigidArea(new Dimension(0,15)));
+		box.add(customizeshipscb);
+		box.add(customizepanel);
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));

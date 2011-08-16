@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import testpackage.shared.ship.Level;
+import testpackage.shared.ship.Rules;
 
 public class pasteName {
 	
@@ -75,7 +76,7 @@ private static final int Hits = 0;
 	public static void main(String[] args) {
 		String date="30.02.1999   06:36";
 		int neededTime=3289;
-		Level level = new Level("**-T**T***|*T-T**T***\n--*V**V***|*V*V**V-**\nT**V**V-**|*V*V**B-**\nV**V**B**-|*V*B**-T*T\nB-*B***LR*|*B**LR*V*B\n**T*T*****|**-****B**\n*-B*V-LHR*|T***-*****\n***-V****-|V***LHHR*T\nLHR*B**LR-|B----*---B\n-*-**lR*-*|**-**LR***");
+		Level level = new Level("**-T**T***|*T-T**T***\n--*V**V***|*V*V**V-**\nT**V**V-**|*V*V**B-**\nV**V**B**-|*V*B**-T*T\nB-*B***LR*|*B**LR*V*B\n**T*T*****|**-****B**\n*-B*V-LHR*|T***-*****\n***-V****-|V***LHHR*T\nLHR*B**LR-|B----*---B\n-*-**lR*-*|**-**LR***", Rules.ships);
 		
 		maybeAddHighScore(new Frame(), date, neededTime, level);
 
@@ -94,7 +95,7 @@ private static final int Hits = 0;
 	    //hm.addScore("Bart",240, 30,   "01.08.2011   08:01"  );
 		hm.loadScoreFile();
 		
-		if (hm.getWorstScore() < score || hm.getScores().size() < hm.getMaxHighScoreListElements()) {
+		if (hm.getScores().size() == 0 || hm.getWorstScore() < score || hm.getScores().size() < hm.getMaxHighScoreListElements()) {
 			String name = askForName();
 			hm.addScore(name, score, neededTime, date);
 		} else {

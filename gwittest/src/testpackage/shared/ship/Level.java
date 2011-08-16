@@ -44,11 +44,11 @@ public class Level implements Serializable {
 	 * @param text level string
 	 * @throws InvalidLevelException
 	 */	
-	public Level(String text) throws InvalidLevelException {
-		this(text, true, true);
+	public Level(String text, int[][] ruleset) throws InvalidLevelException {
+		this(text, true, true, ruleset);
 	}
-	public Level(String text, boolean check) throws InvalidLevelException {
-		this(text, check, check);
+	public Level(String text, boolean check, int[][] ruleset) throws InvalidLevelException {
+		this(text, check, check, ruleset);
 	}
 	
 	/**
@@ -57,7 +57,8 @@ public class Level implements Serializable {
 	 * @param check check for missing ships
 	 * @throws InvalidLevelException
 	 */
-	Level(String text, boolean check, boolean checkaspectratio) throws InvalidLevelException {
+	Level(String text, boolean check, boolean checkaspectratio, int [][] ruleset) throws InvalidLevelException {
+		this.ruleset = ruleset;
 		try {
 		if (!check && checkaspectratio) throw new RuntimeException("invalid arguments");
 		int charNum;
@@ -119,8 +120,8 @@ public class Level implements Serializable {
 						if (boards.get(j).size() != boards.get(i).get(k).size())
 							throw new InvalidLevelException("different width and height");
 		
-		checkShips(0, getPlayerBoard(0), check);
-		checkShips(1, getPlayerBoard(1), check);
+		checkShips(0, getPlayerBoard(0), check, ruleset);
+		checkShips(1, getPlayerBoard(1), check, ruleset);
 		} catch (InvalidLevelException e) {
 			e.addText(text);
 			throw e;
@@ -128,6 +129,8 @@ public class Level implements Serializable {
 	}
 	
 	List<Ship> ships = null;
+
+	public int[][] ruleset;
 	
 	public List<Ship> getShips(int player) {
 		if (ships == null) {
@@ -179,15 +182,15 @@ public class Level implements Serializable {
 	 * @param countShips count ships when checking
 	 * @throws InvalidLevelException
 	 */
-	static void checkShips(int player, Character[][] b, boolean countShips) throws InvalidLevelException {
+	static void checkShips(int player, Character[][] b, boolean countShips, int[][] ruleset) throws InvalidLevelException {
 		debug("Checking player " + player);
 		
 		List<Ship> ships = getShips(b);
 		
 		Map<Integer, Integer[]> reference;
 		reference = new TreeMap<Integer, Integer[]>();
-		for (int i = 0; i < Rules.ships.length; i++) {
-			reference.put(Rules.ships[i][0], new Integer[] {0, Rules.ships[i][1]});
+		for (int i = 0; i < ruleset.length; i++) {
+			reference.put(ruleset[i][0], new Integer[] {0, ruleset[i][1]});
 		}
 		
 		for (Ship s : ships) { // count boats
@@ -284,8 +287,9 @@ public class Level implements Serializable {
 	/**
 	 * this constructor generates a level
 	 */
-	public Level() {
-		boards = new LevelGenerator(12, 12).getLevel().getBoards();
+	public Level(int[][] ruleset) {
+		this.ruleset = ruleset;
+		boards = new LevelGenerator(12, 12, ruleset).getLevel().getBoards();
 	}
 	/**
 	 * @return internal board representation (lists)
@@ -431,7 +435,7 @@ public class Level implements Serializable {
 			"--b-lhr--b|v-v-------\n"+
 			"----------|v-v--t-lr-\n"+
 			"lhr-lhr---|b-b--b----";
-			level = new Level(text);
+			level = new Level(text, Rules.ships);
 		} catch (InvalidLevelException e) {
 			System.err.println("Invalid: " + e.getMessage());
 			return;

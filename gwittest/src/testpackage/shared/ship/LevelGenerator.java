@@ -70,21 +70,24 @@ public class LevelGenerator {
 		gen = new Random();
 		
 		boatCount = new TreeMap<Integer, Integer>(Collections.reverseOrder()); // launch big ships first
-		for (int i = 0; i < Rules.ships.length; i++) {
-			boatCount.put(Rules.ships[i][0], Rules.ships[i][1]);
+		for (int i = 0; i < ruleset.length; i++) {
+			boatCount.put(ruleset[i][0], ruleset[i][1]);
 		}
 		
 	}
+	
+	private int[][] ruleset;
 	
 	/**
 	 * generates new level on map with specified dimensions
 	 * @param xwidth x coord. when using getLevel this will be height 
 	 * @param ywidth y coord. see xwidth
 	 */
-	public LevelGenerator(int xwidth, int ywidth) {
+	public LevelGenerator(int xwidth, int ywidth, int[][] ruleset) {
+		this.ruleset = ruleset;
 		initBoard(xwidth, ywidth);
 		for (int p : new int[] {0, 1}) {
-			placeTheseShips(this, p, boatCount);
+			placeTheseShips(this, p, boatCount, ruleset);
 		}
 	}
 	
@@ -96,10 +99,11 @@ public class LevelGenerator {
 	 * @param ships list of ships to draw for other player
 	 * @throws InvalidLevelException
 	 */
-	public LevelGenerator(int xwidth, int ywidth, int player, List<Ship> ships) throws InvalidLevelException {
+	public LevelGenerator(int xwidth, int ywidth, int player, List<Ship> ships, int[][] ruleset) throws InvalidLevelException {
+		this.ruleset = ruleset;
 		initBoard(xwidth, ywidth);
 		
-		placeTheseShips(this, Engine.otherPlayer(player), boatCount);
+		placeTheseShips(this, Engine.otherPlayer(player), boatCount, ruleset);
 
 		drawGivenShips(player, ships);
 	}
@@ -110,7 +114,7 @@ public class LevelGenerator {
 	 * @param p player which should have ships drawn for him
 	 * @param boatCount rules to abide by
 	 */
-	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount) throws InvalidLevelException {
+	private static void placeTheseShips(LevelGenerator lg, int p, Map<Integer, Integer> boatCount, int[][] ruleset) throws InvalidLevelException {
 	    Iterator<Entry<Integer, Integer>> it = boatCount.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry<Integer, Integer> pairs = (Map.Entry<Integer, Integer>)it.next();
@@ -123,7 +127,7 @@ public class LevelGenerator {
 				}
 				if (!DEBUG) continue;
 				try {
-					Level.checkShips(p, lg.boards[p], false);
+					Level.checkShips(p, lg.boards[p], false, ruleset);
 				} catch (InvalidLevelException e) {
 					e.printStackTrace();
 					return;
@@ -286,7 +290,7 @@ public class LevelGenerator {
 	 */
 	public Level getLevel(boolean check) throws InvalidLevelException {
 		try {
-			return new Level(getLevelString(), check, false);
+			return new Level(getLevelString(), check, false, ruleset);
 		} catch (InvalidLevelException e) {
 			//Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			//System.err.println(helper.getBoardString(getBoard(0)));
@@ -306,7 +310,11 @@ public class LevelGenerator {
 		for (int i=0; i<500; i++) {
 			System.out.println("==" + i +"==");
 			
-			LevelGenerator lg = new LevelGenerator(12, 12);
+			LevelGenerator lg = new LevelGenerator(12, 12, new int[][] {
+					{2,1, 6},
+					{3,1, 7},
+					{4,1, 8},
+				});
 		
 			//Map2DHelper<Object> helper = new Map2DHelper<Object>();
 			//debug(helper.getBoardString(lg.getBoard(0)));

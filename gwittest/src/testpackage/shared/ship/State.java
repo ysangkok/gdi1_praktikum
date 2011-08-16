@@ -137,7 +137,7 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 		try {
 			//System.out.println(level.toString());
 			
-			newState = new State(new Level(level.toString(), check));
+			newState = new State(new Level(level.toString(), check, level.ruleset));
 		} catch (InvalidLevelException e) {
 			//System.err.println("We generated an invalid level!" + e.getMessage());
 			e.printStackTrace();
@@ -223,7 +223,7 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 			"lhr----lhr|b-b--b--lr\n";
 		Level level;
 		try {
-			level = new Level(text);
+			level = new Level(text, Rules.ships);
 		} catch (Exception e) { return; }
 		State st1 = new State(level);
 		st1.clone();

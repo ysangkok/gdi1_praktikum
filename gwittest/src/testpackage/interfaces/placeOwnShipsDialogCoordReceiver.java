@@ -32,11 +32,13 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 	private JRadioButton rbutton2;
 	private boolean didChoose = false; 
 	private Translator translator;
+	private int[][] ruleset;
 	
 	/**
 	 * @param app the ship placement dialog class
 	 */
 	public placeOwnShipsDialogCoordReceiver(placeOwnShipsDialog app) {
+		this.ruleset = app.ruleset;
 		engine = app.engine;
 		this.wizard = app;
 		this.translator = wizard.translator;
@@ -80,7 +82,7 @@ class placeOwnShipsDialogCoordReceiver implements ActionListener, BoardUser {
 		
 		try {
 			State state = engine.getState().clone(false); //dont check
-			state.setLevel(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords()).getLevel(false), engine.getState().getLastAmmoCount());
+			state.setLevel(new LevelGenerator(engine.getxWidth(), engine.getyWidth(), 0, wizard.getChosencoords(), ruleset).getLevel(false), engine.getState().getLastAmmoCount());
 			engine.setState(state);
 			
 			//Map2DHelper<Object> helper = new Map2DHelper<Object>();

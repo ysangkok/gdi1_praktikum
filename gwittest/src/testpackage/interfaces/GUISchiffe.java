@@ -227,7 +227,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	 */
 	private void initDefaultGame() {
 		try {
-			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, Rules.enableShotsPerShip, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn, Rules.defaultReichweiteVonSchiffenEnabled);
+			initNewEngineAndAI(Rules.defaultWidth, Rules.defaultHeight, Rules.enableShotsPerShip, false, Rules.shotsPerShipPart, Rules.standardSpeerfeuerTime, BadAI.class, Rules.defaultAllowMultipleShotsPerTurn, Rules.defaultReichweiteVonSchiffenEnabled, Rules.ships);
 		} catch (InvalidLevelException ex) {
 			throw new RuntimeException("Default level probably impossible", ex);
 		}
@@ -242,7 +242,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		s.askForSettings(frame);
 		if (!s.finished) return false;
 
-		Engine newengine = new Engine(new LevelGenerator(s.w, s.h).getLevel());
+		Engine newengine = new Engine(new LevelGenerator(s.w, s.h, s.shiprules).getLevel());
 
 		speerfeuer = s.speerfeuerenabled;
 		if (s.ammoenabled) {
@@ -628,7 +628,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		
 		try {
 			//level = new Level(readFileAsString(levelDir + children[chosenLvl]));
-			level = new Level(getResourceAsString(TemplateImages.levelspath + chosenLvl));
+			level = new Level(getResourceAsString(TemplateImages.levelspath + chosenLvl), Rules.ships);
 		
 		} catch (InvalidLevelException e) {
 			throw new RuntimeException(String.format("Template level corrupted: %s",chosenLvl),e);
@@ -655,10 +655,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		}
 	}
 	
-	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots, boolean rangeenabled) throws InvalidLevelException {
+	private void initNewEngineAndAI(int w, int h, boolean enableshotspership, boolean speerfeuer, int ammocount, int time, Class<? extends AI> chosenAI, boolean moreshots, boolean rangeenabled, int[][] ruleset) throws InvalidLevelException {
 		Level l;
 		try {
-			l = new LevelGenerator(w, h).getLevel();
+			l = new LevelGenerator(w, h, ruleset).getLevel();
 		} catch (InvalidLevelException ex) {
 			throw ex;
 		}
@@ -675,7 +675,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		s.askForSettings(frame);
 		if (!s.finished) return false;
 		try {
-			initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled, s.rangeenabled);
+			initNewEngineAndAI(s.w, s.h, s.ammoenabled, s.speerfeuerenabled, s.ammospinnervalue, s.speerfeuerspinnervalue, s.chosenAI, s.moreshotsenabled, s.rangeenabled, s.shiprules);
 		} catch (InvalidLevelException ex) {
 			userError(ex.getMessage());
 			return false;

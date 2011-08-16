@@ -45,6 +45,6 @@ public class InvalidLevelException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public void addText(String text) {
-		message += "Text given: " + text;
+		message += "\nText given: \n" + text;
 	}
 }

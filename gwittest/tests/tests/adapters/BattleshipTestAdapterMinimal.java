@@ -4,6 +4,7 @@ import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
 import testpackage.shared.ship.Engine;
 import testpackage.shared.ship.Level;
+import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.exceptions.InvalidInstruction;
 import testpackage.shared.ship.exceptions.InvalidLevelException;
@@ -44,7 +45,7 @@ public class BattleshipTestAdapterMinimal {
 	 * Use this constructor to initialize everything you need.
 	 */
 	public BattleshipTestAdapterMinimal() {
-		level = new Level();
+		level = new Level(Rules.ships);
 		engine = new Engine(level);
 		ai = new BadAI();
 		ai.setEngine(engine);
@@ -64,7 +65,7 @@ public class BattleshipTestAdapterMinimal {
 	 */
 	public void createGameUsingLevelString(String levelstring) {
 		try {
-			engine.setState(new State(new Level(levelstring)));
+			engine.setState(new State(new Level(levelstring, Rules.ships)));
 		} catch (InvalidLevelException e) {
 			catchedException = true;
 			return;

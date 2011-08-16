@@ -1,5 +1,6 @@
 package tests.adapters;
 
+import testpackage.shared.ship.Rules;
 import testpackage.shared.ship.State;
 import testpackage.shared.ship.LevelGenerator;
 
@@ -30,7 +31,7 @@ public class BattleshipTestAdapterExtended1 extends BattleshipTestAdapterMinimal
 	 * @see BattleshipTestAdapterMinimal#getCurrentLevelStringRepresentation()
 	 */
 	public void generateCompleteLevel() {
-		engine.setState(new State(new LevelGenerator(10, 10).getLevel()));
+		engine.setState(new State(new LevelGenerator(10, 10, Rules.ships).getLevel()));
 	}
 
 }

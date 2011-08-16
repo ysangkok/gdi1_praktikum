@@ -54,6 +54,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 
 	BoardUser parentuser;
 	
+	public int[][] ruleset;
+	
 	/**
 	 * @return list of chosen ships
 	 */
@@ -65,8 +67,8 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 		chosencoords = new ArrayList<Ship>();
 		buttolen = new HashMap<JButton, Integer>();
 		
-		for (int i = 0; i < Rules.ships.length; i++) {
-			int[] shiprules = Rules.ships[i];
+		for (int i = 0; i < ruleset.length; i++) {
+			int[] shiprules = ruleset[i];
 			for (int j = 0; j < shiprules[1]; j++) {
 				shipcount++;
 				JPanel g = new JPanel();
@@ -103,6 +105,7 @@ public class placeOwnShipsDialog extends JDialog implements ActionListener {
 	public placeOwnShipsDialog(JFrame parent, Translator translator, Engine engine, BoardUser parentuser) {
 		super(parent, translator.translateMessage("POSDWindowTitle"), true);
 		
+		this.ruleset = engine.getShipRuleSet();
 		this.translator=translator;
 		this.engine=engine;
 		this.parentuser = parentuser;

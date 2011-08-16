@@ -199,7 +199,7 @@ public class Engine {
 	 * constructor that automatically generates a level
 	 */
 	public Engine() {
-		this(new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth).getLevel());
+		this(new LevelGenerator(Rules.defaultHeight,Rules.defaultWidth, Rules.ships).getLevel());
 	}
 	
 	// shots per ship
@@ -687,10 +687,16 @@ public class Engine {
 		//Currently for testing lost level because of nothing shootable
 		String text ="lhhhr---lr--------------------|-----lr-lr-----------t---t----\n-----lhr--lr------------------|------------lhhhr----v---v----\nlhhr----lr--------------------|---lhr---------------b---b----\n----lhr---lr------------------|lr--------------------lr------\nlhhr---lhr--------------------|----lhhr-------lhhr-----------\n";
 		
-		Engine engine = new Engine(new Level(text));
+		Engine engine = new Engine(new Level(text, Rules.ships));
 		engine.enableShotsPerShip(1);
 		engine.enableRange();
 		
 		System.err.println(engine.isFinished());
+	}
+	public int[][] getShipRuleSet() {
+		return state.getLevel().ruleset;
+	}
+	public static int decideShipRange(int width, int height, Integer shiplength, Integer shipcount) {
+		return (int) Math.pow(shiplength, 2);
 	}
 }

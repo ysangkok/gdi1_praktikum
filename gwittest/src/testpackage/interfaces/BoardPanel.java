@@ -88,7 +88,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		standardBorder = getBorder(Color.BLACK);
 		cursorBorder = getBorder(Color.WHITE);
 		selectedShooterBorder = getBorder(Color.RED);
-		targetBorder = getBorder(new Color(255,255,0));
+		targetBorder = getBorder(new Color(160,32,240));
 
 		remainingAmmoBorders = new ArrayList<Border>();
 		int initialAmmoCount = engine.getInitialAmmoCount();
