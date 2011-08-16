@@ -46,6 +46,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.ButtonGroup;
 
 //import testpackage.highscore.pasteName;
+import testpackage.highscore.HighscoreManager;
 import testpackage.highscore.pasteName;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
@@ -289,7 +290,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	 */
 	private static class actions {
 		static enum actionnames {
-			quicknewgame, save, load, newplaceownships, newgenerated, about, skins, soundcb, quit
+			quicknewgame, save, load, newplaceownships, newgenerated, highscore, about, skins, soundcb, quit
 		}
 		
 		public static String quicknewgame = actionnames.quicknewgame.name();
@@ -301,6 +302,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		public static String skins = actionnames.skins.name();
 		public static String quit = actionnames.quit.name();
 		public static String soundcb = actionnames.soundcb.name();
+		public static String highscore = actionnames.highscore.name();
 	}
 	
 	@Override
@@ -324,6 +326,8 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 		} else if (a.equals(actions.newgenerated)) {
 			boolean startedNewGame = generatedNewGame();
 			if (speerfeuer && startedNewGame) clock.resetCountdown();
+		} else if (a.equals(actions.highscore)) {
+			highscore();
 		} else if (a.equals(actions.quit)) {
 			shutdown();
 		} else if (a.equals(actions.soundcb)) {
@@ -466,6 +470,13 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    About.addActionListener(menuListener);
 	    About.setActionCommand(actions.about);
 	    Options.add(About);
+	    
+	    //Highscore 
+	    JMenuItem HighscoreTable = guiBuilder.generateJMenuItem("About");
+	    //About.setIcon(GUISchiffe.getIcon("About16"));
+	    HighscoreTable.addActionListener(menuListener);
+	    HighscoreTable.setActionCommand(actions.highscore);
+	    Options.add(HighscoreTable);
 	    
 	    //QuickNew
 	    JMenuItem quickNewItem = guiBuilder.generateJMenuItem("QuickNew");
@@ -701,6 +712,10 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 			    translator.translateMessage("aboutWindowTitle"), JOptionPane.PLAIN_MESSAGE);
 	}
 	
+	private void highscore(){
+		HighscoreManager();
+		
+	}
 	/**
 	 * asks for name and saves. blocks
 	 */
