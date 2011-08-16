@@ -32,6 +32,9 @@ New.toolTipText=Νέο
 About.label=Σχετικά για εμάς
 About.toolTipText=Σχετικά για εμάς
 
+//Highscore
+Highscore.label=βαθμολογικός πίνακας
+
 //QuickNew
 QuickNew.label=Φόρτιση επιπέδου
 QuickNew.toolTipText=Load built-in level
@@ -90,6 +93,14 @@ OK=OK
 Cancel=Cancel
 
 //SC
+SCRange=εμβέλεια πλοίου ενεργοποιημένο
+SCShipLength=μήκος πλοίου
+SCShipCount=αριθμός πλοίων
+SCShipTypes=τίπος πλοίου
+SCShipCustomizeShips=προσαρμογή πλοίων
+SCDiffrentShipLengthCount=αριθμός πλοίων διάφορων μήκον 
+SCMustBePositiveError=λάθος πρέπει να είναι θετικό 
+SCEachSipTypeOnlyOnce=κάθε τίπος πλοίου μοναδικός
 SCWindowTitle=Επέλεξε τρόπο παιχνιδιού
 SCSpeerCheckBox=Μπαράζ βολών ενεργοποιημένο 
 SCAmmoCheckBox=Πυρομαχικά ενεργοποιημένα
