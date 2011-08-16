@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,11 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Map;
@@ -47,6 +47,8 @@ import javax.swing.ButtonGroup;
 
 //import testpackage.highscore.pasteName;
 import testpackage.highscore.HighscoreManager;
+import testpackage.highscore.Score;
+import testpackage.highscore.TestHighScore;
 import testpackage.highscore.pasteName;
 import testpackage.shared.ship.AI;
 import testpackage.shared.ship.BadAI;
@@ -472,7 +474,7 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	    Options.add(About);
 	    
 	    //Highscore 
-	    JMenuItem HighscoreTable = guiBuilder.generateJMenuItem("About");
+	    JMenuItem HighscoreTable = guiBuilder.generateJMenuItem("Highscore");
 	    //About.setIcon(GUISchiffe.getIcon("About16"));
 	    HighscoreTable.addActionListener(menuListener);
 	    HighscoreTable.setActionCommand(actions.highscore);
@@ -713,8 +715,11 @@ public class GUISchiffe extends SoundHandler implements ActionListener, BoardUse
 	}
 	
 	private void highscore(){
-		HighscoreManager();
-		
+		HighscoreManager hm = new HighscoreManager();
+		hm.setScores(new LinkedList<Score>());
+		hm.loadScoreFile();
+		TestHighScore haha = new TestHighScore(new Frame(), hm.getScores());
+		hm.updateScoreFile();
 	}
 	/**
 	 * asks for name and saves. blocks

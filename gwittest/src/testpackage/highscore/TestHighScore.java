@@ -208,7 +208,8 @@ public class TestHighScore extends JDialog implements ComponentListener {
 	
 	
 	public static void main(String [] args){
-	HighscoreManager hm;
+	
+		HighscoreManager hm;
 	
 	hm = new HighscoreManager();
 	hm.setScores(new LinkedList<Score>());
@@ -217,13 +218,14 @@ public class TestHighScore extends JDialog implements ComponentListener {
     hm = new HighscoreManager();
     hm.loadScoreFile();
     hm.setDateFormat("dd.MM.yyyy   HH:mm");
+   /*
     hm.addScore("Bart",240, 30,   "01.08.2011   08:01"  );
     hm.addScore("Marge",300, 22,  "11.08.2011   09:01" );
     hm.addScore("Maggie",220, 45, "01.07.2011   10:01" );
     hm.addScore("Homer",100, 33,  "21.08.2011   11:01" );
     hm.addScore("Lisa",270,  22,  "01.11.2011   08:01" );
     hm.updateScoreFile();
-    
+    */
     System.out.print(hm.getHighscoreString());
     System.out.println("===");
     
@@ -246,6 +248,7 @@ public class TestHighScore extends JDialog implements ComponentListener {
 
     TestHighScore ths = new TestHighScore(new Frame(), hm.getScores());
     System.err.println(hm.getWorstScore());
+    
 }
 
 	@Override

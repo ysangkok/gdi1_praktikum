@@ -151,6 +151,8 @@ String DateFormat;
 
 
     public static void main(String[] args) {
+    	
+    	
     	HighscoreManager hm;
     	
     	hm = new HighscoreManager();
@@ -184,14 +186,16 @@ String DateFormat;
         System.out.print(hm.getHighscoreString());
 
         hm.sort("neededTime", false);
-        System.out.println("===");
-        System.out.print(hm.getHighscoreString());
+       // System.out.println("===");
+       // System.out.print(hm.getHighscoreString());
 
         
         //for ( Score s: hm.getScores()) {
         //	System.out.println(s.toString());
-        //}
-    }
+        //
+         }
+         
+    
 
 
 
