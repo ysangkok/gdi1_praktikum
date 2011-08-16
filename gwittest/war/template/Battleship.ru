@@ -122,3 +122,19 @@ enableSounds.toolTipText=\u0412\u043a\u043b\u044e\u0447\u0438\u0442\u044c \u0437
 skinMenu.label=\u0426\u0432\u0435\u0442\u043e\u0432\u043e\u0435 \u043e\u0444\u043e\u0440\u043c\u043b\u0435\u043d\u0438\u0435
 skinMenu.toolTipText=\u041e\u0431\u043b\u043e\u0436\u043a\u0438
 skinMenuChoose.label=\u0412\u044b\u0431\u0440\u0430\u0442\u044c {0}
+
+
+hitCounter=Ты сделал: {0} выстрелов : Компьютер: {1} выстрелов
+Greek.label=Греческий
+Danish.label=Датский
+SCRang=Аммуниция включена
+POSDPlace=Место
+POSDWindowTitle=Выставить корабли
+SCShipLength=Длина корабля
+SCShipCount=Число кораблей
+SCShipTypes=Тип корабля
+SCCustomizeShips=Настроить корабль
+SCDifferentShipL=Разные корабли
+SCMustBePositive=Ошибка должна быть позитивной
+SCEachShipTypeOnce=Ты не можешь специфицировать одинаковый счетчик типа корабля больше чем один раз
+Highscore.label=Таблица результатов
