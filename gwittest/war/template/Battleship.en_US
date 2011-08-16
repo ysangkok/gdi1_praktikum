@@ -134,3 +134,5 @@ SCCustomizeShips=Customize ship properties
 SCDifferentShipLengthCount=Number of different ship lengths:
 SCMustBePositiveError=Numbers must be positive.
 SCEachShipTypeOnlyOnce=You can't specify the same ship type count more than once.
+
+Highscore.label=Show highscore table

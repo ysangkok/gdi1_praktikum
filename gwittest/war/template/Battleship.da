@@ -105,3 +105,13 @@ enableSounds.label=Lyd
 //skins 
 skinMenu.label=Spilbr\u00e6tgrafik
 skinMenuChoose.label=V\u00e6lg {0}
+
+
+SCShipLength=L\u00e6ngde af skib:
+SCShipCount=Antal af skibstype:
+SCShipTypes=Skibstyper
+SCCustomizeShips=V\u00e6lg selv skibes egenskaber
+SCDifferentShipLengthCount=Antal forskellige typer skibe:
+SCMustBePositiveError=Tallene skal v\u00e6re positive.
+SCEachShipTypeOnlyOnce=Du kan kun angive en skibstype en gang.
+Highscore.label=Vis highscore tabel

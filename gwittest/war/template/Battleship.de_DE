@@ -134,3 +134,12 @@ skinMenu.toolTipText=Skin wechseln
 skinMenuChoose.label=Ausw\u00e4hlen {0}
 
 hitCounter=Du: {0} Treffer : Rechner: {1} Treffer 
+
+SCShipLength=Länge von Schiff
+SCShipCount=Anzahl von Schiff
+SCShipTypes=Typen von Schiffen
+SCCustomizeShips=Eigenschaften von Schiffen selbst bestimmen
+SCDifferentShipLengthCount=Anzahl verschiedener Schiffslängen
+SCMustBePositiveError=Die Felder müssen positive Zahlen einhalten.
+SCEachShipTypeOnlyOnce=Jedes Schifftyp darf nur einmal auftreten.
+Highscore.label=Highscore Tabelle aufzeigen
