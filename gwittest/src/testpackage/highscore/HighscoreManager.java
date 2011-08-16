@@ -206,4 +206,3 @@ String DateFormat;
 	}
 
 }
-//compare object with last object in sorted table and call frame for entering name

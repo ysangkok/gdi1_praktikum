@@ -15,7 +15,7 @@ public class TemplateImages {
 
 	public static final String iconsdir = "/resources/icons/";
 	
-	public static String[] allSkins = {"defaultskin", "smallskin"};
+	public static String[] allSkins = {"defaultskin", "smallskin", "modernskin"};
 
 	public static String[] icons = { "fogofwar", "ship_bottom",
 		"ship_hit_bottom", "ship_hit_horizontal", "ship_hit_left",
