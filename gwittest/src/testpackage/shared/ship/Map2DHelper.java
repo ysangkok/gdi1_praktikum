@@ -26,7 +26,7 @@ public class Map2DHelper<T> {
 		sb.append("\n");
 		return sb.toString();
 	}
-	
+	/*
 	public static String padRight(String s, int n) {
 	     return String.format("%1$-" + n + "s", s);  
 	}
@@ -34,6 +34,7 @@ public class Map2DHelper<T> {
 	public static String padLeft(String s, int n) {
 	    return String.format("%1$#" + n + "s", s);  
 	}
+	*/
 	public String getCustomPaddedBoardString(Boolean[][] a, int pad) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {

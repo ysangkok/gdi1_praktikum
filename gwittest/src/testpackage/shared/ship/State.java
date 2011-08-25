@@ -128,11 +128,11 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 	//@Override
 	public State clone(boolean check) {
 		try {
-			super.clone();
+			return (State) super.clone();
 		} catch (CloneNotSupportedException e1) {
 			throw new RuntimeException(e1);
 		}
-		
+/*		
 		State newState;
 		try {
 			//System.out.println(level.toString());
@@ -171,6 +171,7 @@ public class State implements Cloneable, Serializable { //  Cloneable for undoin
 		newState.setFog(newFog);
 		newState.turn = turn;
 		return newState;
+*/
 	}
 
     void initRemainingShots(int ammocount) {

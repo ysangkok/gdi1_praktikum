@@ -30,5 +30,7 @@ public class InvalidInstruction extends Exception implements Serializable {
 		this(r);
 		this.message = message;
 	}
+	public InvalidInstruction() {
+	}
 
 }
